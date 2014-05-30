@@ -22,7 +22,7 @@ images   creates, updates and seeds via torrent the images of installation of a 
   Add or remove a package to the local repository.
 
 
-* module 'images'
+* module 'nodes'
   - clara nodes slurm (drain|down|health) <hostlist>
   Display information about nodes on SLURM
   <hostlist> is taken into account only when check nodes' health status.
@@ -64,10 +64,10 @@ images   creates, updates and seeds via torrent the images of installation of a 
   Manage p2p nodes
 
 
-* module 'nodes'
+* module 'images'
   - clara images genimg
-    Create a new squashfs image to use as operating system on the cluster nodes,
-    it will also create a new torrent file and start seeding it.
+    Create a new squashfs image to use as operating system on the cluster
+    nodes, it will also create a new torrent file and start seeding it.
 
   - clara images (unpack|repack <directory>)
     Unpack and repack the squashfs file providing the image.
