@@ -61,7 +61,7 @@ if __name__ == '__main__':
     try:
         m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
     except ImportError:
-        sys.exit("Sorry, the command {0} doesn't exist. \
-            See 'clara help'.".format(args['<command>']))
+        sys.exit("Sorry, the command {0} doesn't exist. "
+            "See 'clara help'.".format(args['<command>']))
 
     m.main()

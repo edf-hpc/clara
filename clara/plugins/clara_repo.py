@@ -144,8 +144,8 @@ def do_sync(option=''):
                 getconfig().get("repo", "server") + '::' + remote[elem],
                 getconfig().get("repo", "mirror_root") + '/' + local[elem]])
         else:
-            sys.exit('Local repository not found. \
-                      Please run: \n\tclara repo sync create')
+            sys.exit('Local repository not found. '
+                     'Please run: \n\tclara repo sync create')
 
 
 def do_package(action, package):

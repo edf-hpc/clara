@@ -265,8 +265,8 @@ def main():
         mktorrent()
     elif dargs['unpack']:
         extract_image()
-        print "Modify the image at {0} and then run:\n \
-               \tclara images repack {0}".format(work_dir)
+        print "Modify the image at {0} and then run:\n "
+               "\tclara images repack {0}".format(work_dir)
     elif dargs['apply_config2img']:
         extract_image()
         system_install()
