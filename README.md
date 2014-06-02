@@ -2,24 +2,25 @@ Clara is a set of Cluster Administration Tools
 ================================================
 
 Clara provides the following commands:
-repo     creates, updates and synchronizes local Debian repositories
-nodes    manages and get the status from the nodes of a cluster
-images   creates, updates and seeds via torrent the images of installation of a cluster.
+* repo     creates, updates and synchronizes local Debian repositories
+* nodes    manages and get the status from the nodes of a cluster
+* images   creates, updates and seeds via torrent the images of installation 
+           of a cluster.
 
 ## module 'repo' ##
-- clara repo key
-  Install the secret GPG key to use in the repository.
+```clara repo key```
+Install the secret GPG key to use in the repository.
 
-- clara repo init
-  Create the initial configuration for reprepro for our local repository and
-  makes the first export.
+```clara repo init```
+Create the initial configuration for reprepro for our local repository and
+makes the first export.
 
-- clara repo sync [create]
+```clara repo sync [create]```
   Synchronize all the local Debian repositories with the canonical repositories.
   If it's the first time we're syncing, we need to add the option [create] to
   also create the repository locally.
 
-- clara repo (add|del) <package>
+```clara repo (add|del) <package>```
   Add or remove a package to the local repository.
 
 
