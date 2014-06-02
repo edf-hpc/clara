@@ -63,11 +63,11 @@ def do_key():
     if retcode != 0:
         file_stored_key = getconfig().get("repo", "stored_enc_key")
         if os.path.isfile(file_stored_key):
-            # TODO: Check I'm unsure about the format of this file
             with open(getconfig().get("repo", "master_passwd_file")) as filepasswd:
+                # File format line is: PASSPHRASE='myverylongpassword'
                 for line in filepasswd:
                     if line.startswith("PASSPHRASE"):
-                        password = line.rstrip("\n").split("=")[1]
+                        password = line.split("'")[1]
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()
