@@ -1,0 +1,25 @@
+Source: clara
+Section: net
+Priority: optional
+Maintainer: Ana Guerrero <ana-externe.guerrero@edf.fr>
+Build-Depends: debhelper (>= 8), python-all, python-setuptools
+Standards-Version: 3.9.1
+X-Python-Version: >= 2.6
+Homepage: https://github.com/edf-hpc/clara
+
+Package: clara
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ python-docopt, python-importlib, clustershell,
+# repo:
+ rsync, reprepro, openssl, gnupg,
+# nodes:
+ fping, slurm-llnl, ipmitool,
+# images:
+ debootstrap, squashfs-tools, mktorrent
+Description: cluster administration tools
+ Clara is a set of tools to help adminostering and installing cluster.
+ This package provides the following modules:
+  repo     creates, updates and synchronizes local Debian repositories
+  nodes    manages and get the status from the nodes of a cluster
+  images   creates, updates and seeds via torrent the images of installation
