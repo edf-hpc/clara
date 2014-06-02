@@ -94,7 +94,8 @@ def do_key():
                 sys.exit('There was some problem reading the PASSPHRASE')
         else:
             sys.exit('Unable to read:  {0}'.format(file_stored_key))
-
+    else:
+        print "GPG key was already imported."
 
 def do_init():
     repo_dir = getconfig().get("repo", "repo_dir")
