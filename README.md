@@ -29,10 +29,10 @@ Add or remove a package to the local repository.
 
 
 ## module 'nodes' ##
-* ```clara nodes slurm (drain|down|health) <hostlist>```
+* ```clara nodes slurm (drain|down|health <hostlist>)```
 
 Display information about nodes on SLURM
-<hostlist> is taken into account only when check nodes' health status.
+<hostlist> is taken into account only when checking nodes' health status.
 
 * ```clara nodes connect <hostlist>```
 

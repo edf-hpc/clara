@@ -36,7 +36,7 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes slurm (drain|down|health) <hotlist>
+    clara nodes slurm (drain|down|health <hotlist>)
     clara nodes connect <hotlist>
     clara nodes (on|off|reboot) <hotlist>
     clara nodes status <hotlist>
