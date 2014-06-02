@@ -61,6 +61,24 @@ import docopt
 from clara.utils import clush, run, getconfig
 
 
+def install_cfg():
+    cfile = getconfig().get("nodes", "cfile")
+    if not os.path.isfile(cfile) and os.path.isfile(cfile + ".enc"):
+        with open(getconfig().get("nodes", "master_passwd_file")) as filepasswd:
+            # File format line is: PASSPHRASE='myverylongpassword'
+            for line in filepasswd:
+                if line.startswith("PASSPHRASE"):
+                    password = line.split("'")[1]
+
+            if len(password) > 20:
+                cmd = ['openssl', 'aes-256-cbc', '-d', '-in', cfile + ".enc",
+                       '-out', cfile, '-k', password]
+                run(cmd)
+                os.chmod(cfile, 0o400)
+            else:
+                sys.exit('There was some problem reading the PASSPHRASE')
+
+
 def ipmi_do(hosts, cmd):
     # TODO
     imm_user = ""
