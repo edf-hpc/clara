@@ -49,7 +49,7 @@ setup(name='Clara',
       install_requires=['docopt>=0.6.1',
                         'importlib>=1.0.1',
                         'clustershell>=1.6'],
-      package_data={'': ['README']},
+      package_data={'': ['README.md']},
 
       author='EDF CCN HPC',
       author_email='dsp-cspit-ccn-hpc@edf.fr',
