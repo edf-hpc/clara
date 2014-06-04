@@ -79,25 +79,23 @@ def install_cfg():
 def ipmi_do(hosts, cmd):
     install_cfg()
     imm_user = value_from_file(getconfig().get("nodes", "cfile"), "IMMUSER")
-    imm_password = value_from_file(getconfig().get("nodes", "cfile"), "PASSWD")
+    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("nodes", "cfile"), "PASSWD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
-        # TODO use environment variable IPMI_PASSWORD.
         run(["ipmitool", "-I", "lanplus", "-H", "imm" + host,
-             "-U", imm_user, "-P", imm_password, cmd])
+             "-U", imm_user, "-E", cmd])
 
 
 def getmac(hosts):
     install_cfg()
     imm_user = value_from_file(getconfig().get("nodes", "cfile"), "IMMUSER")
-    imm_password = value_from_file(getconfig().get("nodes", "cfile"), "PASSWD")
+    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("nodes", "cfile"), "PASSWD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
-        # TODO use environment variable IPMI_PASSWORD.
         cmd = ["ipmitool", "-I", "lanplus", "-H", "imm" + host,
-             "-U", imm_user, "-P", imm_password, "fru", "print", "0"]
+             "-U", imm_user, "-E", "fru", "print", "0"]
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15
