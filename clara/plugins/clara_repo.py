@@ -50,7 +50,7 @@ import sys
 import tempfile
 
 import docopt
-from clara.utils import run, getconfig
+from clara.utils import run, getconfig, value_from_file
 
 
 def do_key():
@@ -63,11 +63,7 @@ def do_key():
     if retcode != 0:
         file_stored_key = getconfig().get("repo", "stored_enc_key")
         if os.path.isfile(file_stored_key):
-            with open(getconfig().get("repo", "master_passwd_file")) as filepasswd:
-                # File format line is: PASSPHRASE='myverylongpassword'
-                for line in filepasswd:
-                    if line.startswith("PASSPHRASE"):
-                        password = line.split("'")[1]
+            password = value_from_file(getconfig().get("repo", "master_passwd_file"), "PASSPHRASE")
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()

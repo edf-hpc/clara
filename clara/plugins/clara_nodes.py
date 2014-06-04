@@ -52,34 +52,32 @@ Usage:
     clara nodes -h | --help
 
 """
+import os
 import subprocess
 import sys
 import time
 
 import ClusterShell
 import docopt
-from clara.utils import clush, run, getconfig
+from clara.utils import clush, run, getconfig, value_from_file
 
 
 def install_cfg():
     cfile = getconfig().get("nodes", "cfile")
     if not os.path.isfile(cfile) and os.path.isfile(cfile + ".enc"):
-        with open(getconfig().get("nodes", "master_passwd_file")) as filepasswd:
-            # File format line is: PASSPHRASE='myverylongpassword'
-            for line in filepasswd:
-                if line.startswith("PASSPHRASE"):
-                    password = line.split("'")[1]
+        password = value_from_file(getconfig().get("nodes", "master_passwd_file"), "PASSPHRASE")
 
-            if len(password) > 20:
-                cmd = ['openssl', 'aes-256-cbc', '-d', '-in', cfile + ".enc",
-                       '-out', cfile, '-k', password]
-                run(cmd)
-                os.chmod(cfile, 0o400)
-            else:
-                sys.exit('There was some problem reading the PASSPHRASE')
+        if len(password) > 20:
+            cmd = ['openssl', 'aes-256-cbc', '-d', '-in', cfile + ".enc",
+                    '-out', cfile, '-k', password]
+            run(cmd)
+            os.chmod(cfile, 0o400)
+        else:
+            sys.exit('There was some problem reading the PASSPHRASE')
 
 
 def ipmi_do(hosts, cmd):
+    install_cfg()
     # TODO
     imm_user = ""
     imm_password = ""

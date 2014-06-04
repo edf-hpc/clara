@@ -71,3 +71,12 @@ def getconfig():
     return getconfig.config
 
 getconfig.config = None
+
+def value_from_file(myfile, key):
+    """ Read a value from a headless ini file. """
+    with open(myfile, 'r') as hand:
+        for line in hand:
+            if key in line:
+                texto = line.rstrip().split("=")
+                password = texto[1].strip('"').strip("'")
+    return password
