@@ -93,6 +93,7 @@ def do_key():
     else:
         print "GPG key was already imported."
 
+
 def do_init():
     repo_dir = getconfig().get("repo", "repo_dir")
     reprepro_config = repo_dir + '/conf/distributions'

@@ -71,7 +71,7 @@ def base_install():
     list_repos = getconfig().get("images", "list_repos").split(",")
     with open(src_list, 'w') as fsources:
         for line in list_repos:
-            fsources.write(line+'\n')
+            fsources.write(line + '\n')
 
     with open(apt_pref, 'w') as fapt:
         fapt.write("""Package: *
@@ -265,8 +265,8 @@ def main():
         mktorrent()
     elif dargs['unpack']:
         extract_image()
-        print "Modify the image at {0} and then run:\n "
-               "\tclara images repack {0}".format(work_dir)
+        print "Modify the image at {0} and then run:\n " \
+              "\tclara images repack {0}".format(work_dir)
     elif dargs['apply_config2img']:
         extract_image()
         system_install()

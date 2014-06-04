@@ -103,20 +103,19 @@ def getmac(hosts):
         # The data we want is in line 15
         line = proc.stdout.readlines()[14]
         full_mac = line.split(":")[1].strip().upper()
-        mac_address1 =  "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
-                                                         full_mac[2:4],
-                                                         full_mac[4:6],
-                                                         full_mac[6:8],
-                                                         full_mac[8:10],
-                                                         full_mac[10:12])
+        mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
+                                                        full_mac[2:4],
+                                                        full_mac[4:6],
+                                                        full_mac[6:8],
+                                                        full_mac[8:10],
+                                                        full_mac[10:12])
 
-        mac_address2 =  "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[12:14],
-                                                         full_mac[14:16],
-                                                         full_mac[16:18],
-                                                         full_mac[18:20],
-                                                         full_mac[20:22],
-                                                         full_mac[22:24])
-
+        mac_address2 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[12:14],
+                                                        full_mac[14:16],
+                                                        full_mac[16:18],
+                                                        full_mac[18:20],
+                                                        full_mac[20:22],
+                                                        full_mac[22:24])
 
         print "ETH0's MAC address is {0}\n" \
               "ETH1's MAC address is {1}\n".format(mac_address1, mac_address2)

@@ -72,6 +72,7 @@ def getconfig():
 
 getconfig.config = None
 
+
 def value_from_file(myfile, key):
     """ Read a value from a headless ini file. """
     with open(myfile, 'r') as hand:
