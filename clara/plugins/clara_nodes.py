@@ -78,12 +78,12 @@ def install_cfg():
 
 def ipmi_do(hosts, cmd):
     install_cfg()
-    # TODO
-    imm_user = ""
-    imm_password = ""
+    imm_user = value_from_file(getconfig().get("nodes", "cfile"), "IMMUSER")
+    imm_password = value_from_file(getconfig().get("nodes", "cfile"), "PASSWD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
+        # TODO use environment variable IPMI_PASSWORD.
         run(["ipmitool", "-I", "lanplus", "-H", "imm" + host,
              "-U", imm_user, "-P", imm_password, cmd])
 
