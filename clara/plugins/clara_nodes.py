@@ -136,9 +136,24 @@ def show_nodes(option):
             print line
 
 
-# TODO; do_connect function
 def do_connect(hosts):
-    pass
+
+    try:
+        cmd = ["service", "conman", "status"]
+        retcode = subprocess.call(cmd)
+    except OSError, e:
+        if (e.errno == errno.ENOENT):
+            sys.exit("Binary not found, check your path and/or retry as root." \
+                     "You were trying to run:\n {0}".format(" ".join(cmd)))
+
+    if retcode == 0:  # if conman is running
+        os.environ["CONMAN_ESCAPE"] = '!'
+        conmand = value_from_file(getconfig().get("nodes", "conmand"))
+        run(["conman", "-d", conmand, hosts])
+    elif retcode == 1:  # if conman is NOT running
+        ipmi_do(hosts, "-e! sol activate")
+    else:
+        sys.exit('E: ' + ' '.join(cmd))
 
 
 def do_ping(hosts):
