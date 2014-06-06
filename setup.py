@@ -39,7 +39,7 @@ except ImportError:
     from distutils.core import setup
 
 
-VERSION = '0.20140530'
+VERSION = '0.20140606'
 
 setup(name='Clara',
       version=VERSION,
