@@ -9,7 +9,7 @@ Homepage: https://github.com/edf-hpc/clara
 
 Package: clara
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, 
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  python-docopt, python-importlib, clustershell,
 # repo:
  rsync, reprepro, openssl, gnupg,
@@ -19,6 +19,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  debootstrap, squashfs-tools, mktorrent
 Description: cluster administration tools
  Clara is a set of tools to help adminostering and installing cluster.
+ .
  This package provides the following modules:
   repo     creates, updates and synchronizes local Debian repositories
   nodes    manages and get the status from the nodes of a cluster
