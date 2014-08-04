@@ -128,6 +128,7 @@ def system_install():
     run(["chroot", work_dir, "aptitude", "reinstall", "~i ?not(?priority(required))"])
     shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
     shutil.copy(package_file, work_dir + "/tmp/packages.file")
+    run(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
     run(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
     for i in range(0, 2):
         part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],

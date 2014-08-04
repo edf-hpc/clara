@@ -1,3 +1,9 @@
+clara (0.20140804) unstable; urgency=medium
+
+  * Update package dabatase before dpkg --set-selections. See #703092
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 04 Aug 2014 15:27:30 +0200
+
 clara (0.20140606) unstable; urgency=low
 
   * Initial Release.
