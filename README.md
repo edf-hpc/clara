@@ -4,6 +4,7 @@ Clara, a set of Cluster Administration Tools
 Clara provides the following commands:
 * ```repo```     creates, updates and synchronizes local Debian repositories
 * ```nodes```    manages and get the status from the nodes of a cluster
+* ```slurm```    shows information from SLURM
 * ```images```   creates, updates and seeds via torrent the images of installation 
  of a cluster.
 
@@ -29,11 +30,6 @@ Add or remove a package to the local repository.
 
 
 ## module 'nodes' ##
-* ```clara nodes slurm (drain|down|health <hostlist>)```
-
-Display information about nodes on SLURM
-<hostlist> is taken into account only when checking nodes' health status.
-
 * ```clara nodes connect <hostlist>```
 
 Connect to IMM serial console, including video, keyboard and mouse control
@@ -82,6 +78,15 @@ Make selected machines go directly into BIOS on next reboot
 
 Manage p2p nodes
 
+## module 'slurm' ##
+* ```clara slurm drain```
+Display nodes that are drained
+
+* ```clara slurm down```
+Display nodes that are down
+
+* ```clara slurm health <hostlist>```
+Display nodes that are down
 
 ## module 'images' ##
 * ```clara images genimg```
