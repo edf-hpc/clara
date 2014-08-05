@@ -36,7 +36,6 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes slurm (drain|down|health <hotlist>)
     clara nodes connect <hotlist>
     clara nodes (on|off|reboot) <hotlist>
     clara nodes status <hotlist>
@@ -119,23 +118,6 @@ def getmac(hosts):
               "ETH1's MAC address is {1}\n".format(mac_address1, mac_address2)
 
 
-def show_nodes(option):
-    selection = []
-    part1 = subprocess.Popen(["sinfo"], stdout=subprocess.PIPE)
-    for line in part1.stdout:
-        if option in line:
-            cols = line.rstrip().split(" ")
-            selection.append(cols[-1])
-
-    part2 = subprocess.Popen(["scontrol", "show", "node", ",".join(selection)],
-                          stdout=subprocess.PIPE)
-    for line in part2.stdout:
-        if "NodeName" in line:
-            print line.split(" ")[0]
-        if "Reason" in line:
-            print line
-
-
 def do_connect(hosts):
 
     try:
@@ -167,14 +149,6 @@ def main():
 
     if dargs['connect']:
         do_connect(dargs['<hotlist>'])
-    elif dargs['slurm']:
-        if dargs['drain']:
-            show_nodes("drain")
-        elif dargs['down']:
-            show_nodes("down")
-        elif dargs['health']:
-            clush(dargs['<hotlist>'],
-                              "/usr/lib/slurm/check_node_health.sh --no-slurm")
     elif dargs['status'] and not dargs['p2p']:
         ipmi_do(dargs['<hotlist>'], "power status")
     elif dargs['setpwd']:

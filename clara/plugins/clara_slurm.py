@@ -33,36 +33,47 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <command> [<args>...]
-       clara [--version]
-       clara [--help]
+Shows information from SLURM
 
-Clara provides the following commads:
-   repo     creates, updates and synchronizes local Debian repositories.
-   nodes    manages and get the status from the nodes of a cluster
-   slurm    shows information from SLURM
-   images   creates, updates and seeds via torrent the images of installation
-            of a cluster.
-
-See 'clara <command> help' for more information on a specific command.
+Usage:
+    clara slurm (drain|down|health <hotlist>)
+    clara slurm -h | --help
 
 """
-import sys
+import subprocess
 
 import docopt
-import importlib
+from clara.utils import clush
+
+
+def show_nodes(option):
+    selection = []
+    part1 = subprocess.Popen(["sinfo"], stdout=subprocess.PIPE)
+    for line in part1.stdout:
+        if option in line:
+            cols = line.rstrip().split(" ")
+            selection.append(cols[-1])
+
+    part2 = subprocess.Popen(["scontrol", "show", "node", ",".join(selection)],
+                             stdout=subprocess.PIPE)
+    for line in part2.stdout:
+        if "NodeName" in line:
+            print line.split(" ")[0]
+        if "Reason" in line:
+            print line
+
+
+def main():
+    dargs = docopt.docopt(__doc__)
+
+    if dargs['drain']:
+        show_nodes("drain")
+    elif dargs['down']:
+        show_nodes("down")
+    elif dargs['health']:
+        clush(dargs['<hotlist>'],
+              "/usr/lib/slurm/check_node_health.sh --no-slurm")
+
 
 if __name__ == '__main__':
-
-    args = docopt.docopt(__doc__, options_first=True)
-
-    if args['<command>'] in ['help', None]:
-        sys.exit(__doc__)
-
-    try:
-        m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
-    except ImportError:
-        sys.exit("Sorry, the command {0} doesn't exist. "
-            "See 'clara help'.".format(args['<command>']))
-
-    m.main()
+    main()
