@@ -33,14 +33,13 @@
 #                                                                            #
 ##############################################################################
 """
-Creates, updates and seeds via torrent the images of installation of a cluster.
+Creates and updates the images of installation of a cluster.
 
 Usage:
     clara images genimg
     clara images (unpack|repack <directory>)
     clara images apply_config2img
     clara images initrd
-    clara images mktorrent
     clara images -h | --help | help
 
 """
@@ -189,37 +188,6 @@ def genimg():
     os.chmod(squashfs_file, 0o755)
 
 
-def mktorrent():
-    ml_path = "/var/lib/mldonkey"
-    trg_dir = getconfig().get("images", "trg_dir")
-    squashfs_file = getconfig().get("images", "trg_img")
-    seeders = getconfig().get("images", "seeders")
-    mldonkey_servers = getconfig().get("images", "mldonkey_servers")
-    trackers = getconfig().get("images", "trackers")
-
-    if not os.path.isfile(squashfs_file):
-        sys.exit("The file {0} doesn't exist".format(squashfs_file))
-
-    if os.path.isfile(trg_dir + "/image.torrent"):
-        os.remove(trg_dir + "/image.torrent")
-
-    clush(seeders, "service ctorrent stop")
-    clush(mldonkey_servers, "service mldonkey-server stop")
-
-    for files in ["torrents/old", "torrents/seeded", "torrents/tracked"]:
-        clush(mldonkey_servers, "rm -f {0}/{1}/*".format(ml_path, files))
-
-    clush(mldonkey_servers, "ln -sf {0} {1}/incoming/files/".format(squashfs_file, ml_path))
-
-    clush(mldonkey_servers, "awk 'BEGIN{verb=1}; / tracked_files = / {verb=0}; /^$/ {verb=1}; {if (verb==1) print}' /var/lib/mldonkey/bittorrent.ini > /var/lib/mldonkey/bittorrent.ini.new")
-    clush(mldonkey_servers, "mv {0}/bittorrent.ini.new {0}/bittorrent.ini".format(ml_path))
-
-    run(["/usr/bin/mktorrent", "-a", trackers, "-o", trg_dir + "/image.torrent", squashfs_file])
-    clush(mldonkey_servers, "ln -sf {0}/image.torrent {1}/torrents/seeded/".format(trg_dir, ml_path))
-
-    clush(mldonkey_servers, "service mldonkey-server start")
-    clush(seeders, "service ctorrent start")
-
 
 def extract_image():
     squashfs_file = getconfig().get("images", "trg_img")
@@ -260,10 +228,8 @@ def main():
         install_files()
         remove_files()
         genimg()
-        mktorrent()
     elif dargs['repack']:
         genimg()
-        mktorrent()
     elif dargs['unpack']:
         extract_image()
         print "Modify the image at {0} and then run:\n " \
@@ -272,11 +238,8 @@ def main():
         extract_image()
         system_install()
         install_files()
-        mktorrent()
     elif dargs['initrd']:
         geninitrd()
-    elif dargs['mktorrent']:
-        mktorrent()
 
     if not dargs['unpack']:
         shutil.rmtree(work_dir)
