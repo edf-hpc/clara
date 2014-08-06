@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #  Copyright (C) 2014 EDF SA                                                 #
 #                                                                            #
@@ -131,9 +131,9 @@ def system_install():
     run(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
     for i in range(0, 2):
         part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],
-                               stdout=subprocess.PIPE)
+                                 stdout=subprocess.PIPE)
         part2 = subprocess.Popen(["chroot", work_dir, "dpkg", "--set-selections"],
-                               stdin=part1.stdout, stdout=subprocess.PIPE)
+                                 stdin=part1.stdout, stdout=subprocess.PIPE)
         part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
         output = part2.communicate()[0]
         run(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
@@ -186,7 +186,6 @@ def genimg():
     run(["chroot", work_dir, "apt-get", "clean"])
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
-
 
 
 def extract_image():

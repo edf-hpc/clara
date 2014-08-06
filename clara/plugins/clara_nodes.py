@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #  Copyright (C) 2014 EDF SA                                                 #
 #                                                                            #
@@ -67,7 +67,7 @@ def install_cfg():
 
         if len(password) > 20:
             cmd = ['openssl', 'aes-256-cbc', '-d', '-in', cfile + ".enc",
-                    '-out', cfile, '-k', password]
+                   '-out', cfile, '-k', password]
             run(cmd)
             os.chmod(cfile, 0o400)
         else:
@@ -93,7 +93,7 @@ def getmac(hosts):
     for host in nodeset:
         print "%s: " % host
         cmd = ["ipmitool", "-I", "lanplus", "-H", "imm" + host,
-             "-U", imm_user, "-E", "fru", "print", "0"]
+               "-U", imm_user, "-E", "fru", "print", "0"]
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15
@@ -124,7 +124,7 @@ def do_connect(hosts):
         retcode = subprocess.call(cmd)
     except OSError, e:
         if (e.errno == errno.ENOENT):
-            sys.exit("Binary not found, check your path and/or retry as root." \
+            sys.exit("Binary not found, check your path and/or retry as root."
                      "You were trying to run:\n {0}".format(" ".join(cmd)))
 
     if retcode == 0:  # if conman is running
@@ -166,7 +166,7 @@ def main():
         ipmi_do(dargs['<hotlist>'], "chassis identify 1")
     elif dargs['bios']:
         ipmi_do(dargs['<hotlist>'],
-                                   "chassis bootparam set bootflag force_bios")
+                "chassis bootparam set bootflag force_bios")
     elif dargs['immdhcp']:
         ipmi_do(dargs['<hotlist>'], "lan set 1 ipsrc dhcp")
     elif dargs['pxe']:

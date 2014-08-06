@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #  Copyright (C) 2014 EDF SA                                                 #
 #                                                                            #
@@ -137,9 +137,9 @@ def do_sync(option=''):
                          "/" + local[elem]) or (option == 'create'):
 
             run(['rsync',
-                '-az', '--stats', '--force', '--delete', '--ignore-errors',
-                getconfig().get("repo", "server") + '::' + remote[elem],
-                getconfig().get("repo", "mirror_root") + '/' + local[elem]])
+                 '-az', '--stats', '--force', '--delete', '--ignore-errors',
+                 getconfig().get("repo", "server") + '::' + remote[elem],
+                 getconfig().get("repo", "mirror_root") + '/' + local[elem]])
         else:
             sys.exit('Local repository not found. '
                      'Please run: \n\tclara repo sync create')
