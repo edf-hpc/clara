@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #  Copyright (C) 2014 EDF SA                                                 #
 #                                                                            #
@@ -33,37 +33,22 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <command> [<args>...]
-       clara [--version]
-       clara [--help]
+Makes torrent images and seeds them via BitTorrent
 
-Clara provides the following commads:
-   repo     creates, updates and synchronizes local Debian repositories.
-   nodes    manages and get the status from the nodes of a cluster
-   slurm    shows information from SLURM
-   images   creates, updates and seeds via torrent the images of installation
-            of a cluster.
-   p2p      makes torrent images and seeds them via BitTorrent
-
-See 'clara <command> help' for more information on a specific command.
+Usage:
+    clara p2p option
+    clara p2p -h | --help | help
 
 """
-import sys
-
 import docopt
-import importlib
+# from clara.utils import clush, run, getconfig
+
+
+def main():
+    dargs = docopt.docopt(__doc__)
+
+    if dargs['option']:
+        pass
 
 if __name__ == '__main__':
-
-    args = docopt.docopt(__doc__, options_first=True)
-
-    if args['<command>'] in ['help', None]:
-        sys.exit(__doc__)
-
-    try:
-        m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
-    except ImportError:
-        sys.exit("Sorry, the command {0} doesn't exist. "
-            "See 'clara help'.".format(args['<command>']))
-
-    m.main()
+    main()
