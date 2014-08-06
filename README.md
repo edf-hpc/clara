@@ -77,12 +77,15 @@ Make selected machines go directly into BIOS on next reboot
 
 ## module 'slurm' ##
 * ```clara slurm drain```
+
 Display nodes that are drained
 
 * ```clara slurm down```
+
 Display nodes that are down
 
 * ```clara slurm health <hostlist>```
+
 Display nodes that are down
 
 ## module 'images' ##
