@@ -54,7 +54,6 @@ Usage:
 import os
 import subprocess
 import sys
-import time
 
 import ClusterShell
 import docopt
@@ -174,18 +173,6 @@ def main():
         ipmi_do(dargs['<hotlist>'], "chassis bootdev pxe")
     elif dargs['disk']:
         ipmi_do(dargs['<hotlist>'], "chassis bootdev disk")
-    elif dargs['p2p']:
-        trackers = getconfig().get("nodes", "trackers")
-        seeders = getconfig().get("nodes", "seeders")
-        if dargs['status']:
-            clush(trackers, "service mldonkey-server status")
-            clush(seeders, "service ctorrent status")
-        elif dargs['restart']:
-            clush(seeders, "service ctorrent stop")
-            clush(trackers, "service mldonkey-server stop")
-            time.sleep(1)
-            clush(trackers, "service mldonkey-server start")
-            clush(seeders, "service ctorrent start")
     elif dargs['ping']:
         do_ping(dargs['<hotlist>'])
 

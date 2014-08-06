@@ -36,19 +36,32 @@
 Makes torrent images and seeds them via BitTorrent
 
 Usage:
-    clara p2p option
+    clara p2p status
+    clara p2p restart
     clara p2p -h | --help | help
 
 """
+import time
+
 import docopt
-# from clara.utils import clush, run, getconfig
+from clara.utils import clush, run, getconfig, value_from_file
 
 
 def main():
     dargs = docopt.docopt(__doc__)
 
-    if dargs['option']:
-        pass
+    trackers = getconfig().get("nodes", "trackers")
+    seeders = getconfig().get("nodes", "seeders")
+
+    if dargs['status']:
+        clush(trackers, "service mldonkey-server status")
+        clush(seeders, "service ctorrent status")
+    elif dargs['restart']:
+        clush(seeders, "service ctorrent stop")
+        clush(trackers, "service mldonkey-server stop")
+        time.sleep(1)
+        clush(trackers, "service mldonkey-server start")
+        clush(seeders, "service ctorrent start")
 
 if __name__ == '__main__':
     main()
