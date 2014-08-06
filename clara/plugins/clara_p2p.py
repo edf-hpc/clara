@@ -52,9 +52,9 @@ def mktorrent():
     ml_path = "/var/lib/mldonkey"
     trg_dir = getconfig().get("images", "trg_dir")
     squashfs_file = getconfig().get("images", "trg_img")
-    seeders = getconfig().get("images", "seeders")
-    mldonkey_servers = getconfig().get("images", "mldonkey_servers")
-    trackers = getconfig().get("images", "trackers")
+    seeders = getconfig().get("p2p", "seeders")
+    mldonkey_servers = getconfig().get("p2p", "mldonkey_servers")
+    trackers = getconfig().get("p2p", "trackers")
 
     if not os.path.isfile(squashfs_file):
         sys.exit("The file {0} doesn't exist".format(squashfs_file))
