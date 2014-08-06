@@ -1,3 +1,9 @@
+clara (0.20140806) unstable; urgency=medium
+
+  * Split p2p commands in a different plugin "p2p.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 05 Aug 2014 15:57:32 +0200
+
 clara (0.20140805) unstable; urgency=medium
 
   * Split slurm as a separate plugin.
