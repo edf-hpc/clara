@@ -5,8 +5,8 @@ Clara provides the following commands:
 * ```repo```     creates, updates and synchronizes local Debian repositories
 * ```nodes```    manages and get the status from the nodes of a cluster
 * ```slurm```    shows information from SLURM
-* ```images```   creates, updates and seeds via torrent the images of installation 
- of a cluster.
+* ```images```   creates and updates the images of installation of a cluster
+* ```p2p```      makes torrent images and seeds them via BitTorrent
 
 ## module 'repo' ##
 * ```clara repo key```
@@ -74,9 +74,6 @@ Set selected ipmi interfaces to grab an IP via DHCP
 
 Make selected machines go directly into BIOS on next reboot
 
-* ```clara nodes p2p (status|restart)```
-
-Manage p2p nodes
 
 ## module 'slurm' ##
 * ```clara slurm drain```
@@ -107,10 +104,19 @@ it will also renew the torrent file and start seeding it.
 
 Create a new initrd image to boot the cluster nodes.
 
-* ```clara images mktorrent```
+## module 'p2p' ##
+
+* ```clara p2p status```
+
+Check the status of the BitTorrent trackers and seeders
+
+* ```clara p2p restart```
+
+Restart the BitTorrent trackers and seeders
+
+* ```clara p2p mktorrent```
 
 Create a new torrent file for the squashfs image and restart
 trackers and initial seeders.
-
 
 EDF S.A. 2014 - http://www.edf.fr/
