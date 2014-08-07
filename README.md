@@ -117,7 +117,7 @@ Check the status of the BitTorrent trackers and seeders
 
 Restart the BitTorrent trackers and seeders
 
-* ```clara p2p mktorrent```
+* ```clara p2p mktorrent  [--image=<path>]```
 
 Create a new torrent file for the squashfs image and restart
 trackers and initial seeders.

@@ -38,9 +38,11 @@ Makes torrent images and seeds them via BitTorrent
 Usage:
     clara p2p status
     clara p2p restart
-    clara p2p mktorrent
+    clara p2p mktorrent [--image=<path>]
     clara p2p -h | --help | help
 
+Options:
+    --image=<path>  Path to squashfs image.
 """
 import os
 import sys
@@ -52,10 +54,13 @@ import ClusterShell.NodeSet
 from clara.utils import clush, run, getconfig, value_from_file
 
 
-def mktorrent():
+def mktorrent(image):
     ml_path = "/var/lib/mldonkey"
     trg_dir = getconfig().get("images", "trg_dir")
-    squashfs_file = getconfig().get("images", "trg_img")
+    if (image is None):
+        squashfs_file = getconfig().get("images", "trg_img")
+    else:
+        squashfs_file = image
     seeders = getconfig().get("p2p", "seeders")
     trackers = getconfig().get("p2p", "trackers")
     trackers_port = getconfig().get("p2p", "trackers_port")
@@ -104,8 +109,7 @@ def main():
         clush(trackers, "service mldonkey-server start")
         clush(seeders, "service ctorrent start")
     elif dargs['mktorrent']:
-        mktorrent()
-
+        mktorrent(dargs['--image'])
 
 if __name__ == '__main__':
     main()
