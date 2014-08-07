@@ -45,6 +45,8 @@ Usage:
 import time
 
 import docopt
+import ClusterShell.NodeSet
+
 from clara.utils import clush, run, getconfig, value_from_file
 
 
@@ -54,7 +56,8 @@ def mktorrent():
     squashfs_file = getconfig().get("images", "trg_img")
     seeders = getconfig().get("p2p", "seeders")
     trackers = getconfig().get("p2p", "trackers")
-    trackers_announce = getconfig().get("p2p", "trackers_announce")
+    trackers_port = getconfig().get("p2p", "trackers_port")
+    trackers_schema = getconfig().get("p2p", "trackers_schema")
 
     if not os.path.isfile(squashfs_file):
         sys.exit("The file {0} doesn't exist".format(squashfs_file))
@@ -73,7 +76,10 @@ def mktorrent():
     clush(trackers, "awk 'BEGIN{verb=1}; / tracked_files = / {verb=0}; /^$/ {verb=1}; {if (verb==1) print}' /var/lib/mldonkey/bittorrent.ini > /var/lib/mldonkey/bittorrent.ini.new")
     clush(trackers, "mv {0}/bittorrent.ini.new {0}/bittorrent.ini".format(ml_path))
 
-    run(["/usr/bin/mktorrent", "-a", trackers_announce, "-o", trg_dir + "/image.torrent", squashfs_file])
+    announce = []
+    for t in list(ClusterShell.NodeSet.NodeSet(trackers)):
+        announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
+    run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trg_dir + "/image.torrent", squashfs_file])
     clush(trackers, "ln -sf {0}/image.torrent {1}/torrents/seeded/".format(trg_dir, ml_path))
 
     clush(trackers, "service mldonkey-server start")
