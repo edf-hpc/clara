@@ -60,6 +60,20 @@ def clean_and_exit(problem):
     sys.exit('There was an error. Cleaning and exiting.\nE: '+problem)
 
 
+def run_chroot(cmd):
+    try:
+        retcode = subprocess.call(cmd)
+    except OSError, e:
+        if (e.errno == errno.ENOENT):
+            sys.exit("Binary not found, check your path and/or retry as root. \
+                      You were trying to run:\n {0}".format(" ".join(cmd)))
+
+    if retcode != 0:
+        umount_chroot()
+        shutil.rmtree(work_dir)
+        sys.exit('E: ' + ' '.join(cmd))
+
+
 def base_install():
     # Step 1 - Debootstrap
     src_list = work_dir + "/etc/apt/sources.list"
@@ -135,13 +149,13 @@ def system_install():
         clean_and_exit("Error copying file " + preseed_file)
 
     mount_chroot()
-    run(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
     pkgs = getconfig().get("images", "important_packages").split(',')
-    run(["chroot", work_dir, "apt-get", "install", "--yes", "--force-yes"] + pkgs)
-    run(["chroot", work_dir, "apt-get", "update"])
-    run(["chroot", work_dir, "aptitude", "reinstall", "~i ?not(?priority(required))"])
-    run(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
-    run(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--yes", "--force-yes"] + pkgs)
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "aptitude", "reinstall", "~i ?not(?priority(required))"])
+    run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
+    run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
     for i in range(0, 2):
         part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],
                                  stdout=subprocess.PIPE)
@@ -149,9 +163,9 @@ def system_install():
                                  stdin=part1.stdout, stdout=subprocess.PIPE)
         part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
         output = part2.communicate()[0]
-        run(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
-    run(["chroot", work_dir, "apt-get", "clean"])
-    run(["chroot", work_dir, "/etc/init.d/rsyslog", "stop"])
+        run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
+    run_chroot(["chroot", work_dir, "apt-get", "clean"])
+    run_chroot(["chroot", work_dir, "/etc/init.d/rsyslog", "stop"])
     umount_chroot()
 
 
@@ -175,11 +189,11 @@ def install_files():
             os.chmod(final_file, file_perm)
 
             if ("etc/init.d" in dest):
-                run(["chroot", work_dir, "update-rc.d", orig, "defaults"])
+                run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"])
 
         # Empty hostname
         os.remove(work_dir + "/etc/hostname")
-        run(["chroot", work_dir, "touch", "/etc/hostname"])
+        run_chroot(["chroot", work_dir, "touch", "/etc/hostname"])
 
 
 def remove_files():
@@ -196,7 +210,7 @@ def genimg():
         print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
 
     print "Creating image at {0}".format(squashfs_file)
-    run(["chroot", work_dir, "apt-get", "clean"])
+    run_chroot(["chroot", work_dir, "apt-get", "clean"])
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
 
