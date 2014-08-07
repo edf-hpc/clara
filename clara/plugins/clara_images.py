@@ -171,7 +171,13 @@ def system_install():
 
 def install_files():
     list_files_to_install = getconfig().get("images", "list_files_to_install")
+    if not os.path.isfile(list_files_to_install):
+        clean_and_exit("Error reading file " + list_files_to_install)
+
     dir_origin = getconfig().get("images", "dir_files_to_install")
+    if not os.path.isdir(dir_origin):
+        clean_and_exit("Error reading directory " + dir_origin)
+
     with open(list_files_to_install, "r") as file_to_read:
         for line in file_to_read:
             orig, dest, perm = line.rstrip().split()
@@ -181,7 +187,7 @@ def install_files():
             final_file = path_dest + orig
 
             if not os.path.isfile(path_orig):
-                sys.exit("Ooops, file {0} doesn't exist!".format(path_orig))
+                clean_and_exit("Error reading file " + path_orig)
 
             if not os.path.isdir(path_dest):
                 os.makedirs(path_dest)
