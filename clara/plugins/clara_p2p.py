@@ -53,8 +53,8 @@ def mktorrent():
     trg_dir = getconfig().get("images", "trg_dir")
     squashfs_file = getconfig().get("images", "trg_img")
     seeders = getconfig().get("p2p", "seeders")
-    mldonkey_servers = getconfig().get("p2p", "mldonkey_servers")
     trackers = getconfig().get("p2p", "trackers")
+    trackers_announce = getconfig().get("p2p", "trackers_announce")
 
     if not os.path.isfile(squashfs_file):
         sys.exit("The file {0} doesn't exist".format(squashfs_file))
@@ -63,28 +63,28 @@ def mktorrent():
         os.remove(trg_dir + "/image.torrent")
 
     clush(seeders, "service ctorrent stop")
-    clush(mldonkey_servers, "service mldonkey-server stop")
+    clush(trackers, "service mldonkey-server stop")
 
     for files in ["torrents/old", "torrents/seeded", "torrents/tracked"]:
-        clush(mldonkey_servers, "rm -f {0}/{1}/*".format(ml_path, files))
+        clush(trackers, "rm -f {0}/{1}/*".format(ml_path, files))
 
-    clush(mldonkey_servers, "ln -sf {0} {1}/incoming/files/".format(squashfs_file, ml_path))
+    clush(trackers, "ln -sf {0} {1}/incoming/files/".format(squashfs_file, ml_path))
 
-    clush(mldonkey_servers, "awk 'BEGIN{verb=1}; / tracked_files = / {verb=0}; /^$/ {verb=1}; {if (verb==1) print}' /var/lib/mldonkey/bittorrent.ini > /var/lib/mldonkey/bittorrent.ini.new")
-    clush(mldonkey_servers, "mv {0}/bittorrent.ini.new {0}/bittorrent.ini".format(ml_path))
+    clush(trackers, "awk 'BEGIN{verb=1}; / tracked_files = / {verb=0}; /^$/ {verb=1}; {if (verb==1) print}' /var/lib/mldonkey/bittorrent.ini > /var/lib/mldonkey/bittorrent.ini.new")
+    clush(trackers, "mv {0}/bittorrent.ini.new {0}/bittorrent.ini".format(ml_path))
 
-    run(["/usr/bin/mktorrent", "-a", trackers, "-o", trg_dir + "/image.torrent", squashfs_file])
-    clush(mldonkey_servers, "ln -sf {0}/image.torrent {1}/torrents/seeded/".format(trg_dir, ml_path))
+    run(["/usr/bin/mktorrent", "-a", trackers_announce, "-o", trg_dir + "/image.torrent", squashfs_file])
+    clush(trackers, "ln -sf {0}/image.torrent {1}/torrents/seeded/".format(trg_dir, ml_path))
 
-    clush(mldonkey_servers, "service mldonkey-server start")
+    clush(trackers, "service mldonkey-server start")
     clush(seeders, "service ctorrent start")
 
 
 def main():
     dargs = docopt.docopt(__doc__)
 
-    trackers = getconfig().get("nodes", "trackers")
-    seeders = getconfig().get("nodes", "seeders")
+    trackers = getconfig().get("p2p", "trackers")
+    seeders = getconfig().get("p2p", "seeders")
 
     if dargs['status']:
         clush(trackers, "service mldonkey-server status")
