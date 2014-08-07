@@ -42,6 +42,8 @@ Usage:
     clara p2p -h | --help | help
 
 """
+import os
+import sys
 import time
 
 import docopt

@@ -51,6 +51,7 @@ Usage:
     clara nodes -h | --help
 
 """
+import errno
 import os
 import subprocess
 import sys
