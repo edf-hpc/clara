@@ -223,6 +223,9 @@ def genimg():
 
 def extract_image():
     squashfs_file = getconfig().get("images", "trg_img")
+    if not os.path.isfile(squashfs_file):
+        sys.exit("The image {0} does not exist!".format(squashfs_file))
+
     print "Extracting {0} to {1} ...".format(squashfs_file, work_dir)
     run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
 
@@ -233,7 +236,13 @@ def geninitrd():
         sys.exit("Directory {0} does not exist!".format(trg_dir))
 
     mkinitrfs = getconfig().get("images", "mkinitramfs")
+    if not os.path.isfile(mkinitrfs):
+        sys.exit("{0} does not exist!".format(mkinitrfs))
+
     initramfsc = getconfig().get("images", "initramfs-config")
+    if not os.path.isdir(initramfsc):
+        sys.exit("Directory {0} does not exist!".format(initramfsc))
+
     kver = getconfig().get("images", "kver")
     # Generate the initrd
     run([mkinitrfs, "-d", initramfsc, "-o", trg_dir + "/initrd-" + kver, kver])
