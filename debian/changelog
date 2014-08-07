@@ -1,6 +1,14 @@
+clara (0.20140807) unstable; urgency=medium
+
+  * Remove the temporary files in case of failure while building the image. 
+  * Add some checks to make sure the files and the directories from the config
+    file really exist.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 07 Aug 2014 16:53:10 +0200
+
 clara (0.20140806) unstable; urgency=medium
 
-  * Split p2p commands in a different plugin "p2p.
+  * Split p2p commands in a different plugin p2p.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 05 Aug 2014 15:57:32 +0200
 
