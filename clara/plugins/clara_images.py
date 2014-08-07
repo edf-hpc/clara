@@ -55,6 +55,11 @@ import docopt
 from clara.utils import clush, run, getconfig
 
 
+def clean_and_exit(problem):
+    shutil.rmtree(work_dir)
+    sys.exit('There was an error. Cleaning and exiting.\nE: '+problem)
+
+
 def base_install():
     # Step 1 - Debootstrap
     src_list = work_dir + "/etc/apt/sources.list"
@@ -118,15 +123,23 @@ def umount_chroot():
 
 def system_install():
     package_file = getconfig().get("images", "package_file")
+    if os.path.isfile(package_file):
+        shutil.copy(package_file, work_dir + "/tmp/packages.file")
+    else:
+        clean_and_exit("Error copying file " + package_file)
+
     preseed_file = getconfig().get("images", "preseed_file")
+    if os.path.isfile(preseed_file):
+        shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
+    else:
+        clean_and_exit("Error copying file " + preseed_file)
+
     mount_chroot()
     run(["chroot", work_dir, "apt-get", "update"])
     pkgs = getconfig().get("images", "important_packages").split(',')
     run(["chroot", work_dir, "apt-get", "install", "--yes", "--force-yes"] + pkgs)
     run(["chroot", work_dir, "apt-get", "update"])
     run(["chroot", work_dir, "aptitude", "reinstall", "~i ?not(?priority(required))"])
-    shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
-    shutil.copy(package_file, work_dir + "/tmp/packages.file")
     run(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
     run(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
     for i in range(0, 2):
