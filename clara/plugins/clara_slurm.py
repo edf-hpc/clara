@@ -108,9 +108,9 @@ def main():
         if (op not in op_list):
             sys.exit("The valid operations: {0}".format(" ".join(op_list)))
 
-         #  If OP and SPEC are not specified, then the default is "OP=show"
-         if (op is None and spec is None):
-             op = 'show'
+        #  If OP and SPEC are not specified, then the default is "OP=show"
+        if (op is None and spec is None):
+            op = 'show'
 
         print "VALID. cmd = {0}, subject = {1}, op = {2}, spec = {3}".format(cmd, subject, op, spec)
 
