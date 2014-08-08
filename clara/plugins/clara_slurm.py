@@ -39,10 +39,15 @@ Usage:
     clara slurm health <hotlist>
     clara slurm drain [<hotlist>]
     clara slurm down [<hotlist>]
+    clara slurm <cmd> <subject> [<op>] [<spec>...]
     clara slurm -h | --help
 
+Options:
+    <cmd> is one of the following ones: job jobs node nodes steps frontend
+    partition partitions reservation reservations
 """
 import subprocess
+import sys
 
 import docopt
 from clara.utils import clush
@@ -81,6 +86,33 @@ def main():
     elif dargs['health']:
         clush(dargs['<hotlist>'],
               "/usr/lib/slurm/check_node_health.sh --no-slurm")
+    else:
+        print dargs, "\n"
+        cmd = dargs['<cmd>']
+        subject = dargs['<subject>']
+        op = dargs['<op>']
+        spec = dargs['<spec>']
+ 
+        cmd_list = ['job', 'jobs', 'node', 'nodes', 'steps', 'frontend',
+                    'partition', 'partitions', 'reservation', 'reservations']
+        op_list = ['show', 'create', 'update', 'delete', None]
+
+        if cmd not in cmd_list:
+            sys.exit("The valid commands are: {0}".format(" ".join(cmd_list)))
+        # OP=create|delete is valid only for frontend, partition{,s} and reservation{,s}
+        if (cmd in ['frontend', 'partition', 'partitions',
+                   'reservation', 'reservations']
+            and op not in ['create', 'delete']):
+                sys.exit("You can't use cmd = {0} with op = {1}".format(cmd, op))
+
+        if (op not in op_list):
+            sys.exit("The valid operations: {0}".format(" ".join(op_list)))
+
+         #  If OP and SPEC are not specified, then the default is "OP=show"
+         if (op is None and spec is None):
+             op = 'show'
+
+        print "VALID. cmd = {0}, subject = {1}, op = {2}, spec = {3}".format(cmd, subject, op, spec)
 
 if __name__ == '__main__':
     main()
