@@ -36,7 +36,9 @@
 Shows information from SLURM
 
 Usage:
-    clara slurm (drain|down|health <hotlist>)
+    clara slurm health <hotlist>
+    clara slurm drain [<hotlist>]
+    clara slurm down [<hotlist>]
     clara slurm -h | --help
 
 """
@@ -67,13 +69,18 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     if dargs['drain']:
-        show_nodes("drain")
+        if dargs['<hotlist>'] is None:
+            show_nodes("drain")
+        else:
+            print "TODO: drain nodes from the <hotlist>"
     elif dargs['down']:
-        show_nodes("down")
+        if dargs['<hotlist>'] is None:
+            show_nodes("down")
+        else:
+            print "TODO: put down nodes from the <hotlist>"
     elif dargs['health']:
         clush(dargs['<hotlist>'],
               "/usr/lib/slurm/check_node_health.sh --no-slurm")
-
 
 if __name__ == '__main__':
     main()
