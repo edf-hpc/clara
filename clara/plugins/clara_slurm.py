@@ -33,24 +33,26 @@
 #                                                                            #
 ##############################################################################
 """
-Shows information from SLURM
+Performs tasks using SLURM's controller
 
 Usage:
-    clara slurm health <hotlist>
-    clara slurm drain [<hotlist>]
-    clara slurm down [<hotlist>]
+    clara slurm health <nodeset>
+    clara slurm resume <nodeset>
+    clara slurm drain [<nodeset>] [<reason>...]
+    clara slurm down [<nodeset>]
     clara slurm <cmd> <subject> [<op>] [<spec>...]
     clara slurm -h | --help
 
 Options:
-    <cmd> is one of the following ones: job jobs node nodes steps frontend
-    partition partitions reservation reservations
+    <op> is one of the following ones: show, create, update and delete.
+    <cmd> is one of the following ones: job, node, steps, frontend,
+    partition, reservation, block and submp.
 """
 import subprocess
 import sys
 
 import docopt
-from clara.utils import clush
+from clara.utils import clush, run
 
 
 def show_nodes(option):
@@ -73,46 +75,84 @@ def show_nodes(option):
 def main():
     dargs = docopt.docopt(__doc__)
 
-    if dargs['drain']:
-        if dargs['<hotlist>'] is None:
+    if dargs['resume']:
+        run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
+             "State=RESUME"])
+    elif dargs['drain']:
+        if dargs['<nodeset>'] is None:
             show_nodes("drain")
         else:
-            print "TODO: drain nodes from the <hotlist>"
+            if len (dargs['<reason>']) == 0:
+                sys.exit("You must specify a reason when DRAINING a node")
+            else:
+                run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
+                     "State=DRAIN", 'Reason="'+" ".join(dargs['<reason>'])+'"'])
     elif dargs['down']:
-        if dargs['<hotlist>'] is None:
+        if dargs['<nodeset>'] is None:
             show_nodes("down")
         else:
-            print "TODO: put down nodes from the <hotlist>"
+            run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
+                 "State=DOWN"])
     elif dargs['health']:
-        clush(dargs['<hotlist>'],
+        clush(dargs['<nodeset>'],
               "/usr/lib/slurm/check_node_health.sh --no-slurm")
     else:
-        print dargs, "\n"
+        cmd_list = ['job', 'node', 'steps', 'frontend', 'partition', 'reservation',
+                    'block', 'submp']
+
+        # /!\ ∀ x, ∀ y, op_list[x][y] ⇒ op_list[x][y] ∈ cmd_list
+        op_list = {
+            'show': ['job', 'node', 'partition', 'reservation', 'steps',
+                     'frontend', 'block', 'submp'],
+            'update': ['job', 'node', 'partition', 'reservation', 'steps',
+                       'frontend', 'block', 'submp'],
+            'create': ['partition', 'reservation'],
+            'delete': ['partition', 'reservation']
+        }
+
+        # /!\ ∀ x ∈ cmd_list ⇒ x ∈ keys_list.keys()
+        key_list = {
+            'job': 'JobId',
+            'steps': 'StepId',
+            'nodes': 'NodeName',
+            'frontend': 'FrontendName',
+            'partition': 'PartitionName',
+            'Reservation': 'Reservation',
+            'block': 'BlockName',
+            'submp': 'SubMPName'
+            }
+
         cmd = dargs['<cmd>']
         subject = dargs['<subject>']
         op = dargs['<op>']
         spec = dargs['<spec>']
- 
-        cmd_list = ['job', 'jobs', 'node', 'nodes', 'steps', 'frontend',
-                    'partition', 'partitions', 'reservation', 'reservations']
-        op_list = ['show', 'create', 'update', 'delete', None]
 
         if cmd not in cmd_list:
-            sys.exit("The valid commands are: {0}".format(" ".join(cmd_list)))
-        # OP=create|delete is valid only for frontend, partition{,s} and reservation{,s}
-        if (cmd in ['frontend', 'partition', 'partitions',
-                   'reservation', 'reservations']
-            and op not in ['create', 'delete']):
-                sys.exit("You can't use cmd = {0} with op = {1}".format(cmd, op))
+            sys.exit("Known commands are: {0}".format(" ".join(cmd_list)))
 
-        if (op not in op_list):
-            sys.exit("The valid operations: {0}".format(" ".join(op_list)))
-
-        #  If OP and SPEC are not specified, then the default is "OP=show"
-        if (op is None and spec is None):
+        if spec is None:
+            if op is not None and "=" in op:
+                spec = [op]
             op = 'show'
 
-        print "VALID. cmd = {0}, subject = {1}, op = {2}, spec = {3}".format(cmd, subject, op, spec)
+        if "=" in op:
+            spec = [op] + spec
+            op = 'show'
+
+        if op not in op_list:
+            sys.exit("Known operations are: {0}".format(" ".join(op_list)))
+
+        if cmd not in op_list[op]:
+            sys.exit("You can't use {0} with {1}".format(cmd, op))
+
+        if op == 'show':
+            # spec should be empty
+            run(["scontrol", op, cmd, subject])
+        else:
+            run(["scontrol",
+                 op,
+                 "{0}={1}".format(key_list[cmd], subject),
+                 " ".join(spec)])
 
 if __name__ == '__main__':
     main()
