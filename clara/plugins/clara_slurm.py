@@ -114,7 +114,7 @@ def main():
         key_list = {
             'job': 'JobId',
             'steps': 'StepId',
-            'nodes': 'NodeName',
+            'node': 'NodeName',
             'frontend': 'FrontendName',
             'partition': 'PartitionName',
             'Reservation': 'Reservation',
