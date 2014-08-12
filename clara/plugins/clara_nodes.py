@@ -62,9 +62,9 @@ from clara.utils import clush, run, getconfig, value_from_file
 
 
 def install_cfg():
-    passwd_file = getconfig().get("nodes", "master_passwd_file")
+    passwd_file = getconfig().get("common", "master_passwd_file")
     if not os.path.isfile(passwd_file) and os.path.isfile(passwd_file + ".enc"):
-        password = value_from_file(getconfig().get("nodes", "master_passwd_file"), "PASSPHRASE")
+        password = value_from_file(getconfig().get("common", "master_passwd_file"), "PASSPHRASE")
 
         if len(password) > 20:
             cmd = ['openssl', 'aes-256-cbc', '-d', '-in', passwd_file + ".enc",
@@ -77,8 +77,8 @@ def install_cfg():
 
 def ipmi_do(hosts, cmd):
     install_cfg()
-    imm_user = value_from_file(getconfig().get("nodes", "master_passwd_file"), "IMMUSER")
-    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("nodes", "master_passwd_file"), "PASSWD")
+    imm_user = value_from_file(getconfig().get("common", "master_passwd_file"), "IMMUSER")
+    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("common", "master_passwd_file"), "PASSWD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
@@ -88,8 +88,8 @@ def ipmi_do(hosts, cmd):
 
 def getmac(hosts):
     install_cfg()
-    imm_user = value_from_file(getconfig().get("nodes", "master_passwd_file"), "IMMUSER")
-    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("nodes", "master_passwd_file"), "PASSWD")
+    imm_user = value_from_file(getconfig().get("common", "master_passwd_file"), "IMMUSER")
+    os.environ["IPMI_PASSWORD"] = value_from_file(getconfig().get("common", "master_passwd_file"), "PASSWD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host

@@ -63,7 +63,7 @@ def do_key():
     if retcode != 0:
         file_stored_key = getconfig().get("repo", "stored_enc_key")
         if os.path.isfile(file_stored_key):
-            password = value_from_file(getconfig().get("repo", "master_passwd_file"), "PASSPHRASE")
+            password = value_from_file(getconfig().get("common", "master_passwd_file"), "PASSPHRASE")
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()
