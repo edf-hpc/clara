@@ -115,7 +115,7 @@ SignWith: {3}
 Description: Depot Local {4}
 DebIndices: Packages Release . .gz .bz2
 DscIndices: Sources Release . .gz .bz2
-""".format(getconfig().get("repo", "origin"),
+""".format(getconfig().get("common", "origin"),
             getconfig().get("common", "distribution"),
             getconfig().get("repo", "version"),
             getconfig().get("repo", "gpg_key"),

@@ -103,7 +103,7 @@ Package: *
 Pin: release o={1}
 Pin-Priority: 6000
 """.format(getconfig().get("common", "distribution"),
-           getconfig().get("images", "origin")))
+           getconfig().get("common", "origin")))
 
     with open(apt_conf, 'w') as fconf:
         fconf.write('Acquire::Check-Valid-Until "false";\n')
