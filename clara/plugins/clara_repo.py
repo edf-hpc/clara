@@ -116,7 +116,7 @@ Description: Depot Local {4}
 DebIndices: Packages Release . .gz .bz2
 DscIndices: Sources Release . .gz .bz2
 """.format(getconfig().get("repo", "origin"),
-            getconfig().get("repo", "distribution"),
+            getconfig().get("common", "distribution"),
             getconfig().get("repo", "version"),
             getconfig().get("repo", "gpg_key"),
             getconfig().get("repo", "clustername")))
@@ -125,7 +125,7 @@ DscIndices: Sources Release . .gz .bz2
     os.chdir(repo_dir)
     run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
          '--outdir', getconfig().get("repo", "mirror_local"),
-         'export', getconfig().get("repo", "distribution")])
+         'export', getconfig().get("common", "distribution")])
 
 
 def do_sync(option=''):

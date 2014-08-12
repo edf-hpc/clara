@@ -102,7 +102,7 @@ Pin-Priority: 5000
 Package: *
 Pin: release o={1}
 Pin-Priority: 6000
-""".format(getconfig().get("images", "distribution"),
+""".format(getconfig().get("common", "distribution"),
            getconfig().get("images", "origin")))
 
     with open(apt_conf, 'w') as fconf:
