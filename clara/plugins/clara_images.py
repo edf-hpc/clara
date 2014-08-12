@@ -108,8 +108,12 @@ Pin-Priority: 6000
     with open(apt_conf, 'w') as fconf:
         fconf.write('Acquire::Check-Valid-Until "false";\n')
 
+    lists_hosts = getconfig().get("images", "etc_hosts").split(",")
+    if (len(lists_hosts) % 2 != 0):
+        print "WARNING: the option etc_hosts is malformed or missing an argument"
     with open(etc_host, 'w') as fhost:
-        fhost.write("10.89.87.110 atadmnnfs\n")
+        for elem in range(0, len(lists_hosts), 2):
+        fhost.write("{0} {1}\n".format(lists_hosts[elem], lists_hosts[elem+1])
 
     with open(dpkg_conf, 'w') as fdpkg:
         fdpkg.write("""# Drop locales except French
