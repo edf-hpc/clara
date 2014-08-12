@@ -117,7 +117,7 @@ def main():
             'node': 'NodeName',
             'frontend': 'FrontendName',
             'partition': 'PartitionName',
-            'Reservation': 'Reservation',
+            'reservation': 'Reservation',
             'block': 'BlockName',
             'submp': 'SubMPName'
             }
