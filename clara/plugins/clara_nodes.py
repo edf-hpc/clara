@@ -36,17 +36,17 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes connect <hotlist>
-    clara nodes (on|off|reboot) <hotlist>
-    clara nodes status <hotlist>
-    clara nodes setpwd <hotlist>
-    clara nodes getmac <hotlist>
-    clara nodes pxe <hotlist>
-    clara nodes disk <hotlist>
-    clara nodes ping <hotlist>
-    clara nodes blink <hotlist>
-    clara nodes immdhcp <hotlist>
-    clara nodes bios <hotlist>
+    clara nodes connect <hostlist>
+    clara nodes (on|off|reboot) <hostlist>
+    clara nodes status <hostlist>
+    clara nodes setpwd <hostlist>
+    clara nodes getmac <hostlist>
+    clara nodes pxe <hostlist>
+    clara nodes disk <hostlist>
+    clara nodes ping <hostlist>
+    clara nodes blink <hostlist>
+    clara nodes immdhcp <hostlist>
+    clara nodes bios <hostlist>
     clara nodes p2p (status|restart)
     clara nodes -h | --help
 
@@ -148,34 +148,34 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     if dargs['connect']:
-        do_connect(dargs['<hotlist>'])
+        do_connect(dargs['<hostlist>'])
     elif dargs['status'] and not dargs['p2p']:
-        ipmi_do(dargs['<hotlist>'], "power status")
+        ipmi_do(dargs['<hostlist>'], "power status")
     elif dargs['setpwd']:
         sys.exit("Not tested!")  # TODO
-        ipmi_do(dargs['<hotlist>'], "user set name 2 IMMUSER")
-        ipmi_do(dargs['<hotlist>'], "user set password 2 PASSWD")
+        ipmi_do(dargs['<hostlist>'], "user set name 2 IMMUSER")
+        ipmi_do(dargs['<hostlist>'], "user set password 2 PASSWD")
     elif dargs['getmac']:
-        getmac(dargs['<hotlist>'])
+        getmac(dargs['<hostlist>'])
     elif dargs['on']:
-        ipmi_do(dargs['<hotlist>'], "power on")
+        ipmi_do(dargs['<hostlist>'], "power on")
     elif dargs['off']:
-        ipmi_do(dargs['<hotlist>'], "power off")
+        ipmi_do(dargs['<hostlist>'], "power off")
     elif dargs['reboot']:
-        ipmi_do(dargs['<hotlist>'], "chassis power reset")
+        ipmi_do(dargs['<hostlist>'], "chassis power reset")
     elif dargs['blink']:
-        ipmi_do(dargs['<hotlist>'], "chassis identify 1")
+        ipmi_do(dargs['<hostlist>'], "chassis identify 1")
     elif dargs['bios']:
-        ipmi_do(dargs['<hotlist>'],
+        ipmi_do(dargs['<hostlist>'],
                 "chassis bootparam set bootflag force_bios")
     elif dargs['immdhcp']:
-        ipmi_do(dargs['<hotlist>'], "lan set 1 ipsrc dhcp")
+        ipmi_do(dargs['<hostlist>'], "lan set 1 ipsrc dhcp")
     elif dargs['pxe']:
-        ipmi_do(dargs['<hotlist>'], "chassis bootdev pxe")
+        ipmi_do(dargs['<hostlist>'], "chassis bootdev pxe")
     elif dargs['disk']:
-        ipmi_do(dargs['<hotlist>'], "chassis bootdev disk")
+        ipmi_do(dargs['<hostlist>'], "chassis bootdev disk")
     elif dargs['ping']:
-        do_ping(dargs['<hotlist>'])
+        do_ping(dargs['<hostlist>'])
 
 
 if __name__ == '__main__':
