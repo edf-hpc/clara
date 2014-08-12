@@ -44,6 +44,7 @@ Usage:
 
 """
 
+import errno
 import os
 import shutil
 import subprocess
