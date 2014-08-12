@@ -76,17 +76,28 @@ Make selected machines go directly into BIOS on next reboot
 
 
 ## module 'slurm' ##
-* ```clara slurm drain```
+* ```clara slurm health <nodeset>```
 
-Display nodes that are drained
+Show nodes' health.
 
-* ```clara slurm down```
+* ```clara slurm resume <nodeset>```
 
-Display nodes that are down
+Resume the nodes.
 
-* ```clara slurm health <hostlist>```
+* ```clara slurm drain [<nodeset>] [<reason>...]```
 
-Display nodes that are down
+Shows drained nodes and reason why they have been drained, when used without
+arguments. When it is given a nodeset, it drains the specified nodes.
+
+* ```clara slurm down [<nodeset>]```
+
+Shows nodes down when used without arguments. When it is given a nodeset,
+it puts down the specified nodes.
+
+* ```clara slurm <cmd> <subject> [<op>] [<spec>...]```
+
+Simplified interface for scontrol.
+
 
 ## module 'images' ##
 * ```clara images genimg```
