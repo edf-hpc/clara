@@ -1,8 +1,15 @@
+clara (0.20140812) UNRELEASED; urgency=medium
+
+  * Update the commands in the plugin slurm. Issue #4.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 12 Aug 2014 11:53:01 +0200
+
 clara (0.20140807) unstable; urgency=medium
 
-  * Remove the temporary files in case of failure while building the image. 
+  * Remove the temporary files in case of failure while building the image.
   * Add some checks to make sure the files and the directories from the config
     file really exist.
+  * The two above changes related to issue #1.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 07 Aug 2014 16:53:10 +0200
 
