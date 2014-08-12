@@ -38,6 +38,7 @@ Creates and updates the images of installation of a cluster.
 Usage:
     clara images genimg
     clara images (unpack|repack <directory>)
+    clara images editimg [<image>]
     clara images apply_config2img
     clara images initrd
     clara images -h | --help | help
@@ -46,6 +47,7 @@ Usage:
 
 import errno
 import os
+import pty
 import shutil
 import subprocess
 import sys
@@ -255,6 +257,31 @@ def geninitrd():
     print "Kernel copied in " + trg_dir + "/linux-" + kver
 
 
+def editimg(image):
+    if (image is None):
+        squashfs_file = getconfig().get("images", "trg_img")
+    else:
+        squashfs_file = image
+
+    if not os.path.isfile(squashfs_file):
+        sys.exit("The image file {0} doesn't exist.".format(squashfs_file))
+
+    # Extract the image.
+    print "Extracting {0} to {1} ...".format(squashfs_file, work_dir)
+    run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+    # Work in the image
+    os.chdir(work_dir)
+    print "Entering into a bash shell to edit the image. ^d when you have finished"
+    os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m clara images> \e[0m'")
+    pty.spawn(["/bin/bash"])
+    # Rename old image and recreate new one
+    os.rename(squashfs_file, squashfs_file + ".old")
+    print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
+    print "Recreating image at {0}".format(squashfs_file)
+    run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
+    os.chmod(squashfs_file, 0o755)
+
+
 def main():
     dargs = docopt.docopt(__doc__)
 
@@ -282,6 +309,8 @@ def main():
         install_files()
     elif dargs['initrd']:
         geninitrd()
+    elif dargs['editimg']:
+        editimg(dargs['<image>'])
 
     if not dargs['unpack']:
         shutil.rmtree(work_dir)

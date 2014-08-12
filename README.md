@@ -109,6 +109,11 @@ nodes, it will also create a new torrent file and start seeding it.
 
 Unpack and repack the squashfs file providing the image.
 
+* ```clara images editimg [<image>]```
+
+Unpacks the image for editing, spawns a bash to make the changes and
+repacks the image again after.
+
 * ```clara images apply_config2img```
 
 Apply a new configuration to the current image (packages and files),
