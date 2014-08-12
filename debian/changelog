@@ -1,6 +1,7 @@
 clara (0.20140812) UNRELEASED; urgency=medium
 
   * Update the commands in the plugin slurm. Issue #4.
+  * Add command "editimg" to the plugin images. Issue #5
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 12 Aug 2014 11:53:01 +0200
 
