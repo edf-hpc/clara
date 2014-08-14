@@ -153,21 +153,21 @@ def do_package(action, package):
 
 
 def main():
-    args = docopt.docopt(__doc__)
+    dargs = docopt.docopt(__doc__)
 
-    if args['key']:
+    if dargs['key']:
         do_key()
-    if args['init']:
+    if dargs['init']:
         do_init()
-    elif args['sync']:
-        if args['create']:
+    elif dargs['sync']:
+        if dargs['create']:
             do_sync('create')
         else:
             do_sync()
-    elif args['add']:
-        do_package('includedeb', args['<package>'])
-    elif args['del']:
-        do_package('remove', args['<package>'])
+    elif dargs['add']:
+        do_package('includedeb', dargs['<package>'])
+    elif dargs['del']:
+        do_package('remove', dargs['<package>'])
 
 
 if __name__ == '__main__':
