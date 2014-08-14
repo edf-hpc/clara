@@ -67,6 +67,21 @@ def get_from_config(section, value, dist=''):
     if dist == '':
         return getconfig().get(section, value)
 
+    elif dist in getconfig().get("common", "distributions"):
+        or_section = section+"-"+dist
+        # Check if override section exist, if not read the value from base section
+        if getconfig().has_section(or_section):
+            # If the value is not in the override section, return the base value
+            if getconfig().has_option(or_section, value):
+                return getconfig().get(or_section, value)
+            else:
+                return getconfig().get(section, value)
+        else:
+                return getconfig().get(section, value)
+
+    else:
+        sys.exit("{0} is not a know distribution".format(dist))
+
 def getconfig():
     if getconfig.config is None:
         getconfig.config = ConfigParser.ConfigParser()
