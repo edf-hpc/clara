@@ -37,13 +37,15 @@ Creates, updates and synchronizes local Debian repositories.
 
 Usage:
     clara repo key
-    clara repo init
-    clara repo sync [create]
-    clara repo add <file>...
-    clara repo del <name>...
+    clara repo init [--dist=<name>]
+    clara repo sync [create] [--dist=<name>]
+    clara repo add <file>... [--dist=<name>]
+    clara repo del <name>...[--dist=<name>]
     clara repo -h | --help | help
 
 Options:
+    --dist=<name>  Distribution target [default is set on distribution field
+                   at the file config.ini].
     <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
     <name> is the package to remove, if the package is a source name, it'll
     remove all the associated binaries
@@ -100,7 +102,7 @@ def do_key():
 
 
 def do_init():
-    repo_dir = get_from_config("repo", "repo_dir")
+    repo_dir = get_from_config("repo", "repo_dir", dist)
     reprepro_config = repo_dir + '/conf/distributions'
 
     if not os.path.isfile(reprepro_config):
@@ -120,31 +122,31 @@ SignWith: {3}
 Description: Depot Local {4}
 DebIndices: Packages Release . .gz .bz2
 DscIndices: Sources Release . .gz .bz2
-""".format(get_from_config("common", "origin"),
-            get_from_config("common", "distribution"),
-            get_from_config("repo", "version"),
-            get_from_config("repo", "gpg_key"),
-            get_from_config("repo", "clustername")))
+""".format(get_from_config("common", "origin", dist),
+            dist,
+            get_from_config("repo", "version", dist),
+            get_from_config("repo", "gpg_key", dist),
+            get_from_config("repo", "clustername", dist)))
         freprepro.close()
 
     os.chdir(repo_dir)
     run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
-         '--outdir', get_from_config("repo", "mirror_local"),
-         'export', get_from_config("common", "distribution")])
+         '--outdir', get_from_config("repo", "mirror_local", dist),
+         'export', dist])
 
 
 def do_sync(option=''):
-    local = get_from_config("repo", "local_modules").split(',')
-    remote = get_from_config("repo", "remote_modules").split(',')
+    local = get_from_config("repo", "local_modules", dist).split(',')
+    remote = get_from_config("repo", "remote_modules", dist).split(',')
 
     for elem in range(0, len(local)):
-        if os.path.isdir(get_from_config("repo", "mirror_root") +
+        if os.path.isdir(get_from_config("repo", "mirror_root", dist) +
                          "/" + local[elem]) or (option == 'create'):
 
             run(['rsync',
                  '-az', '--stats', '--force', '--delete', '--ignore-errors',
-                 get_from_config("repo", "server") + '::' + remote[elem],
-                 get_from_config("repo", "mirror_root") + '/' + local[elem]])
+                 get_from_config("repo", "server", dist) + '::' + remote[elem],
+                 get_from_config("repo", "mirror_root", dist) + '/' + local[elem]])
         else:
             sys.exit('Local repository not found. '
                      'Please run: \n\tclara repo sync create')
@@ -152,13 +154,20 @@ def do_sync(option=''):
 
 def do_package(action, package):
     run(['reprepro', '--ask-passphrase',
-         '--basedir', get_from_config("repo", "repo_dir"),
-         '--outdir', get_from_config("repo", "mirror_local"),
-         action, get_from_config("common", "distribution"), package])
+         '--basedir', get_from_config("repo", "repo_dir", dist),
+         '--outdir', get_from_config("repo", "mirror_local", dist),
+         action, dist, package])
 
 
 def main():
     dargs = docopt.docopt(__doc__)
+
+    global dist
+    dist = get_from_config("common", "distribution")
+    if dargs["--dist"] is not None:
+        dist = dargs["--dist"]
+    if dist not in get_from_config("common", "distributions"):
+        sys.exit("{0} is not a know distribution".format(dist))
 
     if dargs['key']:
         do_key()
