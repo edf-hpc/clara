@@ -55,20 +55,20 @@ import sys
 import tempfile
 
 import docopt
-from clara.utils import run, getconfig, value_from_file
+from clara.utils import run, get_from_config, value_from_file
 
 
 def do_key():
     fnull = open(os.devnull, 'w')
-    cmd = ['gpg', '--list-secret-keys', getconfig().get("repo", "gpg_key")]
+    cmd = ['gpg', '--list-secret-keys', get_from_config("repo", "gpg_key")]
     retcode = subprocess.call(cmd, stdout=fnull)
     fnull.close()
 
     # We import the key if it hasn't been imported before
     if retcode != 0:
-        file_stored_key = getconfig().get("repo", "stored_enc_key")
+        file_stored_key = get_from_config("repo", "stored_enc_key")
         if os.path.isfile(file_stored_key):
-            password = value_from_file(getconfig().get("common", "master_passwd_file"), "PASSPHRASE")
+            password = value_from_file(get_from_config("common", "master_passwd_file"), "PASSPHRASE")
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()
@@ -100,7 +100,7 @@ def do_key():
 
 
 def do_init():
-    repo_dir = getconfig().get("repo", "repo_dir")
+    repo_dir = get_from_config("repo", "repo_dir")
     reprepro_config = repo_dir + '/conf/distributions'
 
     if not os.path.isfile(reprepro_config):
@@ -120,31 +120,31 @@ SignWith: {3}
 Description: Depot Local {4}
 DebIndices: Packages Release . .gz .bz2
 DscIndices: Sources Release . .gz .bz2
-""".format(getconfig().get("common", "origin"),
-            getconfig().get("common", "distribution"),
-            getconfig().get("repo", "version"),
-            getconfig().get("repo", "gpg_key"),
-            getconfig().get("repo", "clustername")))
+""".format(get_from_config("common", "origin"),
+            get_from_config("common", "distribution"),
+            get_from_config("repo", "version"),
+            get_from_config("repo", "gpg_key"),
+            get_from_config("repo", "clustername")))
         freprepro.close()
 
     os.chdir(repo_dir)
     run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
-         '--outdir', getconfig().get("repo", "mirror_local"),
-         'export', getconfig().get("common", "distribution")])
+         '--outdir', get_from_config("repo", "mirror_local"),
+         'export', get_from_config("common", "distribution")])
 
 
 def do_sync(option=''):
-    local = getconfig().get("repo", "local_modules").split(',')
-    remote = getconfig().get("repo", "remote_modules").split(',')
+    local = get_from_config("repo", "local_modules").split(',')
+    remote = get_from_config("repo", "remote_modules").split(',')
 
     for elem in range(0, len(local)):
-        if os.path.isdir(getconfig().get("repo", "mirror_root") +
+        if os.path.isdir(get_from_config("repo", "mirror_root") +
                          "/" + local[elem]) or (option == 'create'):
 
             run(['rsync',
                  '-az', '--stats', '--force', '--delete', '--ignore-errors',
-                 getconfig().get("repo", "server") + '::' + remote[elem],
-                 getconfig().get("repo", "mirror_root") + '/' + local[elem]])
+                 get_from_config("repo", "server") + '::' + remote[elem],
+                 get_from_config("repo", "mirror_root") + '/' + local[elem]])
         else:
             sys.exit('Local repository not found. '
                      'Please run: \n\tclara repo sync create')
@@ -152,9 +152,9 @@ def do_sync(option=''):
 
 def do_package(action, package):
     run(['reprepro', '--ask-passphrase',
-         '--basedir', getconfig().get("repo", "repo_dir"),
-         '--outdir', getconfig().get("repo", "mirror_local"),
-         action, getconfig().get("common", "distribution"), package])
+         '--basedir', get_from_config("repo", "repo_dir"),
+         '--outdir', get_from_config("repo", "mirror_local"),
+         action, get_from_config("common", "distribution"), package])
 
 
 def main():

@@ -55,7 +55,7 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clush, run, getconfig
+from clara.utils import clush, run, get_from_config
 
 
 def clean_and_exit(problem):
@@ -85,11 +85,11 @@ def base_install():
     dpkg_conf = work_dir + "/etc/dpkg/dpkg.cfg.d/excludes"
     etc_host = work_dir + "/etc/hosts"
 
-    run(["debootstrap", getconfig().get("images", "debiandist"), work_dir,
-         getconfig().get("images", "debmirror") + "/debian"])
+    run(["debootstrap", get_from_config("images", "debiandist"), work_dir,
+         get_from_config("images", "debmirror") + "/debian"])
 
     # Step 2 - Mirror setup
-    list_repos = getconfig().get("images", "list_repos").split(",")
+    list_repos = get_from_config("images", "list_repos").split(",")
     with open(src_list, 'w') as fsources:
         for line in list_repos:
             fsources.write(line + '\n')
@@ -102,13 +102,13 @@ Pin-Priority: 5000
 Package: *
 Pin: release o={1}
 Pin-Priority: 6000
-""".format(getconfig().get("common", "distribution"),
-           getconfig().get("common", "origin")))
+""".format(get_from_config("common", "distribution"),
+           get_from_config("common", "origin")))
 
     with open(apt_conf, 'w') as fconf:
         fconf.write('Acquire::Check-Valid-Until "false";\n')
 
-    lists_hosts = getconfig().get("images", "etc_hosts").split(",")
+    lists_hosts = get_from_config("images", "etc_hosts").split(",")
     if (len(lists_hosts) % 2 != 0):
         print "WARNING: the option etc_hosts is malformed or missing an argument"
     with open(etc_host, 'w') as fhost:
@@ -143,13 +143,13 @@ def umount_chroot():
 
 
 def system_install():
-    package_file = getconfig().get("images", "package_file")
+    package_file = get_from_config("images", "package_file")
     if os.path.isfile(package_file):
         shutil.copy(package_file, work_dir + "/tmp/packages.file")
     else:
         clean_and_exit("Error copying file " + package_file)
 
-    preseed_file = getconfig().get("images", "preseed_file")
+    preseed_file = get_from_config("images", "preseed_file")
     if os.path.isfile(preseed_file):
         shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
     else:
@@ -157,7 +157,7 @@ def system_install():
 
     mount_chroot()
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    pkgs = getconfig().get("images", "important_packages").split(',')
+    pkgs = get_from_config("images", "important_packages").split(',')
     run_chroot(["chroot", work_dir, "apt-get", "install", "--yes", "--force-yes"] + pkgs)
     run_chroot(["chroot", work_dir, "apt-get", "update"])
     run_chroot(["chroot", work_dir, "aptitude", "reinstall", "~i ?not(?priority(required))"])
@@ -177,11 +177,11 @@ def system_install():
 
 
 def install_files():
-    list_files_to_install = getconfig().get("images", "list_files_to_install")
+    list_files_to_install = get_from_config("images", "list_files_to_install")
     if not os.path.isfile(list_files_to_install):
         clean_and_exit("Error reading file " + list_files_to_install)
 
-    dir_origin = getconfig().get("images", "dir_files_to_install")
+    dir_origin = get_from_config("images", "dir_files_to_install")
     if not os.path.isdir(dir_origin):
         clean_and_exit("Error reading directory " + dir_origin)
 
@@ -210,14 +210,14 @@ def install_files():
 
 
 def remove_files():
-    files_to_remove = getconfig().get("images", "files_to_remove").split(',')
+    files_to_remove = get_from_config("images", "files_to_remove").split(',')
     for f in files_to_remove:
         if os.path.isfile(work_dir + "/" + f):
             os.remove(work_dir + "/" + f)
 
 
 def genimg():
-    squashfs_file = getconfig().get("images", "trg_img")
+    squashfs_file = get_from_config("images", "trg_img")
     if os.path.isfile(squashfs_file):
         os.rename(squashfs_file, squashfs_file + ".old")
         print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
@@ -229,7 +229,7 @@ def genimg():
 
 
 def extract_image():
-    squashfs_file = getconfig().get("images", "trg_img")
+    squashfs_file = get_from_config("images", "trg_img")
     if not os.path.isfile(squashfs_file):
         sys.exit("The image {0} does not exist!".format(squashfs_file))
 
@@ -238,19 +238,19 @@ def extract_image():
 
 
 def geninitrd():
-    trg_dir = getconfig().get("images", "trg_dir")
+    trg_dir = get_from_config("images", "trg_dir")
     if not os.path.isdir(trg_dir):
         sys.exit("Directory {0} does not exist!".format(trg_dir))
 
-    mkinitrfs = getconfig().get("images", "mkinitramfs")
+    mkinitrfs = get_from_config("images", "mkinitramfs")
     if not os.path.isfile(mkinitrfs):
         sys.exit("{0} does not exist!".format(mkinitrfs))
 
-    initramfsc = getconfig().get("images", "initramfs-config")
+    initramfsc = get_from_config("images", "initramfs-config")
     if not os.path.isdir(initramfsc):
         sys.exit("Directory {0} does not exist!".format(initramfsc))
 
-    kver = getconfig().get("images", "kver")
+    kver = get_from_config("images", "kver")
     # Generate the initrd
     run([mkinitrfs, "-d", initramfsc, "-o", trg_dir + "/initrd-" + kver, kver])
     os.chmod(trg_dir + "/initrd-" + kver, 0o644)
@@ -263,7 +263,7 @@ def geninitrd():
 
 def editimg(image):
     if (image is None):
-        squashfs_file = getconfig().get("images", "trg_img")
+        squashfs_file = get_from_config("images", "trg_img")
     else:
         squashfs_file = image
 

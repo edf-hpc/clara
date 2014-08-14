@@ -62,6 +62,10 @@ def run(cmd):
     if retcode != 0:
         sys.exit('E: ' + ' '.join(cmd))
 
+def get_from_config(section, value, dist=''):
+    """ Read a value from config.ini and return it"""
+    if dist == '':
+        return getconfig().get(section, value)
 
 def getconfig():
     if getconfig.config is None:

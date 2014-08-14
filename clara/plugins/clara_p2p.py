@@ -51,20 +51,20 @@ import time
 import docopt
 import ClusterShell.NodeSet
 
-from clara.utils import clush, run, getconfig, value_from_file
+from clara.utils import clush, run, get_from_config, value_from_file
 
 
 def mktorrent(image):
     ml_path = "/var/lib/mldonkey"
-    trg_dir = getconfig().get("images", "trg_dir")
+    trg_dir = get_from_config("images", "trg_dir")
     if (image is None):
-        squashfs_file = getconfig().get("images", "trg_img")
+        squashfs_file = get_from_config("images", "trg_img")
     else:
         squashfs_file = image
-    seeders = getconfig().get("p2p", "seeders")
-    trackers = getconfig().get("p2p", "trackers")
-    trackers_port = getconfig().get("p2p", "trackers_port")
-    trackers_schema = getconfig().get("p2p", "trackers_schema")
+    seeders = get_from_config("p2p", "seeders")
+    trackers = get_from_config("p2p", "trackers")
+    trackers_port = get_from_config("p2p", "trackers_port")
+    trackers_schema = get_from_config("p2p", "trackers_schema")
 
     if not os.path.isfile(squashfs_file):
         sys.exit("The file {0} doesn't exist".format(squashfs_file))
@@ -96,8 +96,8 @@ def mktorrent(image):
 def main():
     dargs = docopt.docopt(__doc__)
 
-    trackers = getconfig().get("p2p", "trackers")
-    seeders = getconfig().get("p2p", "seeders")
+    trackers = get_from_config("p2p", "trackers")
+    seeders = get_from_config("p2p", "seeders")
 
     if dargs['status']:
         clush(trackers, "service mldonkey-server status")
