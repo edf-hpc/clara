@@ -45,7 +45,7 @@ Usage:
 
 Options:
     <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
-    <name> use the package to remove, if the package is a source name, it'll
+    <name> is the package to remove, if the package is a source name, it'll
     remove all the associated binaries
 """
 

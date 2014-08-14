@@ -24,10 +24,16 @@ Synchronize all the local Debian repositories with the canonical repositories.
 If it's the first time we're syncing, we need to add the option [create] to
 also create the repository locally.
 
-* ```clara repo (add|del) <package>```
+* ```clara repo add <file>...```
 
-Add or remove a package to the local repository.
+Add packages to the local repository.
+<file> can be one or more *.deb binaries, *.changes files or *.dsc files.
 
+* ```clara repo del <name>...```
+
+Remove package to the local repository.
+<name> is the package to remove, if the package is a source name, it'll
+remove all the associated binaries.
 
 ## module 'nodes' ##
 * ```clara nodes connect <hostlist>```
