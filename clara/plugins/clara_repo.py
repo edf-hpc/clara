@@ -39,9 +39,14 @@ Usage:
     clara repo key
     clara repo init
     clara repo sync [create]
-    clara repo (add|del) <package>
+    clara repo add <file>...
+    clara repo del <name>...
     clara repo -h | --help | help
 
+Options:
+    <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
+    <name> use the package to remove, if the package is a source name, it'll
+    remove all the associated binaries
 """
 
 import subprocess
@@ -149,7 +154,7 @@ def do_package(action, package):
     run(['reprepro', '--ask-passphrase',
          '--basedir', getconfig().get("repo", "repo_dir"),
          '--outdir', getconfig().get("repo", "mirror_local"),
-         action, getconfig().get("repo", "distribution"), package])
+         action, getconfig().get("common", "distribution"), package])
 
 
 def main():
@@ -165,10 +170,18 @@ def main():
         else:
             do_sync()
     elif dargs['add']:
-        do_package('includedeb', dargs['<package>'])
+        for elem in dargs['<file>']:
+            if elem.endswith(".deb"):
+                do_package('includedeb', elem)
+            elif elem.endswith(".changes"):
+                do_package('include', elem)
+            elif elem.endswith(".dsc"):
+                do_package('includedsc', elem)
+            else:
+                sys.exit("File is not a *.deb *.dsc or *.changes")
     elif dargs['del']:
-        do_package('remove', dargs['<package>'])
-
+        for elem in dargs['<name>']:
+            do_package('removesrc', elem)
 
 if __name__ == '__main__':
     main()
