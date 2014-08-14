@@ -1,3 +1,10 @@
+clara (0.20140814) UNRELEASED; urgency=medium
+
+  * clara repo add now handles multiple *.dsc *.changes and *.deb in the same
+    command. clara repo del has been updated accordingly. This fix #2.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 14 Aug 2014 14:03:00 +0200
+
 clara (0.20140812) unstable; urgency=medium
 
   * Update the commands in the plugin slurm. Issue #4.
