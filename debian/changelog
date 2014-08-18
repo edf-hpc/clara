@@ -1,3 +1,10 @@
+clara (0.20140818) UNRELEASED; urgency=medium
+
+  * Add support for multi-distribution. Fixes #7.
+    Read in the FEATURES file how this works.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 18 Aug 2014 17:26:41 +0200
+
 clara (0.20140814) UNRELEASED; urgency=medium
 
   * clara repo add now handles multiple *.dsc *.changes and *.deb in the same
