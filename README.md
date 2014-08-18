@@ -13,23 +13,23 @@ Clara provides the following commands:
 
 Install the secret GPG key to use in the repository.
 
-* ```clara repo init```
+* ```clara repo init [--dist=<name>]```
 
 Create the initial configuration for reprepro for our local repository and
 makes the first export.
 
-* ```clara repo sync [create]```
+* ```clara repo sync [create] [--dist=<name>]```
 
 Synchronize all the local Debian repositories with the canonical repositories.
 If it's the first time we're syncing, we need to add the option [create] to
 also create the repository locally.
 
-* ```clara repo add <file>...```
+* ```clara repo add <file>... [--dist=<name>]```
 
 Add packages to the local repository.
 <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
 
-* ```clara repo del <name>...```
+* ```clara repo del <name>... [--dist=<name>]```
 
 Remove package to the local repository.
 <name> is the package to remove, if the package is a source name, it'll
@@ -104,30 +104,36 @@ it puts down the specified nodes.
 
 Simplified interface for scontrol.
 
+The option [--dist=<name>] allows to select a distribution different
+to the default one. This distribution must be listed in the field
+"distributions" from the section [common]
 
 ## module 'images' ##
-* ```clara images genimg```
+
+* ```clara images genimg [--dist=<name>]```
 
 Create a new squashfs image to use as operating system on the cluster
 nodes, it will also create a new torrent file and start seeding it.
 
-* ```clara images (unpack|repack <directory>)```
+* ```clara images (unpack|repack <directory>) [--dist=<name>]```
 
 Unpack and repack the squashfs file providing the image.
 
-* ```clara images editimg [<image>]```
+* ```clara images editimg [<image>] [--dist=<name>]```
 
 Unpacks the image for editing, spawns a bash to make the changes and
 repacks the image again after.
 
-* ```clara images apply_config2img```
+* ```clara images apply_config2img [--dist=<name>]```
 
 Apply a new configuration to the current image (packages and files),
 it will also renew the torrent file and start seeding it.
 
-* ```clara images initrd```
+* ```clara images initrd [--dist=<name>]```
 
 Create a new initrd image to boot the cluster nodes.
+
+
 
 ## module 'p2p' ##
 
