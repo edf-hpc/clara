@@ -1,0 +1,25 @@
+* Multi-distribution
+
+Clara allows to work with different distributions. For that, in config.ini
+inside the section [common] you need to list the allowed distributions
+in the field "distributions".
+E.g.: distributions=calibre8,calibre9
+
+Inside the section [common], you must also set the distribution by
+default in the field "distribution"
+E.g.: distribution=calibre8
+
+The default distribution configuration parameters will be the ones
+specified in the configuration. That is the section [repo] will
+have the configuration for calibre8 in our example.
+If you want to override some of these parameters for calibre9,
+you need to add the section [repo-calibre9].
+If the parameter is missing in [repo-calibre9], clara will use instead
+the value of the parameter listed in [repo]. If the full section is
+missing, clara will use all the values listed in [repo].
+
+Finally, to use other calibre9 instead of the default distribution (calibre8),
+you must indicate it to clara with the option  --dist=<distribution>.
+E.g.: clara repo init --dist=calibre9
+
+
