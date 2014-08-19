@@ -36,14 +36,15 @@
 Creates, updates and synchronizes local Debian repositories.
 
 Usage:
-    clara repo key
-    clara repo init [--dist=<name>]
-    clara repo sync [create] [--dist=<name>]
-    clara repo add <file>... [--dist=<name>]
-    clara repo del <name>...[--dist=<name>]
+    clara [options] repo key
+    clara [options] repo init [--dist=<name>]
+    clara [options] repo sync [create] [--dist=<name>]
+    clara [options] repo add <file>... [--dist=<name>]
+    clara [options] repo del <name>...[--dist=<name>]
     clara repo -h | --help | help
 
 Options:
+    --debug        Enable debug output
     --dist=<name>  Distribution target [default is set on distribution field
                    at the file config.ini].
     <file> can be one or more *.deb binaries, *.changes files or *.dsc files.

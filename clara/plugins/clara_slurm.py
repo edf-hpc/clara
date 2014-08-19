@@ -36,14 +36,15 @@
 Performs tasks using SLURM's controller
 
 Usage:
-    clara slurm health <nodeset>
-    clara slurm resume <nodeset>
-    clara slurm drain [<nodeset>] [<reason>...]
-    clara slurm down [<nodeset>]
-    clara slurm <cmd> <subject> [<op>] [<spec>...]
+    clara [options] slurm health <nodeset>
+    clara [options] slurm resume <nodeset>
+    clara [options] slurm drain [<nodeset>] [<reason>...]
+    clara [options] slurm down [<nodeset>]
+    clara [options] slurm <cmd> <subject> [<op>] [<spec>...]
     clara slurm -h | --help
 
 Options:
+    --debug  Enable debug output
     <op> is one of the following ones: show, create, update and delete.
     <cmd> is one of the following ones: job, node, steps, frontend,
     partition, reservation, block and submp.

@@ -36,20 +36,22 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes connect <hostlist>
-    clara nodes (on|off|reboot) <hostlist>
-    clara nodes status <hostlist>
-    clara nodes setpwd <hostlist>
-    clara nodes getmac <hostlist>
-    clara nodes pxe <hostlist>
-    clara nodes disk <hostlist>
-    clara nodes ping <hostlist>
-    clara nodes blink <hostlist>
-    clara nodes immdhcp <hostlist>
-    clara nodes bios <hostlist>
-    clara nodes p2p (status|restart)
+    clara [options] nodes connect <hostlist>
+    clara [options] nodes (on|off|reboot) <hostlist>
+    clara [options] nodes status <hostlist>
+    clara [options] nodes setpwd <hostlist>
+    clara [options] nodes getmac <hostlist>
+    clara [options] nodes pxe <hostlist>
+    clara [options] nodes disk <hostlist>
+    clara [options] nodes ping <hostlist>
+    clara [options] nodes blink <hostlist>
+    clara [options] nodes immdhcp <hostlist>
+    clara [options] nodes bios <hostlist>
+    clara [options] nodes p2p (status|restart)
     clara nodes -h | --help
 
+Options:
+    --debug  Enable debug output
 """
 import errno
 import os

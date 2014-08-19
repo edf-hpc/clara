@@ -36,13 +36,15 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images genimg [--dist=<name>]
-    clara images (unpack|repack <directory>) [--dist=<name>]
-    clara images editimg [<image>] [--dist=<name>]
-    clara images apply_config2img [--dist=<name>]
-    clara images initrd [--dist=<name>]
+    clara [options] images genimg [--dist=<name>]
+    clara [options] images (unpack|repack <directory>) [--dist=<name>]
+    clara [options] images editimg [<image>] [--dist=<name>]
+    clara [options] images apply_config2img [--dist=<name>]
+    clara [options] images initrd [--dist=<name>]
     clara images -h | --help | help
 
+Options:
+    --debug  Enable debug output
 """
 
 import errno

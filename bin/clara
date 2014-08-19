@@ -33,7 +33,7 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <command> [<args>...]
+usage: clara [--debug] <command> [<args>...]
        clara [--version]
        clara [--help]
 
@@ -44,6 +44,9 @@ Clara provides the following commads:
    images   creates and updates the images of installation of a cluster
    p2p      makes torrent images and seeds them via BitTorrent
 
+Options:
+   --debug  enable debug output
+
 See 'clara <command> help' for more information on a specific command.
 
 """
@@ -51,6 +54,7 @@ import sys
 
 import docopt
 import importlib
+from clara.utils import conf
 
 if __name__ == '__main__':
 
@@ -58,6 +62,9 @@ if __name__ == '__main__':
 
     if args['<command>'] in ['help', None]:
         sys.exit(__doc__)
+
+    if args['--debug']:
+        conf.debug = True
 
     try:
         m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
