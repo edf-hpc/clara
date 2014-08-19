@@ -42,8 +42,17 @@ import sys
 import ClusterShell.NodeSet
 import ClusterShell.Task
 
+class Conf:
+    """Class which contains runtime variables"""
+    def __init__(self):
+        self.debug = False
+
+# global runtime Conf object
+conf = Conf()
 
 def clush(hosts, cmds):
+    if conf.debug:
+        print('D: clush(): ' + cmds)
     task = ClusterShell.Task.task_self()
     task.run(cmds, nodes=hosts)
 
@@ -52,6 +61,8 @@ def clush(hosts, cmds):
 
 
 def run(cmd):
+    if conf.debug:
+        print('D: run(): ' + ' '.join(cmd))
     try:
         retcode = subprocess.call(cmd)
     except OSError, e:

@@ -36,12 +36,13 @@
 Makes torrent images and seeds them via BitTorrent
 
 Usage:
-    clara p2p status
-    clara p2p restart
-    clara p2p mktorrent [--image=<path>]
+    clara [options] p2p status
+    clara [options] p2p restart
+    clara [options] p2p mktorrent [--image=<path>]
     clara p2p -h | --help | help
 
 Options:
+    --debug         Enable debug output
     --image=<path>  Path to squashfs image.
 """
 import os
