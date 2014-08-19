@@ -145,7 +145,8 @@ def do_sync(option=''):
                          "/" + local[elem]) or (option == 'create'):
 
             run(['rsync',
-                 '-az', '--stats', '--force', '--delete', '--ignore-errors',
+                 '-az', '--stats', '--human-readable', '--force', '--delete',
+                 '--ignore-errors',
                  get_from_config("repo", "server", dist) + '::' + remote[elem],
                  get_from_config("repo", "mirror_root", dist) + '/' + local[elem]])
         else:
