@@ -65,22 +65,27 @@ def run(cmd):
 def get_from_config(section, value, dist=''):
     """ Read a value from config.ini and return it"""
     if dist == '':
-        return getconfig().get(section, value)
+        try:
+            return getconfig().get(section, value)
+        except:
+            sys.exit("E: Value '%s' not found in the section '%s'" % (value, section))
 
     elif dist in getconfig().get("common", "distributions"):
         or_section = section+"-"+dist
-        # Check if override section exist, if not read the value from base section
-        if getconfig().has_section(or_section):
-            # If the value is not in the override section, return the base value
-            if getconfig().has_option(or_section, value):
-                return getconfig().get(or_section, value)
-            else:
-                return getconfig().get(section, value)
-        else:
-                return getconfig().get(section, value)
 
+        # If the value is not in the override section, return the base value
+        if getconfig().has_option(or_section, value):
+             try:
+                return getconfig().get(or_section, value)
+             except:
+                sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
+        else:
+             try:
+                return getconfig().get(section, value)
+             except:
+                sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
     else:
-        sys.exit("{0} is not a know distribution".format(dist))
+        sys.exit("{0} is not a known distribution".format(dist))
 
 def getconfig():
     if getconfig.config is None:
