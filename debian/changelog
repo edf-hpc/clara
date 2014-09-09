@@ -1,3 +1,9 @@
+clara (0.20140916) UNRELEASED; urgency=medium
+
+  * Rename PASSWD to IMMPASSWORD to avoid confusion. Fixes #12
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 18 Aug 2014 17:26:41 +0200
+
 clara (0.20140818) UNRELEASED; urgency=medium
 
   * Add support for multi-distribution. Fixes #7.

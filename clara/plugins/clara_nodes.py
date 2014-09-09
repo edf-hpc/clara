@@ -78,7 +78,7 @@ def install_cfg():
 def ipmi_do(hosts, cmd):
     install_cfg()
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
-    os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "PASSWD")
+    os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
@@ -89,7 +89,7 @@ def ipmi_do(hosts, cmd):
 def getmac(hosts):
     install_cfg()
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
-    os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "PASSWD")
+    os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         print "%s: " % host
@@ -154,7 +154,7 @@ def main():
     elif dargs['setpwd']:
         sys.exit("Not tested!")  # TODO
         ipmi_do(dargs['<hostlist>'], "user set name 2 IMMUSER")
-        ipmi_do(dargs['<hostlist>'], "user set password 2 PASSWD")
+        ipmi_do(dargs['<hostlist>'], "user set password 2 IMMPASSWORD")
     elif dargs['getmac']:
         getmac(dargs['<hostlist>'])
     elif dargs['on']:
