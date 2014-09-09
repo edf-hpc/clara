@@ -114,12 +114,11 @@ def getmac(hosts):
                                                         full_mac[20:22],
                                                         full_mac[22:24])
 
-        print "ETH0's MAC address is {0}\n" \
-              "ETH1's MAC address is {1}\n".format(mac_address1, mac_address2)
+        print "  eth0's MAC address is {0}\n" \
+              "  eth1's MAC address is {1}".format(mac_address1, mac_address2)
 
 
 def do_connect(hosts):
-
     try:
         cmd = ["service", "conman", "status"]
         retcode = subprocess.call(cmd)
