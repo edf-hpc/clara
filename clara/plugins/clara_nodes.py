@@ -36,7 +36,7 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes connect <hostlist>
+    clara nodes connect <host>
     clara nodes (on|off|reboot) <hostlist>
     clara nodes status <hostlist>
     clara nodes setpwd <hostlist>
@@ -121,22 +121,26 @@ def getmac(hosts):
 
 
 def do_connect(hosts):
-    try:
-        cmd = ["service", "conman", "status"]
-        retcode = subprocess.call(cmd)
-    except OSError, e:
-        if (e.errno == errno.ENOENT):
-            sys.exit("Binary not found, check your path and/or retry as root."
-                     "You were trying to run:\n {0}".format(" ".join(cmd)))
-
-    if retcode == 0:  # if conman is running
-        os.environ["CONMAN_ESCAPE"] = '!'
-        conmand = value_from_file(get_from_config("nodes", "conmand"))
-        run(["conman", "-d", conmand, hosts])
-    elif retcode == 1:  # if conman is NOT running
-        ipmi_do(hosts, ["sol", "activate"], pty=True)
+    nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+    if (len(nodeset) != 1):
+	    sys.exit('Only one host allowed for this command')
     else:
-        sys.exit('E: ' + ' '.join(cmd))
+            try:
+                cmd = ["service", "conman", "status"]
+                retcode = subprocess.call(cmd)
+            except OSError, e:
+                if (e.errno == errno.ENOENT):
+                    sys.exit("Binary not found, check your path and/or retry as root."
+                             "You were trying to run:\n {0}".format(" ".join(cmd)))
+
+            if retcode == 0:  # if conman is running
+                os.environ["CONMAN_ESCAPE"] = '!'
+                conmand = value_from_file(get_from_config("nodes", "conmand"))
+                run(["conman", "-d", conmand, hosts])
+            elif retcode == 1:  # if conman is NOT running
+                ipmi_do(hosts, ["sol", "activate"], pty=True)
+            else:
+                sys.exit('E: ' + ' '.join(cmd))
 
 
 def do_ping(hosts):
@@ -149,7 +153,7 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     if dargs['connect']:
-        do_connect(dargs['<hostlist>'])
+        do_connect(dargs['<host>'])
     elif dargs['status']:
         ipmi_do(dargs['<hostlist>'], ["power", "status"])
     elif dargs['setpwd']:
