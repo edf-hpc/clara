@@ -47,7 +47,6 @@ Usage:
     clara nodes blink <hostlist>
     clara nodes immdhcp <hostlist>
     clara nodes bios <hostlist>
-    clara nodes p2p (status|restart)
     clara nodes -h | --help
 
 """
@@ -151,7 +150,7 @@ def main():
 
     if dargs['connect']:
         do_connect(dargs['<hostlist>'])
-    elif dargs['status'] and not dargs['p2p']:
+    elif dargs['status']:
         ipmi_do(dargs['<hostlist>'], ["power", "status"])
     elif dargs['setpwd']:
         sys.exit("Not tested!")  # TODO

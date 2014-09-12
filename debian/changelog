@@ -3,6 +3,7 @@ clara (0.20140916) UNRELEASED; urgency=medium
   * Rename PASSWD to IMMPASSWORD to avoid confusion. Fixes #12
   * Cosmetic changes. Fixes #13
   * Fix ipmitool calls. Fixes #14, fixes #20
+  * Remove obsolete option, now it's in a separate plugin. Fixes #17
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 18 Aug 2014 17:26:41 +0200
 
