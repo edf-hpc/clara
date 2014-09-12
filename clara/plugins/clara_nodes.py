@@ -137,7 +137,7 @@ def do_connect(hosts):
                 os.environ["CONMAN_ESCAPE"] = '!'
                 conmand = value_from_file(get_from_config("nodes", "conmand"))
                 run(["conman", "-d", conmand, hosts])
-            elif retcode == 1:  # if conman is NOT running
+            elif retcode == 1 or retcode == 3:  # if conman is NOT running
                 ipmi_do(hosts, ["sol", "activate"], pty=True)
             else:
                 sys.exit('E: ' + ' '.join(cmd))
