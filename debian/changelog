@@ -1,4 +1,4 @@
-clara (0.20140916) UNRELEASED; urgency=medium
+clara (0.20140916) unstable; urgency=medium
 
   * Rename PASSWD to IMMPASSWORD to avoid confusion. Fixes #12
   * Cosmetic changes. Fixes #13
@@ -9,7 +9,7 @@ clara (0.20140916) UNRELEASED; urgency=medium
   * Supress output from "service conman status". Fixes #18
   * Change behavior when a value is not in the config file. Fixes #10
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 18 Aug 2014 17:26:41 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 16 Sep 2014 16:59:42 +0200
 
 clara (0.20140818) UNRELEASED; urgency=medium
 

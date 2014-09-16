@@ -82,7 +82,7 @@ def main():
         if dargs['<nodeset>'] is None:
             show_nodes("drain")
         else:
-            if len (dargs['<reason>']) == 0:
+            if len(dargs['<reason>']) == 0:
                 sys.exit("You must specify a reason when DRAINING a node")
             else:
                 run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],

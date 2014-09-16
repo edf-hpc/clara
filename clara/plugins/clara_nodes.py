@@ -123,11 +123,11 @@ def getmac(hosts):
 def do_connect(hosts):
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     if (len(nodeset) != 1):
-	    sys.exit('Only one host allowed for this command')
+        sys.exit('Only one host allowed for this command')
     else:
             try:
                 cmd = ["service", "conman", "status"]
-                fnull = open(os.devnull, 'wb') # Supress output of the following call
+                fnull = open(os.devnull, 'wb')  # Supress output of the following call
                 retcode = subprocess.call(cmd, stdout=fnull, stderr=subprocess.STDOUT)
                 fnull.close()
             except OSError, e:

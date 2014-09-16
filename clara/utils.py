@@ -62,6 +62,7 @@ def run(cmd):
     if retcode != 0:
         sys.exit('E: ' + ' '.join(cmd))
 
+
 def get_from_config(section, value, dist=''):
     """ Read a value from config.ini and return it"""
     if dist == '':
@@ -75,23 +76,24 @@ def get_from_config(section, value, dist=''):
 
         # If the value is not in the override section, return the base value
         if getconfig().has_option(or_section, value):
-             try:
+            try:
                 return getconfig().get(or_section, value)
-             except:
+            except:
                 sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
         else:
-             try:
+            try:
                 return getconfig().get(section, value)
-             except:
+            except:
                 sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
     else:
         sys.exit("{0} is not a known distribution".format(dist))
+
 
 def getconfig():
     if getconfig.config is None:
         getconfig.config = ConfigParser.ConfigParser()
         getconfig.config.read(['/etc/clara/config.ini',
-                             os.path.expanduser('~/.config/clara/config.ini')])
+                              os.path.expanduser('~/.config/clara/config.ini')])
     return getconfig.config
 
 getconfig.config = None
