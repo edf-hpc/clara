@@ -39,7 +39,6 @@ Usage:
     clara images genimg [--dist=<name>]
     clara images (unpack|repack <directory>) [--dist=<name>]
     clara images editimg [<image>] [--dist=<name>]
-    clara images apply_config2img [--dist=<name>]
     clara images initrd [--dist=<name>]
     clara images -h | --help | help
 
@@ -313,10 +312,6 @@ def main():
         extract_image()
         print "Modify the image at {0} and then run:\n " \
               "\tclara images repack {0}".format(work_dir)
-    elif dargs['apply_config2img']:
-        extract_image()
-        system_install()
-        install_files()
     elif dargs['initrd']:
         geninitrd()
     elif dargs['editimg']:
