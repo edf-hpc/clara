@@ -127,7 +127,9 @@ def do_connect(hosts):
     else:
             try:
                 cmd = ["service", "conman", "status"]
-                retcode = subprocess.call(cmd)
+                fnull = open(os.devnull, 'wb') # Supress output of the following call
+                retcode = subprocess.call(cmd, stdout=fnull, stderr=subprocess.STDOUT)
+                fnull.close()
             except OSError, e:
                 if (e.errno == errno.ENOENT):
                     sys.exit("Binary not found, check your path and/or retry as root."

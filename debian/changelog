@@ -6,6 +6,7 @@ clara (0.20140916) UNRELEASED; urgency=medium
   * Remove obsolete option, now it's in a separate plugin. Fixes #17
   * "clara nodes connect" can only use one host/node. Fixes #16
   * conman returns 3 when is not running if we use systemd. Fixes #19.
+  * Supress output from "service conman status". Fixes #18
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 18 Aug 2014 17:26:41 +0200
 
