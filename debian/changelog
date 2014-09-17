@@ -2,8 +2,9 @@ clara (0.20140917) UNRELEASED; urgency=medium
 
   * Remove obsolete option "images apply_config2img", it has been replaced
     by editimg, unpack and repack. Fixes #23
+  * Add alternative order of options in the plugin nodes. Fixes #21.
 
- -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 17 Sep 2014 15:00:03 +0200
+ -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 17 Sep 2014 15:13:16 +0200
 
 clara (0.20140916) unstable; urgency=medium
 

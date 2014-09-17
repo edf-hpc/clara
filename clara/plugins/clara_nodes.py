@@ -48,7 +48,18 @@ Usage:
     clara nodes immdhcp <hostlist>
     clara nodes bios <hostlist>
     clara nodes -h | --help
-
+Alternative:
+    clara nodes <host> connect
+    clara nodes <hostlist> (on|off|reboot)
+    clara nodes <hostlist> status
+    clara nodes <hostlist> setpwd
+    clara nodes <hostlist> getmac
+    clara nodes <hostlist> pxe
+    clara nodes <hostlist> disk
+    clara nodes <hostlist> ping
+    clara nodes <hostlist> blink
+    clara nodes <hostlist> immdhcp
+    clara nodes <hostlist> bios
 """
 import errno
 import os
