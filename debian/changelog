@@ -4,6 +4,8 @@ clara (0.20140918) UNRELEASED; urgency=medium
     by editimg, unpack and repack. Fixes #23
   * Add alternative order of options in the plugin nodes. Fixes #21.
   * Delete unnecesary code. The file decoding is done by Puppet. Fixes #15.
+  * Add clara/version.py. This file is updated automatically by setup.py
+    and it's used by bin/clara to show the versin. Fixes #11
 
  -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 17 Sep 2014 15:35:11 +0200
 

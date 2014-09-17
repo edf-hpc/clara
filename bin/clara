@@ -52,9 +52,11 @@ import sys
 import docopt
 import importlib
 
+from clara.version import __version__
+
 if __name__ == '__main__':
 
-    args = docopt.docopt(__doc__, options_first=True)
+    args = docopt.docopt(__doc__, version=__version__, options_first=True)
 
     if args['<command>'] in ['help', None]:
         sys.exit(__doc__)
@@ -63,6 +65,6 @@ if __name__ == '__main__':
         m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
     except ImportError:
         sys.exit("Sorry, the command {0} doesn't exist. "
-            "See 'clara --help'.".format(args['<command>']))
+                 "See 'clara --help'.".format(args['<command>']))
 
     m.main()
