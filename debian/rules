@@ -3,3 +3,7 @@
 
 %:
 	dh $@ --with python2
+
+override_dh_clean:
+	rm -rf Clara.egg-info/
+	dh_clean
