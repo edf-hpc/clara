@@ -71,22 +71,7 @@ import docopt
 from clara.utils import clush, run, get_from_config, value_from_file
 
 
-def install_cfg():
-    passwd_file = get_from_config("common", "master_passwd_file")
-    if not os.path.isfile(passwd_file) and os.path.isfile(passwd_file + ".enc"):
-        password = value_from_file(get_from_config("common", "master_passwd_file"), "PASSPHRASE")
-
-        if len(password) > 20:
-            cmd = ['openssl', 'aes-256-cbc', '-d', '-in', passwd_file + ".enc",
-                   '-out', passwd_file, '-k', password]
-            run(cmd)
-            os.chmod(passwd_file, 0o400)
-        else:
-            sys.exit('There was some problem reading the PASSPHRASE')
-
-
 def ipmi_do(hosts, cmd, pty=False):
-    install_cfg()
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
@@ -100,7 +85,6 @@ def ipmi_do(hosts, cmd, pty=False):
 
 
 def getmac(hosts):
-    install_cfg()
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)

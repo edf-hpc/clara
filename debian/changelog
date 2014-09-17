@@ -1,10 +1,11 @@
-clara (0.20140917) UNRELEASED; urgency=medium
+clara (0.20140918) UNRELEASED; urgency=medium
 
   * Remove obsolete option "images apply_config2img", it has been replaced
     by editimg, unpack and repack. Fixes #23
   * Add alternative order of options in the plugin nodes. Fixes #21.
+  * Delete unnecesary code. The file decoding is done by Puppet. Fixes #15.
 
- -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 17 Sep 2014 15:13:16 +0200
+ -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 17 Sep 2014 15:35:11 +0200
 
 clara (0.20140916) unstable; urgency=medium
 
