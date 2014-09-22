@@ -6,4 +6,9 @@
 
 override_dh_clean:
 	rm -rf Clara.egg-info/
+	$(MAKE) -C docs  clean
 	dh_clean
+
+override_dh_installman:
+	$(MAKE) -C docs/
+	dh_installman

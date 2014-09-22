@@ -1,3 +1,11 @@
+clara (0.20140922) UNRELEASED; urgency=low
+
+  * Add manpages for clara.
+  * Update packaging to build manpages in build time.
+  * Add b-d on pandoc.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 22 Sep 2014 13:58:27 +0200
+
 clara (0.20140917) unstable; urgency=medium
 
   * Remove obsolete option "images apply_config2img", it has been replaced
