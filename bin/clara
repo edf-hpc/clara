@@ -33,18 +33,18 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <command> [<args>...]
+usage: clara <plugin> [<args>...]
        clara [--version]
        clara [--help]
 
-Clara provides the following commands:
+Clara provides the following plugins:
    repo     Creates, updates and synchronizes local Debian repositories.
    nodes    Manages and get the status from the nodes of a cluster.
    slurm    Performs tasks using SLURM's controller.
    images   Creates and updates the images of installation of a cluster.
    p2p      Makes torrent images and seeds them via BitTorrent.
 
-See 'clara <command> --help' for more information on a specific command.
+See 'clara <plugin> --help' for more information on a specific command.
 
 """
 import sys
@@ -58,13 +58,13 @@ if __name__ == '__main__':
 
     args = docopt.docopt(__doc__, version=__version__, options_first=True)
 
-    if args['<command>'] in ['help', None]:
+    if args['<plugin>'] in ['help', None]:
         sys.exit(__doc__)
 
     try:
-        m = importlib.import_module('clara.plugins.clara_' + args['<command>'])
+        m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
     except ImportError:
-        sys.exit("Sorry, the command {0} doesn't exist. "
-                 "See 'clara --help'.".format(args['<command>']))
+        sys.exit("Sorry, the plugin {0} doesn't exist. "
+                 "See 'clara --help'.".format(args['<plugin>']))
 
     m.main()
