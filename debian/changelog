@@ -1,10 +1,12 @@
-clara (0.20140922) UNRELEASED; urgency=low
+clara (0.20140922) unstable; urgency=low
 
   * Add manpages for clara.
   * Update packaging to build manpages in build time.
   * Add b-d on pandoc.
+  * Make "clara help <plugin>" show the manpage of the plugin and "clara help",
+    the generic manpage of clara.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 22 Sep 2014 13:58:27 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 22 Sep 2014 20:29:39 +0200
 
 clara (0.20140917) unstable; urgency=medium
 

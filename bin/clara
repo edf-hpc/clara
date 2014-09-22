@@ -34,6 +34,7 @@
 ##############################################################################
 """
 usage: clara <plugin> [<args>...]
+       clara help <plugin>
        clara [--version]
        clara [--help]
 
@@ -44,13 +45,14 @@ Clara provides the following plugins:
    images   Creates and updates the images of installation of a cluster.
    p2p      Makes torrent images and seeds them via BitTorrent.
 
-See 'clara <plugin> --help' for more information on a specific command.
-
+See 'clara help <plugin>' for detailed help on a plugin
+and 'clara <plugin> --help' for a quick list of options of a plugin.
 """
 import sys
 
 import docopt
 import importlib
+import subprocess
 
 from clara.version import __version__
 
@@ -58,9 +60,21 @@ if __name__ == '__main__':
 
     args = docopt.docopt(__doc__, version=__version__, options_first=True)
 
-    if args['<plugin>'] in ['help', None]:
+    # If we just type 'clara' we get the short help
+    if args['<plugin>'] is None:
         sys.exit(__doc__)
 
+    # When we type 'clara help' docopt thinks it's a plugin
+    if args['<plugin>'] == 'help':
+        if len(args['<args>']) == 0:
+            subprocess.call(['man', 'clara'])
+        else:
+            page = "clara-{0}".format(args['<args>'][0])
+            subprocess.call(['man', page])
+
+        sys.exit()
+
+   # Finally we check if it's a clara plugin or show an error message
     try:
         m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
     except ImportError:
