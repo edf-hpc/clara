@@ -76,7 +76,7 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     if dargs['resume']:
-        run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
+        run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
              "State=RESUME"])
     elif dargs['drain']:
         if dargs['<nodeset>'] is None:
@@ -85,13 +85,13 @@ def main():
             if len(dargs['<reason>']) == 0:
                 sys.exit("You must specify a reason when DRAINING a node")
             else:
-                run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
-                     "State=DRAIN", 'Reason="'+" ".join(dargs['<reason>'])+'"'])
+                run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
+                     "State=DRAIN", 'Reason="' + " ".join(dargs['<reason>']) + '"'])
     elif dargs['down']:
         if dargs['<nodeset>'] is None:
             show_nodes("down")
         else:
-            run(["scontrol", "update", "NodeName="+dargs['<nodeset>'],
+            run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
                  "State=DOWN"])
     elif dargs['health']:
         clush(dargs['<nodeset>'],

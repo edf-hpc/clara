@@ -59,7 +59,7 @@ from clara.utils import clush, run, get_from_config
 
 def clean_and_exit(problem):
     shutil.rmtree(work_dir)
-    sys.exit('There was an error. Cleaning and exiting.\nE: '+problem)
+    sys.exit('There was an error. Cleaning and exiting.\nE: ' + problem)
 
 
 def run_chroot(cmd):
@@ -111,7 +111,7 @@ Pin-Priority: 6000
         print "WARNING: the option etc_hosts is malformed or missing an argument"
     with open(etc_host, 'w') as fhost:
         for elem in range(0, len(lists_hosts), 2):
-            fhost.write("{0} {1}\n".format(lists_hosts[elem], lists_hosts[elem+1]))
+            fhost.write("{0} {1}\n".format(lists_hosts[elem], lists_hosts[elem + 1]))
 
     with open(dpkg_conf, 'w') as fdpkg:
         fdpkg.write("""# Drop locales except French
