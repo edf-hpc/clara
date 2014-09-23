@@ -1,3 +1,10 @@
+clara (0.20140923) UNRELEASED; urgency=low
+
+  * Check if partitions are mounted before unmounting them.
+  * Make sure /proc/sys/fs/binfmt_misc is unmounted. Fixes #22
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 23 Sep 2014 09:56:59 +0200
+
 clara (0.20140922) unstable; urgency=low
 
   * Add manpages for clara.
