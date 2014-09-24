@@ -1,9 +1,16 @@
-clara (0.20140923) UNRELEASED; urgency=low
+clara (0.20140924) unstable; urgency=low
 
   * Check if partitions are mounted before unmounting them.
   * Make sure /proc/sys/fs/binfmt_misc is unmounted. Fixes #22
+  * Update "clara repo sync" to allow selecting which suites
+    the user want to mirror locally. Alternativaly, just add --dist=distribution
+    to mirror all the suites used by the default distribution. Fixes #24
+    This feature contains hardcodes variables and it needs to be
+    fixed once we update serveurs.c.e.f
+  * Remove from config.ini remote_modules and local_modules. They are now
+    obsolete.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 23 Sep 2014 09:56:59 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 24 Sep 2014 17:06:23 +0200
 
 clara (0.20140922) unstable; urgency=low
 

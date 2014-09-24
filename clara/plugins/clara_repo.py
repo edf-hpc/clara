@@ -38,7 +38,7 @@ Creates, updates and synchronizes local Debian repositories.
 Usage:
     clara repo key
     clara repo init [--dist=<name>]
-    clara repo sync [create] [--dist=<name>]
+    clara repo sync (<suite>...|--dist=<name>)
     clara repo add <file>... [--dist=<name>]
     clara repo del <name>...[--dist=<name>]
     clara repo -h | --help | help
@@ -135,22 +135,57 @@ DscIndices: Sources Release . .gz .bz2
          'export', dist])
 
 
-def do_sync(option=''):
-    local = get_from_config("repo", "local_modules", dist).split(',')
-    remote = get_from_config("repo", "remote_modules", dist).split(',')
+def do_sync(suite):
+    # TODO: This function contains hardcoded variables
+    # TODO: This should go into the config file but we don't want people touching
+    # this in the configuration.
+    valid = {
+        'calibre8': ["wheezy", "wheezy-backports", "wheezy-updates", "wheezy-security", "calibre8", "calibre8-security"],
+        'calibre9': ["jessie", "jessie-backports", "jessie-updates", "jessie-security", "calibre9", "calibre9-security"]
+    }
 
-    for elem in range(0, len(local)):
-        if os.path.isdir(get_from_config("repo", "mirror_root", dist) +
-                         "/" + local[elem]) or (option == 'create'):
+    # If we select dist, we sync all the suites
+    if len(suite) == 0:
+        suite = valid[dist]
+    else:  # If we select one or serveral suites, we check that are valid
+        for s in suite:
+            if s not in valid[dist]:
+                sys.exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(valid[dist])))
 
-            run(['rsync',
-                 '-az', '--stats', '--human-readable', '--force', '--delete',
-                 '--ignore-errors',
-                 get_from_config("repo", "server", dist) + '::' + remote[elem],
-                 get_from_config("repo", "mirror_root", dist) + '/' + local[elem]])
-        else:
-            sys.exit('Local repository not found. '
-                     'Please run: \n\tclara repo sync create')
+    mirror_root = get_from_config("repo", "mirror_root", dist)
+    if not os.path.isdir(mirror_root):
+        os.makedirs(mirror_root)
+
+    for s in suite:
+        # TODO:  any other mirror that debian.c.e.f won't work
+        # dm_mirror = get_from_config("repo", "server", dist) + "/" + dist
+        dm_mirror = "debian.calibre.edf.fr"
+        dm_root = "debian"
+        suite_mirror = s
+
+        if s in ["wheezy-security", "jessie-security"]:
+            dm_root = "debian-security"
+            suite_mirror = s.split("-")[0] + "/updates"
+        elif s in ["calibre8"]:
+            dm_root = "calibre8/calibre"
+        elif s in ["calibre8-security"]:
+            dm_root = "calibre8/calibre-security"
+        elif s in ["calibre9"]:
+            dm_root = "calibre9/calibre"
+        elif s in ["calibre9-security"]:
+            print "TODO: {0} doesn't exist yet".format(s)
+            continue
+
+        run(['debmirror',
+             # '--dry-run', '--debug', '--progress', '--verbose',
+              '--debug', '--verbose',
+             "--diff=none", "--method=http", "--arch=i386,amd64",
+             "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
+             "--host={0}".format(dm_mirror),
+             "--root={0}".format(dm_root),
+             "--dist={0}".format(suite_mirror),  # suite goes here
+             "--section=main,contrib,non-free",
+              mirror_root + "/" + dist + "/" + s])
 
 
 def do_package(action, package):
@@ -175,10 +210,7 @@ def main():
     if dargs['init']:
         do_init()
     elif dargs['sync']:
-        if dargs['create']:
-            do_sync('create')
-        else:
-            do_sync()
+        do_sync(dargs['<suite>'])
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):
