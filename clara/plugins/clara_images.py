@@ -137,7 +137,7 @@ def umount_chroot():
     if os.path.ismount("/sys"):
         run(["chroot", work_dir, "umount", "/sys"])
 
-    if os.path.isomount("/proc"):
+    if os.path.ismount("/proc"):
         run(["chroot", work_dir, "umount", "/proc"])
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
