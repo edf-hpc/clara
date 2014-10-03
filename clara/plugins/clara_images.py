@@ -48,6 +48,7 @@ import errno
 import os
 import pty
 import shutil
+import atexit
 import subprocess
 import sys
 import tempfile
@@ -57,10 +58,11 @@ import docopt
 from clara.utils import clush, run, get_from_config
 
 
-def clean_and_exit(problem):
-    shutil.rmtree(work_dir)
-    sys.exit('There was an error. Cleaning and exiting.\nE: ' + problem)
+def clean_and_exit():
+    if os.path.exists(work_dir):
+        shutil.rmtree(work_dir)
 
+atexit.register(clean_and_exit)
 
 def run_chroot(cmd):
     try:
