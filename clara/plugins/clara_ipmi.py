@@ -71,13 +71,18 @@ import docopt
 from clara.utils import clush, run, get_from_config, value_from_file
 
 
-def ipmi_do(hosts, cmd, pty=False):
+def ipmi_do(hosts, pty=False, *cmd):
+    command=[]
+    if not isinstance(pty, bool):
+        command.append(pty)
+        pty = False
+    command.extend(cmd)
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", "imm" + host, "-U", imm_user, "-E", "-e!"]
-        ipmitool.extend(cmd)
+        ipmitool.extend(command)
         if pty:
             run(ipmitool)
         else:
@@ -135,7 +140,7 @@ def do_connect(hosts):
                 conmand = value_from_file(get_from_config("ipmi", "conmand"))
                 run(["conman", "-d", conmand, hosts])
             elif retcode == 1 or retcode == 3:  # if conman is NOT running
-                ipmi_do(hosts, ["sol", "activate"], pty=True)
+                ipmi_do(hosts, True, "sol", "activate")
             else:
                 sys.exit('E: ' + ' '.join(cmd))
 
@@ -152,29 +157,29 @@ def main():
     if dargs['connect']:
         do_connect(dargs['<host>'])
     elif dargs['status']:
-        ipmi_do(dargs['<hostlist>'], ["power", "status"])
+        ipmi_do(dargs['<hostlist>'], "power", "status")
     elif dargs['setpwd']:
         sys.exit("Not tested!")  # TODO
-        ipmi_do(dargs['<hostlist>'], ["user", "set", "name", "2", "IMMUSER"])
-        ipmi_do(dargs['<hostlist>'], ["user", "set", "password", "2", "IMMPASSWORD"])
+        ipmi_do(dargs['<hostlist>'], "user", "set", "name", "2", "IMMUSER")
+        ipmi_do(dargs['<hostlist>'], "user", "set", "password", "2", "IMMPASSWORD")
     elif dargs['getmac']:
         getmac(dargs['<hostlist>'])
     elif dargs['on']:
-        ipmi_do(dargs['<hostlist>'], ["power", "on"])
+        ipmi_do(dargs['<hostlist>'], "power", "on")
     elif dargs['off']:
-        ipmi_do(dargs['<hostlist>'], ["power", "off"])
+        ipmi_do(dargs['<hostlist>'], "power", "off")
     elif dargs['reboot']:
-        ipmi_do(dargs['<hostlist>'], ["chassis", "power", "reset"])
+        ipmi_do(dargs['<hostlist>'], "chassis", "power", "reset")
     elif dargs['blink']:
-        ipmi_do(dargs['<hostlist>'], ["chassis", "identify", "1"])
+        ipmi_do(dargs['<hostlist>'], "chassis", "identify", "1")
     elif dargs['bios']:
-        ipmi_do(dargs['<hostlist>'], ["chassis", "bootparam", "set", "bootflag", "force_bios"])
+        ipmi_do(dargs['<hostlist>'], "chassis", "bootparam", "set", "bootflag", "force_bios")
     elif dargs['immdhcp']:
-        ipmi_do(dargs['<hostlist>'], ["lan", "set", "1", "ipsrc", "dhcp"])
+        ipmi_do(dargs['<hostlist>'], "lan", "set", "1", "ipsrc", "dhcp")
     elif dargs['pxe']:
-        ipmi_do(dargs['<hostlist>'], ["chassis", "bootdev", "pxe"])
+        ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "pxe")
     elif dargs['disk']:
-        ipmi_do(dargs['<hostlist>'], ["chassis", "bootdev", "disk"])
+        ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "disk")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
 
