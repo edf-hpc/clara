@@ -1,6 +1,8 @@
 clara (0.20141006) UNRELEASED; urgency=low
 
   * Make some updates in the manpages.
+  * Update the Depends line. And add a Recommends on gnupg-agent.
+  * Refresh the long description.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 03 Oct 2014 13:36:12 +0200
 
