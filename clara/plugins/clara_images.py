@@ -62,6 +62,10 @@ def clean_and_exit():
     if os.path.exists(work_dir):
         shutil.rmtree(work_dir)
 
+# Not executed in the following cases
+# - the program dies because of a signal
+# - os._exit() is invoked directly
+# - a Python fatal error is detected (in the interpreter)
 atexit.register(clean_and_exit)
 
 def run_chroot(cmd):
