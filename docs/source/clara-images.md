@@ -24,7 +24,7 @@ Options:
 
     clara images create [--dist=<name>]
 
-        Create a new squashfs image to use as operating system on the cluster nodes, it will also create a new torrent file and start seeding it.
+        Create a new squashfs image to use as operating system on the cluster nodes.
 
     clara images (unpack|repack <directory>) [--dist=<name>]
 

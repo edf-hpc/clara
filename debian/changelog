@@ -1,3 +1,9 @@
+clara (0.20141006) UNRELEASED; urgency=low
+
+  * Make some updates in the manpages.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 03 Oct 2014 13:36:12 +0200
+
 clara (0.20141003) calibre9; urgency=low
 
   * Big change: Rename plugin nodes as ipmi.
