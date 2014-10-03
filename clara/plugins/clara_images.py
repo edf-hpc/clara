@@ -110,7 +110,7 @@ Pin-Priority: 6000
 
     lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
     if (len(lists_hosts) % 2 != 0):
-        print "WARNING: the option etc_hosts is malformed or missing an argument"
+        print "Clara: WARNING: the option etc_hosts is malformed or missing an argument"
     with open(etc_host, 'w') as fhost:
         for elem in range(0, len(lists_hosts), 2):
             fhost.write("{0} {1}\n".format(lists_hosts[elem], lists_hosts[elem + 1]))
@@ -153,13 +153,13 @@ def system_install():
     if os.path.isfile(package_file):
         shutil.copy(package_file, work_dir + "/tmp/packages.file")
     else:
-        clean_and_exit("Error copying file " + package_file)
+        print "Clara: WARNING: %s is not a file!" % package_file
 
     preseed_file = get_from_config("images", "preseed_file", dist)
     if os.path.isfile(preseed_file):
         shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
     else:
-        clean_and_exit("Error copying file " + preseed_file)
+        print "Clara: WARNING: %s is not a file!" % preseed_file
 
     mount_chroot()
     run_chroot(["chroot", work_dir, "apt-get", "update"])
@@ -185,11 +185,11 @@ def system_install():
 def install_files():
     list_files_to_install = get_from_config("images", "list_files_to_install", dist)
     if not os.path.isfile(list_files_to_install):
-        clean_and_exit("Error reading file " + list_files_to_install)
+        print "Clara: WARNING: %s is not a file!" % list_files_to_install
 
     dir_origin = get_from_config("images", "dir_files_to_install", dist)
     if not os.path.isdir(dir_origin):
-        clean_and_exit("Error reading directory " + dir_origin)
+        print "Clara: WARNING: %s is not a directory!" % dir_origin
 
     with open(list_files_to_install, "r") as file_to_read:
         for line in file_to_read:
@@ -200,7 +200,7 @@ def install_files():
             final_file = path_dest + orig
 
             if not os.path.isfile(path_orig):
-                clean_and_exit("Error reading file " + path_orig)
+                print "Clara: WARNING: %s is not a file!" % path_orig
 
             if not os.path.isdir(path_dest):
                 os.makedirs(path_dest)
