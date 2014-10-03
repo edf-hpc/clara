@@ -6,9 +6,9 @@ clara-images - creates and updates the images of installation of a cluster
 
 # SYNOPSIS
 
-    clara images genimg [--dist=<name>]
+    clara images create [--dist=<name>]
     clara images (unpack|repack <directory>) [--dist=<name>]
-    clara images editimg [<image>] [--dist=<name>]
+    clara images edit [<image>] [--dist=<name>]
     clara images initrd [--dist=<name>]
     clara images -h | --help | help
 
@@ -22,7 +22,7 @@ Options:
 
 # OPTIONS
 
-    clara images genimg [--dist=<name>]
+    clara images create [--dist=<name>]
 
         Create a new squashfs image to use as operating system on the cluster nodes, it will also create a new torrent file and start seeding it.
 
@@ -30,7 +30,7 @@ Options:
 
         Unpack and repack the squashfs file providing the image.
 
-    clara images editimg [<image>] [--dist=<name>]
+    clara images edit [<image>] [--dist=<name>]
 
         Unpacks the image for editing, spawns a bash to make the changes and repacks the image again after.
 

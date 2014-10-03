@@ -36,9 +36,9 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images genimg [--dist=<name>]
+    clara images create [--dist=<name>]
     clara images (unpack|repack <directory>) [--dist=<name>]
-    clara images editimg [<image>] [--dist=<name>]
+    clara images edit [<image>] [--dist=<name>]
     clara images initrd [--dist=<name>]
     clara images -h | --help | help
 
@@ -265,7 +265,7 @@ def geninitrd():
     print "Kernel copied in " + trg_dir + "/linux-" + kver
 
 
-def editimg(image):
+def edit(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
@@ -306,7 +306,7 @@ def main():
     if dist not in get_from_config("common", "distributions"):
         sys.exit("{0} is not a know distribution".format(dist))
 
-    if dargs['genimg']:
+    if dargs['create']:
         base_install()
         system_install()
         install_files()
@@ -320,8 +320,8 @@ def main():
               "\tclara images repack {0}".format(work_dir)
     elif dargs['initrd']:
         geninitrd()
-    elif dargs['editimg']:
-        editimg(dargs['<image>'])
+    elif dargs['edit']:
+        edit(dargs['<image>'])
 
     if not dargs['unpack']:
         shutil.rmtree(work_dir)
