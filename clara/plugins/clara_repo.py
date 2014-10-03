@@ -38,7 +38,7 @@ Creates, updates and synchronizes local Debian repositories.
 Usage:
     clara repo key
     clara repo init [--dist=<name>]
-    clara repo sync (<suite>...|--dist=<name>)
+    clara repo sync (all|<suite>...|--dist=<name>)
     clara repo add <file>... [--dist=<name>]
     clara repo del <name>...[--dist=<name>]
     clara repo -h | --help | help
@@ -135,57 +135,68 @@ DscIndices: Sources Release . .gz .bz2
          'export', dist])
 
 
-def do_sync(suite):
-    # TODO: This function contains hardcoded variables
-    # TODO: This should go into the config file but we don't want people touching
-    # this in the configuration.
-    valid = {
-        'calibre8': ["wheezy", "wheezy-backports", "wheezy-updates", "wheezy-security", "calibre8", "calibre8-security"],
-        'calibre9': ["jessie", "jessie-backports", "jessie-updates", "jessie-security", "calibre9", "calibre9-security"]
+def do_sync(input_suites):
+    # This only works if we use debian.c.e.f as server
+    # TODO: all this dictionary should go into the configuration file
+    info_suites = {
+        'calibre8': {
+            "wheezy": "debian",
+            "wheezy-backports": "debian",
+            "wheezy-updates": "debian",
+            "wheezy-security": "debian-security",
+            "calibre8": "calibre8/calibre",
+            "calibre8-security": "calibre8/calibre-security"
+        },
+
+        'calibre9': {
+            "jessie": "debian",
+            "jessie-backports": "debian",
+            "jessie-updates": "debian",
+            "jessie-security": "debian-security",
+            "calibre9": "calibre9/calibre",
+            # "calibre9-security": "calibre9/calibre-security" Yet to arrive
+        }
     }
 
-    # If we select dist, we sync all the suites
-    if len(suite) == 0:
-        suite = valid[dist]
-    else:  # If we select one or serveral suites, we check that are valid
-        for s in suite:
-            if s not in valid[dist]:
-                sys.exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(valid[dist])))
+    # Also we need a dict with the mapping suite-dist
+    suite_dist = {}
+    for k in info_suites:
+        for elem in info_suites[k]:
+            suite_dist[elem] = k
 
-    mirror_root = get_from_config("repo", "mirror_root", dist)
-    if not os.path.isdir(mirror_root):
-        os.makedirs(mirror_root)
+    suites = []
+    all_suites = []
+    for elem in info_suites:
+        all_suites = all_suites + info_suites[elem].keys()
 
-    for s in suite:
-        # TODO:  any other mirror that debian.c.e.f won't work
-        # dm_mirror = get_from_config("repo", "server", dist) + "/" + dist
-        dm_mirror = "debian.calibre.edf.fr"
-        dm_root = "debian"
-        suite_mirror = s
+    if input_suites == 'all':
+        suites = all_suites
+    elif len(input_suites) == 0:  # We only sync suites related to the default distribution
+        suites = info_suites[dist].keys()
+    else:  # If we select one or several suites, we check that are valid
+        for s in input_suites:
+            if s not in all_suites:
+                sys.exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(all_suites)))
+            suites = input_suites
 
+    for s in suites:
+        mirror_root = get_from_config("repo", "mirror_root", suite_dist[s])
+        dm_server = get_from_config("repo", "server", suite_dist[s])
+        dm_root = info_suites[suite_dist[s]][s]
+
+        suite_name = s
         if s in ["wheezy-security", "jessie-security"]:
-            dm_root = "debian-security"
-            suite_mirror = s.split("-")[0] + "/updates"
-        elif s in ["calibre8"]:
-            dm_root = "calibre8/calibre"
-        elif s in ["calibre8-security"]:
-            dm_root = "calibre8/calibre-security"
-        elif s in ["calibre9"]:
-            dm_root = "calibre9/calibre"
-        elif s in ["calibre9-security"]:
-            print "TODO: {0} doesn't exist yet".format(s)
-            continue
+            suite_name = s.split("-")[0] + "/updates"
 
         run(['debmirror',
              # '--dry-run', '--debug', '--progress', '--verbose',
-              '--debug', '--verbose',
              "--diff=none", "--method=http", "--arch=i386,amd64",
              "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
-             "--host={0}".format(dm_mirror),
+             "--host={0}".format(dm_server),
              "--root={0}".format(dm_root),
-             "--dist={0}".format(suite_mirror),  # suite goes here
+             "--dist={0}".format(suite_name),
              "--section=main,contrib,non-free",
-              mirror_root + "/" + dist + "/" + s])
+              mirror_root + "/" + s])
 
 
 def do_package(action, package):
@@ -210,7 +221,10 @@ def main():
     if dargs['init']:
         do_init()
     elif dargs['sync']:
-        do_sync(dargs['<suite>'])
+        if dargs['all']:
+            do_sync('all')
+        else:
+            do_sync(dargs['<suite>'])
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):

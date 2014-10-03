@@ -3,6 +3,9 @@ clara (0.20141006) UNRELEASED; urgency=low
   * Make some updates in the manpages.
   * Update the Depends line. And add a Recommends on gnupg-agent.
   * Refresh the long description.
+  * Update 'clara repo sync':
+   - add 'clara repo sync all' that will sync all suites.
+   - allow to sync any suite no matter what's the default distribution set.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 03 Oct 2014 13:36:12 +0200
 
