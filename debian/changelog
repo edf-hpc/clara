@@ -1,3 +1,9 @@
+clara (0.20141003) calibre9; urgency=low
+
+  * Big change: Rename plugin nodes as ipmi.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>>  Fri, 03 Oct 2014 10:19:05 +0200
+
 clara (0.20140924) unstable; urgency=low
 
   * Check if partitions are mounted before unmounting them.

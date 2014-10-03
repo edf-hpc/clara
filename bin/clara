@@ -40,7 +40,7 @@ usage: clara <plugin> [<args>...]
 
 Clara provides the following plugins:
    repo     Creates, updates and synchronizes local Debian repositories.
-   nodes    Manages and get the status from the nodes of a cluster.
+   ipmi     Manages and get the status from the nodes of a cluster.
    slurm    Performs tasks using SLURM's controller.
    images   Creates and updates the images of installation of a cluster.
    p2p      Makes torrent images and seeds them via BitTorrent.

@@ -36,30 +36,30 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara nodes connect <host>
-    clara nodes (on|off|reboot) <hostlist>
-    clara nodes status <hostlist>
-    clara nodes setpwd <hostlist>
-    clara nodes getmac <hostlist>
-    clara nodes pxe <hostlist>
-    clara nodes disk <hostlist>
-    clara nodes ping <hostlist>
-    clara nodes blink <hostlist>
-    clara nodes immdhcp <hostlist>
-    clara nodes bios <hostlist>
-    clara nodes -h | --help
+    clara ipmi connect <host>
+    clara ipmi (on|off|reboot) <hostlist>
+    clara ipmi status <hostlist>
+    clara ipmi setpwd <hostlist>
+    clara ipmi getmac <hostlist>
+    clara ipmi pxe <hostlist>
+    clara ipmi disk <hostlist>
+    clara ipmi ping <hostlist>
+    clara ipmi blink <hostlist>
+    clara ipmi immdhcp <hostlist>
+    clara ipmi bios <hostlist>
+    clara ipmi -h | --help
 Alternative:
-    clara nodes <host> connect
-    clara nodes <hostlist> (on|off|reboot)
-    clara nodes <hostlist> status
-    clara nodes <hostlist> setpwd
-    clara nodes <hostlist> getmac
-    clara nodes <hostlist> pxe
-    clara nodes <hostlist> disk
-    clara nodes <hostlist> ping
-    clara nodes <hostlist> blink
-    clara nodes <hostlist> immdhcp
-    clara nodes <hostlist> bios
+    clara ipmi <host> connect
+    clara ipmi <hostlist> (on|off|reboot)
+    clara ipmi <hostlist> status
+    clara ipmi <hostlist> setpwd
+    clara ipmi <hostlist> getmac
+    clara ipmi <hostlist> pxe
+    clara ipmi <hostlist> disk
+    clara ipmi <hostlist> ping
+    clara ipmi <hostlist> blink
+    clara ipmi <hostlist> immdhcp
+    clara ipmi <hostlist> bios
 """
 import errno
 import os
@@ -132,7 +132,7 @@ def do_connect(hosts):
 
             if retcode == 0:  # if conman is running
                 os.environ["CONMAN_ESCAPE"] = '!'
-                conmand = value_from_file(get_from_config("nodes", "conmand"))
+                conmand = value_from_file(get_from_config("ipmi", "conmand"))
                 run(["conman", "-d", conmand, hosts])
             elif retcode == 1 or retcode == 3:  # if conman is NOT running
                 ipmi_do(hosts, ["sol", "activate"], pty=True)
