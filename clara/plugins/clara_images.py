@@ -305,11 +305,10 @@ def edit(image):
     pty.spawn(["/bin/bash"])
     # Rename old image and recreate new one
     os.rename(squashfs_file, squashfs_file + ".old")
-    print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
-    print "Recreating image at {0}".format(squashfs_file)
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
-
+    print("\nPrevious image renamed to {0}." \
+          "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
 
 def clean_and_exit():
     if os.path.exists(work_dir):
