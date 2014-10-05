@@ -256,9 +256,11 @@ def extract_image(image):
     if not os.path.isfile(squashfs_file):
         sys.exit("The image {0} does not exist!".format(squashfs_file))
 
-    print "Extracting {0} to {1} ...".format(squashfs_file, work_dir)
-    run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
-
+    extract_dir = tempfile.mkdtemp()
+    print "Extracting {0} to {1} ...".format(squashfs_file, extract_dir)
+    run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
+    print "Modify the image at {0} and then run:\n" \
+          "\tclara images repack {0}".format(extract_dir)
 
 def geninitrd():
     trg_dir = get_from_config("images", "trg_dir", dist)
@@ -347,15 +349,12 @@ def main():
         genimg(dargs['<image>'])
     elif dargs['unpack']:
         extract_image(dargs['<image>'])
-        print "Modify the image at {0} and then run:\n " \
-              "\tclara images repack {0}".format(work_dir)
     elif dargs['initrd']:
         geninitrd()
     elif dargs['edit']:
         edit(dargs['<image>'])
 
-    if not dargs['unpack']:
-        shutil.rmtree(work_dir)
+    shutil.rmtree(work_dir)
 
 
 if __name__ == '__main__':
