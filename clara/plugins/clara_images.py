@@ -36,8 +36,9 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images create [--dist=<name>]
-    clara images (unpack|repack <directory>) [--dist=<name>]
+    clara images create [<image>] [--dist=<name>]
+    clara images unpack [<image>] [--dist=<name>]
+    clara images repack <directory> [<image>] [--dist=<name>]
     clara images edit [<image>] [--dist=<name>]
     clara images initrd [--dist=<name>]
     clara images -h | --help | help
@@ -216,8 +217,15 @@ def remove_files():
             os.remove(work_dir + "/" + f)
 
 
-def genimg():
-    squashfs_file = get_from_config("images", "trg_img", dist)
+def genimg(image):
+    if (image is None):
+        squashfs_file = get_from_config("images", "trg_img", dist)
+    else:
+        path_to_image = os.path.dirname(image)
+        if not os.path.isdir(path_to_image):
+            os.makedirs(path_to_image)
+        squashfs_file = image
+
     if os.path.isfile(squashfs_file):
         os.rename(squashfs_file, squashfs_file + ".old")
         print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
@@ -228,8 +236,12 @@ def genimg():
     os.chmod(squashfs_file, 0o755)
 
 
-def extract_image():
-    squashfs_file = get_from_config("images", "trg_img", dist)
+def extract_image(image):
+    if (image is None):
+        squashfs_file = get_from_config("images", "trg_img", dist)
+    else:
+        squashfs_file = image
+
     if not os.path.isfile(squashfs_file):
         sys.exit("The image {0} does not exist!".format(squashfs_file))
 
@@ -318,11 +330,11 @@ def main():
         system_install()
         install_files()
         remove_files()
-        genimg()
+        genimg(dargs['<image>'])
     elif dargs['repack']:
-        genimg()
+        genimg(dargs['<image>'])
     elif dargs['unpack']:
-        extract_image()
+        extract_image(dargs['<image>'])
         print "Modify the image at {0} and then run:\n " \
               "\tclara images repack {0}".format(work_dir)
     elif dargs['initrd']:
