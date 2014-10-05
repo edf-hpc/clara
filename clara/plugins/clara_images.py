@@ -218,6 +218,15 @@ def remove_files():
         if os.path.isfile(work_dir + "/" + f):
             os.remove(work_dir + "/" + f)
 
+def run_script_post_creation():
+    script = get_from_config("images", "script_post_image_creation", dist)
+    if not os.path.isfile(script):
+        print "Clara: WARNING: File %s not found!" % script
+    else:
+        # Copy the script into the chroot and make sure it's executable
+        shutil.copy(script, work_dir + "/tmp/script")
+        os.chmod(work_dir + "/tmp/script", 0o755)
+        run_chroot(["chroot", work_dir, "bash", "/tmp/script"])
 
 def genimg(image):
     if (image is None):
@@ -332,6 +341,7 @@ def main():
         system_install()
         install_files()
         remove_files()
+        run_script_post_creation()
         genimg(dargs['<image>'])
     elif dargs['repack']:
         genimg(dargs['<image>'])
