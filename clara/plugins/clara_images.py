@@ -161,7 +161,8 @@ def system_install():
     pkgs = get_from_config("images", "important_packages", dist).split(',')
     run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    run_chroot(["chroot", work_dir, "aptitude", "reinstall", "--without-recommends", "~i ?not(?priority(required))"])
+    # TODO: temporarily disabled until we found out why we need this.
+    ##run_chroot(["chroot", work_dir, "aptitude", "reinstall", "--without-recommends", "~i ?not(?priority(required))"])
     run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
     run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
     for i in range(0, 2):
