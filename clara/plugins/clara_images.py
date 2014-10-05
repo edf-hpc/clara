@@ -182,32 +182,33 @@ def install_files():
     if not os.path.isfile(list_files_to_install):
         print "Clara: WARNING: %s is not a file!" % list_files_to_install
 
-    dir_origin = get_from_config("images", "dir_files_to_install", dist)
-    if not os.path.isdir(dir_origin):
-        print "Clara: WARNING: %s is not a directory!" % dir_origin
+    else:
+        dir_origin = get_from_config("images", "dir_files_to_install", dist)
+        if not os.path.isdir(dir_origin):
+            print "Clara: WARNING: %s is not a directory!" % dir_origin
 
-    with open(list_files_to_install, "r") as file_to_read:
-        for line in file_to_read:
-            orig, dest, perm = line.rstrip().split()
-            path_orig = dir_origin + "/" + orig
-            path_dest = work_dir + "/" + dest
-            file_perm = int(perm, 8)  # tell int to use base 8
-            final_file = path_dest + orig
+        with open(list_files_to_install, "r") as file_to_read:
+            for line in file_to_read:
+                orig, dest, perm = line.rstrip().split()
+                path_orig = dir_origin + "/" + orig
+                path_dest = work_dir + "/" + dest
+                file_perm = int(perm, 8)  # tell int to use base 8
+                final_file = path_dest + orig
 
-            if not os.path.isfile(path_orig):
-                print "Clara: WARNING: %s is not a file!" % path_orig
+                if not os.path.isfile(path_orig):
+                    print "Clara: WARNING: %s is not a file!" % path_orig
 
-            if not os.path.isdir(path_dest):
-                os.makedirs(path_dest)
-            shutil.copy(path_orig, path_dest)
-            os.chmod(final_file, file_perm)
+                if not os.path.isdir(path_dest):
+                    os.makedirs(path_dest)
+                shutil.copy(path_orig, path_dest)
+                os.chmod(final_file, file_perm)
 
-            if ("etc/init.d" in dest):
-                run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"])
+                if ("etc/init.d" in dest):
+                    run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"])
 
-        # Empty hostname
-        os.remove(work_dir + "/etc/hostname")
-        run_chroot(["chroot", work_dir, "touch", "/etc/hostname"])
+    # Empty hostname
+    os.remove(work_dir + "/etc/hostname")
+    run_chroot(["chroot", work_dir, "touch", "/etc/hostname"])
 
 
 def remove_files():
