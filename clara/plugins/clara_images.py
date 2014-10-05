@@ -265,25 +265,40 @@ def extract_image(image):
 def geninitrd():
     trg_dir = get_from_config("images", "trg_dir", dist)
     if not os.path.isdir(trg_dir):
-        sys.exit("Directory {0} does not exist!".format(trg_dir))
+        os.makedirs(trg_dir)
+
+    squashfs_file = get_from_config("images", "trg_img", dist)
+    run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+    mount_chroot()
 
     mkinitrfs = get_from_config("images", "mkinitramfs", dist)
     if not os.path.isfile(mkinitrfs):
         sys.exit("{0} does not exist!".format(mkinitrfs))
+    else:
+        shutil.copy(mkinitrfs, work_dir + "/tmp/mkinitrfs")
 
     initramfsc = get_from_config("images", "initramfs-config", dist)
     if not os.path.isdir(initramfsc):
         sys.exit("Directory {0} does not exist!".format(initramfsc))
+    else:
+        shutil.copytree(initramfsc, work_dir + "/tmp/initramfsc")
 
     kver = get_from_config("images", "kver", dist)
-    # Generate the initrd
-    run([mkinitrfs, "-d", initramfsc, "-o", trg_dir + "/initrd-" + kver, kver])
-    os.chmod(trg_dir + "/initrd-" + kver, 0o644)
-    print "Initrd generated in " + trg_dir + "/initrd-" + kver
+    # Install the kernel in the image
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--yes", "linux-image-" + kver, "ctorrent"])
+    # Generate the initrd in the image
+    run_chroot(["chroot", work_dir, "/tmp/mkinitrfs", "-d", "/tmp/initramfsc", "-o", "/tmp/initrd-" + kver, kver])
+    umount_chroot()
 
-    # Copy kernel into right directory
-    shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/linux-" + kver)
-    print "Kernel copied in " + trg_dir + "/linux-" + kver
+    # Copy the initrd out of the chroot
+    shutil.copy(work_dir + "/tmp/initrd-" + kver, trg_dir + "/initrd-" + kver)
+    os.chmod(trg_dir + "/initrd-" + kver, 0o644)
+    print "Initrd available at " + trg_dir + "/initrd-" + kver
+
+    # Copy vmlinuz out of the chroot
+    shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/vmlinux-" + kver)
+    print "vmlinux available at " + trg_dir + "/vmlinux-" + kver
 
 
 def edit(image):
