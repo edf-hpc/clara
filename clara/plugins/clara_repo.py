@@ -70,7 +70,7 @@ def do_key():
     if retcode != 0:
         file_stored_key = get_from_config("repo", "stored_enc_key")
         if os.path.isfile(file_stored_key):
-            password = value_from_file(get_from_config("common", "master_passwd_file"), "PASSPHRASE")
+            password = value_from_file(get_from_config("common", "master_passwd_file"), "ASUPASSWD")
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()
@@ -94,7 +94,7 @@ def do_key():
                         sys.exit('Command failed {0}'.format(" ".join(cmd)))
 
             else:
-                sys.exit('There was some problem reading the PASSPHRASE')
+                sys.exit('There was some problem reading the value of ASUPASSWD')
         else:
             sys.exit('Unable to read:  {0}'.format(file_stored_key))
     else:
