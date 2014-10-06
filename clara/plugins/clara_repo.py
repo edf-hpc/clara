@@ -238,6 +238,7 @@ def main():
                 sys.exit("File is not a *.deb *.dsc or *.changes")
     elif dargs['del']:
         for elem in dargs['<name>']:
+            do_package('remove', elem)
             do_package('removesrc', elem)
 
 if __name__ == '__main__':
