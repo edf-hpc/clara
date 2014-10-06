@@ -61,9 +61,10 @@ from clara.utils import run, get_from_config, value_from_file
 
 
 def do_key():
+    key = get_from_config("repo", "gpg_key")
     fnull = open(os.devnull, 'w')
-    cmd = ['gpg', '--list-secret-keys', get_from_config("repo", "gpg_key")]
-    retcode = subprocess.call(cmd, stdout=fnull)
+    cmd = ['gpg', '--list-secret-keys', key]
+    retcode = subprocess.call(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
     # We import the key if it hasn't been imported before
@@ -74,8 +75,7 @@ def do_key():
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp()
-                cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key,
-                       '-out', temp_path, '-k', password]
+                cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
                 retcode = subprocess.call(cmd)
 
                 if retcode != 0:
@@ -83,15 +83,16 @@ def do_key():
                     os.remove(temp_path)
                     sys.exit('Command failed {0}'.format(" ".join(cmd)))
                 else:
+                    print "Trying to import key {0}".format(key)
                     fnull = open(os.devnull, 'w')
-                    cmd = ['gpg', '--allow-secret-key-import',
-                           '--import', temp_path]
-                    retcode = subprocess.call(cmd, stdout=fnull)
+                    cmd = ['gpg', '--allow-secret-key-import', '--import', temp_path]
+                    retcode = subprocess.call(cmd)
                     fnull.close()
                     os.close(fdesc)
                     os.remove(temp_path)
                     if retcode != 0:
-                        sys.exit('Command failed {0}'.format(" ".join(cmd)))
+                        print "\nThere was a problem with the import, make sure the key you imported " \
+                              "from {0} is the same you have in your configuration: {1}".format(file_stored_key, key)
 
             else:
                 sys.exit('There was some problem reading the value of ASUPASSWD')
