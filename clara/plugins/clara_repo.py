@@ -41,6 +41,7 @@ Usage:
     clara repo sync (all|<suite>...|--dist=<name>)
     clara repo add <file>... [--dist=<name>]
     clara repo del <name>...[--dist=<name>]
+    clara repo list [--dist=<name>]
     clara repo -h | --help | help
 
 Options:
@@ -201,10 +202,13 @@ def do_sync(input_suites):
 
 
 def do_package(action, package):
-    run(['reprepro', '--ask-passphrase',
+    cmd = ['reprepro', '--ask-passphrase',
          '--basedir', get_from_config("repo", "repo_dir", dist),
          '--outdir', get_from_config("repo", "mirror_local", dist),
-         action, dist, package])
+         action, dist]
+    if package is not None:
+        cmd.append(package)
+    run(cmd)
 
 
 def main():
@@ -240,6 +244,8 @@ def main():
         for elem in dargs['<name>']:
             do_package('remove', elem)
             do_package('removesrc', elem)
+    elif dargs['list']:
+            do_package('list', None)
 
 if __name__ == '__main__':
     main()
