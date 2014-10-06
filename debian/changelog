@@ -1,6 +1,13 @@
+clara (0.20141006-2) calibre9; urgency=low
+
+  * Several bugfixes.
+  * 'clara repo': add clara repo list.
+  * New plugin: clara enc, add first version. Still missing 'clara enc edit'
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 06 Oct 2014 16:20:28 +0200
+
 clara (0.20141006-1) calibre9; urgency=low
 
-  [ Ana Guerrero ]
   * Make some updates in the manpages.
   * Update the Depends line. And add a Recommends on gnupg-agent.
   * Refresh the long description.
