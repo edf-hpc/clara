@@ -218,6 +218,7 @@ def remove_files():
         if os.path.isfile(work_dir + "/" + f):
             os.remove(work_dir + "/" + f)
 
+
 def run_script_post_creation():
     script = get_from_config("images", "script_post_image_creation", dist)
     if not os.path.isfile(script):
@@ -227,6 +228,7 @@ def run_script_post_creation():
         shutil.copy(script, work_dir + "/tmp/script")
         os.chmod(work_dir + "/tmp/script", 0o755)
         run_chroot(["chroot", work_dir, "bash", "/tmp/script"])
+
 
 def genimg(image):
     if (image is None):
@@ -261,6 +263,7 @@ def extract_image(image):
     run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
     print "Modify the image at {0} and then run:\n" \
           "\tclara images repack {0}".format(extract_dir)
+
 
 def geninitrd():
     trg_dir = get_from_config("images", "trg_dir", dist)
@@ -322,13 +325,15 @@ def edit(image):
     os.rename(squashfs_file, squashfs_file + ".old")
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
-    print("\nPrevious image renamed to {0}." \
-          "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
+    print "\nPrevious image renamed to {0}." \
+          "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file)
+
 
 def clean_and_exit():
     if os.path.exists(work_dir):
         umount_chroot()
         shutil.rmtree(work_dir)
+
 
 def main():
     dargs = docopt.docopt(__doc__)

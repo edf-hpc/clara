@@ -72,7 +72,7 @@ from clara.utils import clush, run, get_from_config, value_from_file
 
 
 def ipmi_do(hosts, pty=False, *cmd):
-    command=[]
+    command = []
     if not isinstance(pty, bool):
         command.append(pty)
         pty = False
