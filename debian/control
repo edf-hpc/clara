@@ -31,3 +31,4 @@ Description: cluster administration tools
   slurm    Performs tasks using SLURM's controller.
   images   Creates and updates the images of installation of a cluster.
   p2p      Makes torrent images and seeds them via BitTorrent.
+  enc      Interact with encrypted files using configurable methods.

@@ -33,53 +33,89 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <plugin> [<args>...]
-       clara help <plugin>
-       clara [--version]
-       clara [--help]
+Interact with encrypted files using configurable methods
 
-Clara provides the following plugins:
-   repo     Creates, updates and synchronizes local Debian repositories.
-   ipmi     Manages and get the status from the nodes of a cluster.
-   slurm    Performs tasks using SLURM's controller.
-   images   Creates and updates the images of installation of a cluster.
-   p2p      Makes torrent images and seeds them via BitTorrent.
-   enc      Interact with encrypted files using configurable methods
-
-See 'clara help <plugin>' for detailed help on a plugin
-and 'clara <plugin> --help' for a quick list of options of a plugin.
+Usage:
+    clara enc show <file>
+    clara enc edit <file>
+    clara enc encode <file>
+    clara enc decode <file>
+    clara enc -h | --help | help
 """
+
+import os
+import shutil
+import subprocess
 import sys
+import tempfile
 
 import docopt
-import importlib
-import subprocess
 
-from clara.version import __version__
+from clara.utils import get_from_config, value_from_file
+
+
+# In the future, this function will get the key using several method,
+# right now, we only have one method and we'll use that one
+def get_encryption_key():
+
+    master_passwd_file = get_from_config("common", "master_passwd_file")
+
+    if os.path.isfile(master_passwd_file):
+        password = value_from_file(master_passwd_file, "ASUPASSWD")
+        if len(password) > 20:
+            return password
+        else:
+            sys.exit('There was some problem reading the value of ASUPASSWD')
+    else:
+        sys.exit('Unable to read: {0}'.format(master_passwd_file))
+
+
+def do(op, origfile):
+    password = get_encryption_key()
+    f = tempfile.NamedTemporaryFile()
+
+    if op == "decrypt":
+        cmd = ['openssl', 'aes-256-cbc', '-d', '-in', origfile, '-out', f.name, '-k', password]
+    elif op == "encrypt":
+        cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
+
+    retcode = subprocess.call(cmd)
+
+    if retcode != 0:
+        f.close()
+        sys.exit('CLARA: command failed {0}'.format(" ".join(cmd)))
+    else:
+        return f
+
+
+def main():
+    dargs = docopt.docopt(__doc__)
+
+    if dargs['show'] or dargs['edit'] or dargs['decode']:
+        if not dargs['<file>'].endswith(".enc"):
+            sys.exit("The filename doesn't end with .enc - {0}. All encrypted files must have the suffix '.enc'")
+
+    if dargs['encode']:
+        if dargs['<file>'].endswith(".enc"):
+            sys.exit("The filename ends with .enc - {0}. This file is probably already encrypted.")
+
+    if dargs['show']:
+        f = do("decrypt", dargs['<file>'])
+        subprocess.call(['sensible-pager', f.name])
+        f.close()
+    elif dargs['edit']:
+        pass  # TODO
+    elif dargs['encode']:
+        f = do("encrypt", dargs['<file>'])
+        shutil.copy(f.name, dargs['<file>'] + ".enc")
+        f.close()
+    elif dargs['decode']:
+        f = do("decrypt", dargs['<file>'])
+
+        if dargs['<file>'].endswith(".enc"):
+            shutil.copy(f.name, dargs['<file>'][0:-4])
+        f.close()
+
 
 if __name__ == '__main__':
-
-    args = docopt.docopt(__doc__, version=__version__, options_first=True)
-
-    # If we just type 'clara' we get the short help
-    if args['<plugin>'] is None:
-        sys.exit(__doc__)
-
-    # When we type 'clara help' docopt thinks it's a plugin
-    if args['<plugin>'] == 'help':
-        if len(args['<args>']) == 0:
-            subprocess.call(['man', 'clara'])
-        else:
-            page = "clara-{0}".format(args['<args>'][0])
-            subprocess.call(['man', page])
-
-        sys.exit()
-
-   # Finally we check if it's a clara plugin or show an error message
-    try:
-        m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
-    except ImportError:
-        sys.exit("Sorry, the plugin {0} doesn't exist. "
-                 "See 'clara --help'.".format(args['<plugin>']))
-
-    m.main()
+    main()

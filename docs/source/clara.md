@@ -26,4 +26,4 @@ Clara provides the following plugins:
 
 # SEE ALSO
 
-clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1)
+clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1)
