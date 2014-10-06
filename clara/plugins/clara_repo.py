@@ -201,7 +201,7 @@ def do_sync(input_suites):
               mirror_root + "/" + s])
 
 
-def do_package(action, package):
+def do_reprepro(action, package):
     cmd = ['reprepro', '--ask-passphrase',
          '--basedir', get_from_config("repo", "repo_dir", dist),
          '--outdir', get_from_config("repo", "mirror_local", dist),
@@ -233,19 +233,19 @@ def main():
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):
-                do_package('includedeb', elem)
+                do_reprepro('includedeb', elem)
             elif elem.endswith(".changes"):
-                do_package('include', elem)
+                do_reprepro('include', elem)
             elif elem.endswith(".dsc"):
-                do_package('includedsc', elem)
+                do_reprepro('includedsc', elem)
             else:
                 sys.exit("File is not a *.deb *.dsc or *.changes")
     elif dargs['del']:
         for elem in dargs['<name>']:
-            do_package('remove', elem)
-            do_package('removesrc', elem)
+            do_reprepro('remove', elem)
+            do_reprepro('removesrc', elem)
     elif dargs['list']:
-            do_package('list', None)
+            do_reprepro('list', None)
 
 if __name__ == '__main__':
     main()
