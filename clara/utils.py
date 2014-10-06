@@ -101,9 +101,12 @@ getconfig.config = None
 
 def value_from_file(myfile, key):
     """ Read a value from a headless ini file. """
+    password = ""
     with open(myfile, 'r') as hand:
         for line in hand:
             if key in line:
                 texto = line.rstrip().split("=")
                 password = texto[1].strip('"').strip("'")
+    if password == "":
+        sys.exit("{0} not found in the file {1}".format(key, myfile))
     return password
