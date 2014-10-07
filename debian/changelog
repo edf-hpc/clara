@@ -1,3 +1,13 @@
+clara (0.20141007) UNRELEASED; urgency=low
+
+  * 'clara enc':
+    - add command clara enc edit.
+    - update manpage with commands and examples
+    - now we can declare the plugin done. Fixes #6
+  * Update the manpages for 'clara images' and 'clara repo'
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 07 Oct 2014 11:41:09 +0200
+
 clara (0.20141006-2) calibre9; urgency=low
 
   * Several bugfixes.
