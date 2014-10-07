@@ -138,39 +138,23 @@ DscIndices: Sources Release . .gz .bz2
 
 
 def do_sync(input_suites):
-    # This only works if we use debian.c.e.f as server
-    # TODO: all this dictionary should go into the configuration file
-    info_suites = {
-        'calibre8': {
-            "wheezy": "debian",
-            "wheezy-backports": "debian",
-            "wheezy-updates": "debian",
-            "wheezy-security": "debian-security",
-            "calibre8": "calibre8/calibre",
-            "calibre8-security": "calibre8/calibre-security"
-        },
+    info_suites = {} # Contains all the information
+    suite_dist = {} # Contains the pairs suite - webdir
+    all_suites = [] # Contains a list with all the suites names
 
-        'calibre9': {
-            "jessie": "debian",
-            "jessie-backports": "debian",
-            "jessie-updates": "debian",
-            "jessie-security": "debian-security",
-            "calibre9": "calibre9/calibre",
-            # "calibre9-security": "calibre9/calibre-security" Yet to arrive
-        }
-    }
+    for distribution in get_from_config("common", "allowed_distributions").split(","):
+        elements =  get_from_config("repo", "info_suites", distribution).split(",")
+        tmp_info_suites = {}
 
-    # Also we need a dict with the mapping suite-dist
-    suite_dist = {}
-    for k in info_suites:
-        for elem in info_suites[k]:
-            suite_dist[elem] = k
+        for e in elements:
+            k, v = e.split(":")
+            all_suites.append(k)
+            suite_dist[k] = distribution
+            tmp_info_suites[k] = v
+
+        info_suites[distribution] = tmp_info_suites
 
     suites = []
-    all_suites = []
-    for elem in info_suites:
-        all_suites = all_suites + info_suites[elem].keys()
-
     if input_suites == 'all':
         suites = all_suites
     elif len(input_suites) == 0:  # We only sync suites related to the default distribution

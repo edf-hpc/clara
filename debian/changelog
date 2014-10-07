@@ -1,3 +1,10 @@
+clara (0.2014100702) UNRELEASED; urgency=low
+
+  * Remove hard-coded parameters. They're now in info_suites in config.ini
+    Fix #25.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 07 Oct 2014 15:39:01 +0200
+
 clara (0.20141007) calibre9; urgency=low
 
   * 'clara enc':
