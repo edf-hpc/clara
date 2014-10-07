@@ -1,8 +1,8 @@
-clara (0.2014100702) UNRELEASED; urgency=low
+clara (0.2014100702) calibre9; urgency=low
 
-  * Remove hard-coded parameters. They're now in info_suites in config.ini
-    Fix #25.
-  * clara images initrd: add the option to install an extra list of packages
+  * 'clara repo sync' Remove hard-coded parameters. Fix #25
+    They're now in info_suites in config.ini
+  * 'clara images initrd': add the option to install an extra list of packages
     when creating the initrd. The list is provided in config.ini with the
     parameter 'packages_initrd'
   * 'clara images edit': modify prompt to add the distribution. Fix #29
