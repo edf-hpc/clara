@@ -289,7 +289,9 @@ def geninitrd():
     kver = get_from_config("images", "kver", dist)
     # Install the kernel in the image
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    run_chroot(["chroot", work_dir, "apt-get", "install", "--yes", "linux-image-" + kver, "ctorrent"])
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
+    pkgs = get_from_config("images", "packages_initrd", dist).split(',')
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
     # Generate the initrd in the image
     run_chroot(["chroot", work_dir, "/tmp/mkinitrfs", "-d", "/tmp/initramfsc", "-o", "/tmp/initrd-" + kver, kver])
     umount_chroot()

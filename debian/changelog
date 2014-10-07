@@ -2,6 +2,9 @@ clara (0.2014100702) UNRELEASED; urgency=low
 
   * Remove hard-coded parameters. They're now in info_suites in config.ini
     Fix #25.
+  * clara images initrd: add the option to install an extra list of packages
+    when creating the initrd. The list is provided in config.ini with the
+    parameter 'packages_initrd'
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 07 Oct 2014 15:39:01 +0200
 
