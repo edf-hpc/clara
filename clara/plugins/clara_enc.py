@@ -87,6 +87,18 @@ def do(op, origfile):
     else:
         return f
 
+def do_edit(origfile):
+
+    if os.path.isfile(origfile):
+        editfile = do("decrypt", origfile)
+    else:
+        editfile = tempfile.NamedTemporaryFile()
+
+    subprocess.call(['sensible-editor', editfile.name])
+    finalfile = do("encrypt", editfile.name)
+    shutil.copy(finalfile.name, origfile)
+    editfile.close()
+    finalfile.close()
 
 def main():
     dargs = docopt.docopt(__doc__)
@@ -104,7 +116,7 @@ def main():
         subprocess.call(['sensible-pager', f.name])
         f.close()
     elif dargs['edit']:
-        pass  # TODO
+        do_edit(dargs['<file>'])
     elif dargs['encode']:
         f = do("encrypt", dargs['<file>'])
         shutil.copy(f.name, dargs['<file>'] + ".enc")
