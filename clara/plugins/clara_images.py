@@ -321,7 +321,7 @@ def edit(image):
     # Work in the image
     os.chdir(work_dir)
     print "Entering into a bash shell to edit the image. ^d when you have finished"
-    os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m clara images> \e[0m'")
+    os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara images> \e[0m'".format(dist))
     pty.spawn(["/bin/bash"])
     # Rename old image and recreate new one
     os.rename(squashfs_file, squashfs_file + ".old")
