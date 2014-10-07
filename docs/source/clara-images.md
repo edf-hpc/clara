@@ -6,8 +6,9 @@ clara-images - creates and updates the images of installation of a cluster
 
 # SYNOPSIS
 
-    clara images create [--dist=<name>]
-    clara images (unpack|repack <directory>) [--dist=<name>]
+    clara images create [<image>] [--dist=<name>]
+    clara images unpack [<image>] [--dist=<name>]
+    clara images repack <directory> [<image>] [--dist=<name>]
     clara images edit [<image>] [--dist=<name>]
     clara images initrd [--dist=<name>]
     clara images -h | --help | help
@@ -22,17 +23,28 @@ Options:
 
 # OPTIONS
 
-    clara images create [--dist=<name>]
+    clara images create [<image>] [--dist=<name>]
 
         Create a new squashfs image to use as operating system on the cluster nodes.
+        By default it unpacks the default image but the user can provide  the path to a
+        different file.
 
-    clara images (unpack|repack <directory>) [--dist=<name>]
+    clara images unpack [<image>] [--dist=<name>]
 
-        Unpack and repack the squashfs file providing the image.
+        Unpack the squashfs file. By default it unpacks the default image but the user can
+        provide the path to a different file.
+
+    clara images repack <directory> [<image>] [--dist=<name>]
+
+        Repack the squashfs file providing the image.  By default it repacks and replace
+        the default image but the user can choose to provide a path to save it with a different
+        name.
 
     clara images edit [<image>] [--dist=<name>]
 
-        Unpacks the image for editing, spawns a bash to make the changes and repacks the image again after.
+        Unpacks the image for editing, spawns a bash to make the changes and repacks
+        the image again after. By default it edits the default image but the user can
+        provide the path to a different image.
 
     clara images initrd [--dist=<name>]
 
