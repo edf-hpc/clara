@@ -1,4 +1,4 @@
-clara (0.20141007) UNRELEASED; urgency=low
+clara (0.20141007) calibre9; urgency=low
 
   * 'clara enc':
     - add command clara enc edit.
@@ -9,7 +9,7 @@ clara (0.20141007) UNRELEASED; urgency=low
     - 'distribution' to 'default_distribution'
     - 'distributions' to 'allowed_distributions'
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 07 Oct 2014 11:41:09 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 07 Oct 2014 14:10:28 +0200
 
 clara (0.20141006-2) calibre9; urgency=low
 
