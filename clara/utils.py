@@ -71,7 +71,7 @@ def get_from_config(section, value, dist=''):
         except:
             sys.exit("E: Value '%s' not found in the section '%s'" % (value, section))
 
-    elif dist in getconfig().get("common", "distributions"):
+    elif dist in getconfig().get("common", "allowed_distributions"):
         or_section = section + "-" + dist
 
         # If the value is not in the override section, return the base value

@@ -215,10 +215,10 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     global dist
-    dist = get_from_config("common", "distribution")
+    dist = get_from_config("common", "default_distribution")
     if dargs["--dist"] is not None:
         dist = dargs["--dist"]
-    if dist not in get_from_config("common", "distributions"):
+    if dist not in get_from_config("common", "allowed_distributions"):
         sys.exit("{0} is not a know distribution".format(dist))
 
     if dargs['key']:

@@ -51,7 +51,7 @@ Options:
         Create a new initrd image to boot the cluster nodes.
 
 The option [--dist=<name>] allows to select a distribution different to the default one.
-This distribution must be listed in the field "distributions" from the section [common].
+This distribution must be listed in the field "allowed_distributions" from the section [common].
 
 # EXAMPLES
 

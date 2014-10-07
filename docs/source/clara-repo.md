@@ -64,7 +64,7 @@ of remote Debian repositories locally.
         Lists all contents of the repository.
 
 The option [--dist=<name>] allows to select a distribution different to the default one.
-This distribution must be listed in the field "distributions" from the section [common].
+This distribution must be listed in the field "allowed_distributions" from the section [common].
 
 # EXAMPLES
 
