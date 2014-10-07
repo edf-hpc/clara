@@ -105,11 +105,11 @@ def main():
 
     if dargs['show'] or dargs['edit'] or dargs['decode']:
         if not dargs['<file>'].endswith(".enc"):
-            sys.exit("The filename doesn't end with .enc - {0}. All encrypted files must have the suffix '.enc'")
+            sys.exit("The filename '{0}' doesn't end with .enc.\nAll encrypted files must have the suffix '.enc'".format(dargs['<file>']))
 
     if dargs['encode']:
         if dargs['<file>'].endswith(".enc"):
-            sys.exit("The filename ends with .enc - {0}. This file is probably already encrypted.")
+            sys.exit("The filename '{0}' ends with '.enc'.\nThis file is probably already encrypted.".format(dargs['<file>']))
 
     if dargs['show']:
         f = do("decrypt", dargs['<file>'])
