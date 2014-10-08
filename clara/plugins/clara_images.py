@@ -302,8 +302,8 @@ def geninitrd():
     print "Initrd available at " + trg_dir + "/initrd-" + kver
 
     # Copy vmlinuz out of the chroot
-    shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/vmlinux-" + kver)
-    print "vmlinux available at " + trg_dir + "/vmlinux-" + kver
+    shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/vmlinuz-" + kver)
+    print "vmlinuz available at " + trg_dir + "/vmlinuz-" + kver
 
 
 def edit(image):
