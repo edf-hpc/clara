@@ -63,8 +63,11 @@ def show_nodes(option):
             cols = line.rstrip().split(" ")
             selection.append(cols[-1])
 
-    part2 = subprocess.Popen(["scontrol", "show", "node", ",".join(selection)],
-                             stdout=subprocess.PIPE)
+    cmd = ["scontrol", "show", "node", ",".join(selection)]
+    if conf.debug:
+        print "CLARA Debug - slurm/show_nodes: {0}".format(" ".join(cmd))
+
+    part2 = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     for line in part2.stdout:
         if "NodeName" in line:
             print line.split(" ")[0]

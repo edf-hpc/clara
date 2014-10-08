@@ -1,3 +1,12 @@
+clara (0.20141008) UNRELEASED; urgency=low
+
+  * Add debug mode: Fix #8
+    - Add an option "-d" in bin/clara that shows all the command run by the plugins.
+    - Add a new class Conf for runtime configuration parameters
+    - Based in initial patch by @rezib.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 08 Oct 2014 13:31:32 +0200
+
 clara (0.2014100702) calibre9; urgency=low
 
   * 'clara repo sync' Remove hard-coded parameters. Fix #25

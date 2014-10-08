@@ -51,7 +51,7 @@ import tempfile
 
 import docopt
 
-from clara.utils import get_from_config, value_from_file
+from clara.utils import conf, get_from_config, value_from_file
 
 
 # In the future, this function will get the key using several method,
@@ -78,6 +78,9 @@ def do(op, origfile):
         cmd = ['openssl', 'aes-256-cbc', '-d', '-in', origfile, '-out', f.name, '-k', password]
     elif op == "encrypt":
         cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
+
+    if conf.debug:
+        print "CLARA Debug - enc/do: {0}".format(" ".join(cmd))
 
     retcode = subprocess.call(cmd)
 

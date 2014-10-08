@@ -68,7 +68,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clush, run, get_from_config, value_from_file
+from clara.utils import clush, conf, run, get_from_config, value_from_file
 
 
 def ipmi_do(hosts, pty=False, *cmd):
@@ -83,6 +83,10 @@ def ipmi_do(hosts, pty=False, *cmd):
     for host in nodeset:
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", "imm" + host, "-U", imm_user, "-E", "-e!"]
         ipmitool.extend(command)
+
+        if conf.debug:
+            print "CLARA Debug - ipmi/ipmi_do: {0}".format(" ".join(ipmitool))
+
         if pty:
             run(ipmitool)
         else:
@@ -97,6 +101,9 @@ def getmac(hosts):
         print "%s: " % host
         cmd = ["ipmitool", "-I", "lanplus", "-H", "imm" + host,
                "-U", imm_user, "-E", "fru", "print", "0"]
+
+        if conf.debug:
+            print "CLARA Debug - ipmi/getmac: {0}".format(" ".join(cmd))
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15

@@ -33,10 +33,13 @@
 #                                                                            #
 ##############################################################################
 """
-usage: clara <plugin> [<args>...]
+Usage: clara [options] <plugin> [<args>...]
        clara help <plugin>
        clara [--version]
        clara [--help]
+
+Options:
+    -d                 Enable debug output
 
 Clara provides the following plugins:
    repo     Creates, updates and synchronizes local Debian repositories.
@@ -56,10 +59,14 @@ import importlib
 import subprocess
 
 from clara.version import __version__
+from clara.utils import conf
 
 if __name__ == '__main__':
 
     args = docopt.docopt(__doc__, version=__version__, options_first=True)
+
+    if args['-d']:
+        conf.debug = True
 
     # If we just type 'clara' we get the short help
     if args['<plugin>'] is None:
@@ -81,5 +88,14 @@ if __name__ == '__main__':
     except ImportError:
         sys.exit("Sorry, the plugin {0} doesn't exist. "
                  "See 'clara --help'.".format(args['<plugin>']))
+
+    # We remove all the "[options]" since the plugins won't know them
+    rarg= []
+    rarg.append(sys.argv[0])
+    for e in range(1,len(sys.argv)):
+        if sys.argv[e] == args['<plugin>']:
+            break
+    rarg = rarg + sys.argv[e:]
+    sys.argv = rarg
 
     m.main()

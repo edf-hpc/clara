@@ -56,10 +56,13 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clush, run, get_from_config
+from clara.utils import clush, conf, run, get_from_config
 
 
 def run_chroot(cmd):
+    if conf.debug:
+        print "CLARA Debug: images/run_chroot: {0}".format(" ".join(cmd))
+
     try:
         retcode = subprocess.call(cmd)
     except OSError, e:

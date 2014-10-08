@@ -42,8 +42,18 @@ import sys
 import ClusterShell.NodeSet
 import ClusterShell.Task
 
+class Conf:
+    """Class which contains runtime variables"""
+    def __init__(self):
+        self.debug = False
+
+# global runtime Conf object
+conf = Conf()
 
 def clush(hosts, cmds):
+    if conf.debug:
+        print "CLARA Debug - utils/clush: {0}".format(cmds)
+
     task = ClusterShell.Task.task_self()
     task.run(cmds, nodes=hosts)
 
@@ -52,6 +62,9 @@ def clush(hosts, cmds):
 
 
 def run(cmd):
+    if conf.debug:
+        print "CLARA Debug - utils/run: {0}".format(" ".join(cmd))
+
     try:
         retcode = subprocess.call(cmd)
     except OSError, e:
