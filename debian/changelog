@@ -4,6 +4,10 @@ clara (0.20141008) UNRELEASED; urgency=low
     - Add an option "-d" in bin/clara that shows all the command run by the plugins.
     - Add a new class Conf for runtime configuration parameters
     - Based in initial patch by @rezib.
+  * Now we can provide a config.ini file from the command line. Fix #32
+    Remove the possibility to have a user config file in ~/config/clara/. It's better
+    to prevent confusion to provide a file explicitily in the command line when the
+    user doesn't want to use the default one.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 08 Oct 2014 13:31:32 +0200
 

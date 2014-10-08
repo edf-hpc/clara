@@ -40,6 +40,7 @@ Usage: clara [options] <plugin> [<args>...]
 
 Options:
     -d                 Enable debug output
+    --config=<file>    Provide a configuration file
 
 Clara provides the following plugins:
    repo     Creates, updates and synchronizes local Debian repositories.
@@ -52,6 +53,7 @@ Clara provides the following plugins:
 See 'clara help <plugin>' for detailed help on a plugin
 and 'clara <plugin> --help' for a quick list of options of a plugin.
 """
+import os
 import sys
 
 import docopt
@@ -67,6 +69,10 @@ if __name__ == '__main__':
 
     if args['-d']:
         conf.debug = True
+
+    if args['--config']:
+        if os.path.isfile(args['--config']):
+            conf.config = os.path.abspath(args['--config'])
 
     # If we just type 'clara' we get the short help
     if args['<plugin>'] is None:

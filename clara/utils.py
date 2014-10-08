@@ -46,6 +46,8 @@ class Conf:
     """Class which contains runtime variables"""
     def __init__(self):
         self.debug = False
+        self.config = None
+
 
 # global runtime Conf object
 conf = Conf()
@@ -103,10 +105,13 @@ def get_from_config(section, value, dist=''):
 
 
 def getconfig():
+    files = ['/etc/clara/config.ini']
+    if conf.config:
+        files.append(conf.config)
+
     if getconfig.config is None:
         getconfig.config = ConfigParser.ConfigParser()
-        getconfig.config.read(['/etc/clara/config.ini',
-                              os.path.expanduser('~/.config/clara/config.ini')])
+        getconfig.config.read(files)
     return getconfig.config
 
 getconfig.config = None
