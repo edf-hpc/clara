@@ -107,11 +107,13 @@ Pin-Priority: 6000
         fconf.write('Acquire::Check-Valid-Until "false";\n')
 
     lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
-    if (len(lists_hosts) % 2 != 0):
-        print "Clara: WARNING: the option etc_hosts is malformed or missing an argument"
     with open(etc_host, 'w') as fhost:
-        for elem in range(0, len(lists_hosts), 2):
-            fhost.write("{0} {1}\n".format(lists_hosts[elem], lists_hosts[elem + 1]))
+        for elem in lists_hosts:
+            if ":" in elem:
+                ip, host = elem.split(":")
+                fhost.write("{0} {1}\n".format(ip, host))
+            else:
+                print "Clara: WARNING: the option etc_hosts is malformed or missing an argument"
 
     with open(dpkg_conf, 'w') as fdpkg:
         fdpkg.write("""# Drop locales except French
