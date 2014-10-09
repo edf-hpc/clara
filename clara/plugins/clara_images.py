@@ -40,7 +40,7 @@ Usage:
     clara images unpack [<image>] [--dist=<name>]
     clara images repack <directory> [<image>] [--dist=<name>]
     clara images edit [<image>] [--dist=<name>]
-    clara images initrd [--dist=<name>]
+    clara images initrd [--dist=<name>] [--output=<dirpath>]
     clara images -h | --help | help
 
 """
@@ -270,8 +270,12 @@ def extract_image(image):
           "\tclara images repack {0}".format(extract_dir)
 
 
-def geninitrd():
-    trg_dir = get_from_config("images", "trg_dir", dist)
+def geninitrd(path):
+    if (path is None):
+        trg_dir = get_from_config("images", "trg_dir", dist)
+    else:
+        trg_dir = path
+
     if not os.path.isdir(trg_dir):
         os.makedirs(trg_dir)
 
@@ -376,7 +380,7 @@ def main():
     elif dargs['unpack']:
         extract_image(dargs['<image>'])
     elif dargs['initrd']:
-        geninitrd()
+        geninitrd(dargs['--output'])
     elif dargs['edit']:
         edit(dargs['<image>'])
 
