@@ -96,9 +96,9 @@ if __name__ == '__main__':
                  "See 'clara --help'.".format(args['<plugin>']))
 
     # We remove all the "[options]" since the plugins won't know them
-    rarg= []
+    rarg = []
     rarg.append(sys.argv[0])
-    for e in range(1,len(sys.argv)):
+    for e in range(1, len(sys.argv)):
         if sys.argv[e] == args['<plugin>']:
             break
     rarg = rarg + sys.argv[e:]

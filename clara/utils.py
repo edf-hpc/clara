@@ -36,11 +36,11 @@
 import errno
 import subprocess
 import ConfigParser
-import os
 import sys
 
 import ClusterShell.NodeSet
 import ClusterShell.Task
+
 
 class Conf:
     """Class which contains runtime variables"""
@@ -48,9 +48,9 @@ class Conf:
         self.debug = False
         self.config = None
 
-
 # global runtime Conf object
 conf = Conf()
+
 
 def clush(hosts, cmds):
     if conf.debug:

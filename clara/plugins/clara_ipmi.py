@@ -132,24 +132,24 @@ def do_connect(hosts):
     if (len(nodeset) != 1):
         sys.exit('Only one host allowed for this command')
     else:
-            try:
-                cmd = ["service", "conman", "status"]
-                fnull = open(os.devnull, 'wb')  # Supress output of the following call
-                retcode = subprocess.call(cmd, stdout=fnull, stderr=subprocess.STDOUT)
-                fnull.close()
-            except OSError, e:
-                if (e.errno == errno.ENOENT):
-                    sys.exit("Binary not found, check your path and/or retry as root."
-                             "You were trying to run:\n {0}".format(" ".join(cmd)))
+        try:
+            cmd = ["service", "conman", "status"]
+            fnull = open(os.devnull, 'wb')  # Supress output of the following call
+            retcode = subprocess.call(cmd, stdout=fnull, stderr=subprocess.STDOUT)
+            fnull.close()
+        except OSError, e:
+            if (e.errno == errno.ENOENT):
+                sys.exit("Binary not found, check your path and/or retry as root."
+                         "You were trying to run:\n {0}".format(" ".join(cmd)))
 
-            if retcode == 0:  # if conman is running
-                os.environ["CONMAN_ESCAPE"] = '!'
-                conmand = get_from_config("ipmi", "conmand")
-                run(["conman", "-d", conmand, hosts])
-            elif retcode == 1 or retcode == 3:  # if conman is NOT running
-                ipmi_do(hosts, True, "sol", "activate")
-            else:
-                sys.exit('E: ' + ' '.join(cmd))
+        if retcode == 0:  # if conman is running
+            os.environ["CONMAN_ESCAPE"] = '!'
+            conmand = get_from_config("ipmi", "conmand")
+            run(["conman", "-d", conmand, hosts])
+        elif retcode == 1 or retcode == 3:  # if conman is NOT running
+            ipmi_do(hosts, True, "sol", "activate")
+        else:
+            sys.exit('E: ' + ' '.join(cmd))
 
 
 def do_ping(hosts):

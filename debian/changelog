@@ -1,3 +1,9 @@
+clara (0.20141009) calibre9; urgency=low
+
+  * 
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 09 Oct 2014 11:14:50 +0200
+
 clara (0.20141008) calibre9; urgency=low
 
   * Add debug mode: Fix #8

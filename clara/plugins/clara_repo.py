@@ -144,12 +144,12 @@ DscIndices: Sources Release . .gz .bz2
 
 
 def do_sync(input_suites):
-    info_suites = {} # Contains all the information
-    suite_dist = {} # Contains the pairs suite - webdir
-    all_suites = [] # Contains a list with all the suites names
+    info_suites = {}  # Contains all the information
+    suite_dist = {}  # Contains the pairs suite - webdir
+    all_suites = []  # Contains a list with all the suites names
 
     for distribution in get_from_config("common", "allowed_distributions").split(","):
-        elements =  get_from_config("repo", "info_suites", distribution).split(",")
+        elements = get_from_config("repo", "info_suites", distribution).split(",")
         tmp_info_suites = {}
 
         for e in elements:
@@ -235,7 +235,7 @@ def main():
             do_reprepro('remove', elem)
             do_reprepro('removesrc', elem)
     elif dargs['list']:
-            do_reprepro('list', None)
+        do_reprepro('list', None)
 
 if __name__ == '__main__':
     main()

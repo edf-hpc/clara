@@ -52,7 +52,7 @@ import subprocess
 import sys
 
 import docopt
-from clara.utils import clush, run
+from clara.utils import clush, conf, run
 
 
 def show_nodes(option):

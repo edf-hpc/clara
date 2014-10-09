@@ -90,6 +90,7 @@ def do(op, origfile):
     else:
         return f
 
+
 def do_edit(origfile):
 
     if os.path.isfile(origfile):
@@ -102,6 +103,7 @@ def do_edit(origfile):
     shutil.copy(finalfile.name, origfile)
     editfile.close()
     finalfile.close()
+
 
 def main():
     dargs = docopt.docopt(__doc__)
