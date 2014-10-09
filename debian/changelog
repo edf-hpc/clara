@@ -1,8 +1,14 @@
 clara (0.20141009) calibre9; urgency=low
 
-  * 
+  * 'clara impi': getmac() show an error when the host doesn't exist
+  * 'clara images': use ":" to separate ip/hostnames instead of ",". Fix #34
+  * 'clara images initrd': allow to specify the path of the generated files. Fix #33
+  * 'clara repo add': add option to pass reprepro flags. Fix #27
+  * 'clara images create': do not assume that the mirror has the format
+    server+"/debian"
+  * Remove the file FEATURES, this information is now in the manpages.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 09 Oct 2014 11:14:50 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 09 Oct 2014 15:12:52 +0200
 
 clara (0.20141008) calibre9; urgency=low
 
