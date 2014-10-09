@@ -85,7 +85,7 @@ def base_install():
     etc_host = work_dir + "/etc/hosts"
 
     run(["debootstrap", get_from_config("images", "debiandist", dist), work_dir,
-         get_from_config("images", "debmirror", dist) + "/debian"])
+         get_from_config("images", "debmirror", dist)])
 
     # Step 2 - Mirror setup
     list_repos = get_from_config("images", "list_repos", dist).split(",")
