@@ -107,7 +107,9 @@ def getmac(hosts):
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15
-        line = proc.stdout.readlines()[14]
+        lines = proc.stdout.readlines()
+        if (len(lines) < 14):
+            sys.exit("The host {0} can't be reached".format(host))
         full_mac = line.split(":")[1].strip().upper()
         mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
                                                         full_mac[2:4],
