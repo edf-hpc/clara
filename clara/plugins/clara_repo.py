@@ -39,7 +39,7 @@ Usage:
     clara repo key
     clara repo init [--dist=<name>]
     clara repo sync (all|<suite>...|--dist=<name>)
-    clara repo add <file>... [--dist=<name>]
+    clara repo add <file>... [--dist=<name>] [--reprepro-flags="list of flags"...]
     clara repo del <name>...[--dist=<name>]
     clara repo list [--dist=<name>]
     clara repo -h | --help | help
@@ -191,13 +191,20 @@ def do_sync(input_suites):
               mirror_root + "/" + s])
 
 
-def do_reprepro(action, package):
-    cmd = ['reprepro', '--ask-passphrase',
-         '--basedir', get_from_config("repo", "repo_dir", dist),
+def do_reprepro(action, package, flags):
+    list_flags = ['--silent', '--ask-passphrase']
+
+    if flags is not None:
+        list_flags.append(flags)
+
+    cmd = ['reprepro'] + list_flags + \
+         ['--basedir', get_from_config("repo", "repo_dir", dist),
          '--outdir', get_from_config("repo", "mirror_local", dist),
          action, dist]
+
     if package is not None:
         cmd.append(package)
+
     run(cmd)
 
 
@@ -223,11 +230,11 @@ def main():
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):
-                do_reprepro('includedeb', elem)
+                do_reprepro('includedeb', elem, dargs['--reprepro-flags'])
             elif elem.endswith(".changes"):
-                do_reprepro('include', elem)
+                do_reprepro('include', elem, dargs['--reprepro-flags'])
             elif elem.endswith(".dsc"):
-                do_reprepro('includedsc', elem)
+                do_reprepro('includedsc', elem, dargs['--reprepro-flags'])
             else:
                 sys.exit("File is not a *.deb *.dsc or *.changes")
     elif dargs['del']:
