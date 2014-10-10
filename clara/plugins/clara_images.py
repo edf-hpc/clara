@@ -163,7 +163,10 @@ def system_install():
 
     mount_chroot()
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    pkgs = get_from_config("images", "important_packages", dist).split(',')
+    # Add here the must-have packages
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])$
+    # Extra packages to be listed in config.ini
+    pkgs = get_from_config("images", "extra_packages_image", dist).split(',')
     run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
     run_chroot(["chroot", work_dir, "apt-get", "update"])
     # TODO: temporarily disabled until we found out why we need this.
