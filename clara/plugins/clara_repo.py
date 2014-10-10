@@ -191,7 +191,7 @@ def do_sync(input_suites):
               mirror_root + "/" + s])
 
 
-def do_reprepro(action, package, flags):
+def do_reprepro(action, package=None, flags=None):
     list_flags = ['--silent', '--ask-passphrase']
 
     if flags is not None:
@@ -242,7 +242,7 @@ def main():
             do_reprepro('remove', elem)
             do_reprepro('removesrc', elem)
     elif dargs['list']:
-        do_reprepro('list', None)
+        do_reprepro('list')
 
 if __name__ == '__main__':
     main()

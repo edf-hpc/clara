@@ -1,3 +1,9 @@
+clara (0.20141010) UNRELEASED; urgency=low
+
+  * 'clara repo': bugfix.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 10 Oct 2014 08:08:07 +0200
+
 clara (0.20141009) calibre9; urgency=low
 
   * 'clara impi': getmac() show an error when the host doesn't exist
