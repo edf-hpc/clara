@@ -1,4 +1,4 @@
-clara (0.20141010) UNRELEASED; urgency=low
+clara (0.20141010) calibre9; urgency=low
 
   * 'clara repo': bugfix.
   * 'clara images edit': add a way to not regenerate the image if we want
@@ -7,7 +7,7 @@ clara (0.20141010) UNRELEASED; urgency=low
   * 'clara images create': make sure puppet and dbus are stopped before unmounting
     the chroot.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 10 Oct 2014 08:08:07 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 10 Oct 2014 16:05:11 +0200
 
 clara (0.20141009) calibre9; urgency=low
 
