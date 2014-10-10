@@ -329,9 +329,14 @@ def edit(image):
     run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
     # Work in the image
     os.chdir(work_dir)
-    print "Entering into a bash shell to edit the image. ^d when you have finished"
+    print "Entering into a bash shell to edit the image. ^d when you have finished."
+    print "If you don't want to renerate the image just place an empty file named IGNORE in the root directory."
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara images> \e[0m'".format(dist))
     pty.spawn(["/bin/bash"])
+
+    if os.path.isfile(work_dir + "/IGNORE"):
+        sys.exit("Changes ignored. The image {0} hasn't been modified.".format(squashfs_file))
+
     # Rename old image and recreate new one
     os.rename(squashfs_file, squashfs_file + ".old")
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])

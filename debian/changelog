@@ -1,6 +1,8 @@
 clara (0.20141010) UNRELEASED; urgency=low
 
   * 'clara repo': bugfix.
+  * 'clara images edit': add a way to not regenerate the image if we want
+    to dismiss our changes. Fix #30
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 10 Oct 2014 08:08:07 +0200
 
