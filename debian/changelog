@@ -1,3 +1,9 @@
+clara (0.20141013) UNRELEASED; urgency=low
+
+  * 'clara impi': do not append 'imm' when host is an IP address. Fix #35
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 13 Oct 2014 12:01:49 +0200
+
 clara (0.20141010) calibre9; urgency=low
 
   * 'clara repo': bugfix.

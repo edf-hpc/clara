@@ -63,6 +63,7 @@ Alternative:
 """
 import errno
 import os
+import re
 import subprocess
 import sys
 
@@ -81,7 +82,12 @@ def ipmi_do(hosts, pty=False, *cmd):
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
-        ipmitool = ["ipmitool", "-I", "lanplus", "-H", "imm" + host, "-U", imm_user, "-E", "-e!"]
+
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        if not pat.match(host):
+            host = "imm" + host
+
+        ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!"]
         ipmitool.extend(command)
 
         if conf.debug:
@@ -98,8 +104,13 @@ def getmac(hosts):
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
+
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        if not pat.match(host):
+            host = "imm" + host
+
         print "%s: " % host
-        cmd = ["ipmitool", "-I", "lanplus", "-H", "imm" + host,
+        cmd = ["ipmitool", "-I", "lanplus", "-H", host,
                "-U", imm_user, "-E", "fru", "print", "0"]
 
         if conf.debug:
