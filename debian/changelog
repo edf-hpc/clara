@@ -1,10 +1,11 @@
-clara (0.20141013) UNRELEASED; urgency=low
+clara (0.20141013) calibre9; urgency=low
 
   * 'clara impi': do not append 'imm' when host is an IP address. Fix #35
   * 'clara images create': only stop puppet and dbus daemons if they're installed.
   * Add logging to clara. Fix #26
+  * Run sudo if you launch clara as a normal user.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 13 Oct 2014 12:01:49 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 13 Oct 2014 15:37:37 +0200
 
 clara (0.20141010) calibre9; urgency=low
 
