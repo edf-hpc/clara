@@ -43,6 +43,7 @@ Usage:
     clara enc -h | --help | help
 """
 
+import logging
 import os
 import shutil
 import subprocess
@@ -51,7 +52,7 @@ import tempfile
 
 import docopt
 
-from clara.utils import conf, get_from_config, value_from_file
+from clara.utils import clara_exit, conf, get_from_config, value_from_file
 
 
 # In the future, this function will get the key using several method,
@@ -65,9 +66,9 @@ def get_encryption_key():
         if len(password) > 20:
             return password
         else:
-            sys.exit('There was some problem reading the value of ASUPASSWD')
+            clara_exit("There was some problem reading the value of ASUPASSWD")
     else:
-        sys.exit('Unable to read: {0}'.format(master_passwd_file))
+        clara_exit("Unable to read: {0}".format(master_passwd_file))
 
 
 def do(op, origfile):
@@ -80,13 +81,13 @@ def do(op, origfile):
         cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
 
     if conf.debug:
-        print "CLARA Debug - enc/do: {0}".format(" ".join(cmd))
+        logging.debug("enc/do: {0}".format(" ".join(cmd)))
 
     retcode = subprocess.call(cmd)
 
     if retcode != 0:
         f.close()
-        sys.exit('CLARA: command failed {0}'.format(" ".join(cmd)))
+        clara_exit('Command failed {0}'.format(" ".join(cmd)))
     else:
         return f
 
@@ -106,15 +107,18 @@ def do_edit(origfile):
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     if dargs['show'] or dargs['edit'] or dargs['decode']:
         if not dargs['<file>'].endswith(".enc"):
-            sys.exit("The filename '{0}' doesn't end with .enc.\nAll encrypted files must have the suffix '.enc'".format(dargs['<file>']))
+            clara_exit("The filename {0} doesn't end with '.enc'.\n"
+                       "All encrypted files must have the suffix '.enc'".format(dargs['<file>']))
 
     if dargs['encode']:
         if dargs['<file>'].endswith(".enc"):
-            sys.exit("The filename '{0}' ends with '.enc'.\nThis file is probably already encrypted.".format(dargs['<file>']))
+            clara_exit("The filename {0} ends with '.enc'.\n"
+                       "This file is probably already encrypted.".format(dargs['<file>']))
 
     if dargs['show']:
         f = do("decrypt", dargs['<file>'])

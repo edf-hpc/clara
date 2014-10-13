@@ -44,6 +44,8 @@ Usage:
 Options:
     --image=<path>  Path to squashfs image.
 """
+
+import logging
 import os
 import sys
 import time
@@ -67,7 +69,7 @@ def mktorrent(image):
     trackers_schema = get_from_config("p2p", "trackers_schema")
 
     if not os.path.isfile(squashfs_file):
-        sys.exit("The file {0} doesn't exist".format(squashfs_file))
+        clara_exit("The file {0} doesn't exist".format(squashfs_file))
 
     if os.path.isfile(trg_dir + "/image.torrent"):
         os.remove(trg_dir + "/image.torrent")
@@ -94,6 +96,7 @@ def mktorrent(image):
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     trackers = get_from_config("p2p", "trackers")

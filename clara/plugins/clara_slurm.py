@@ -48,6 +48,8 @@ Options:
     <cmd> is one of the following ones: job, node, steps, frontend,
     partition, reservation, block and submp.
 """
+
+import logging
 import subprocess
 import sys
 
@@ -65,17 +67,18 @@ def show_nodes(option):
 
     cmd = ["scontrol", "show", "node", ",".join(selection)]
     if conf.debug:
-        print "CLARA Debug - slurm/show_nodes: {0}".format(" ".join(cmd))
+        logging.debug("slurm/show_nodes: {0}".format(" ".join(cmd)))
 
     part2 = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     for line in part2.stdout:
         if "NodeName" in line:
-            print line.split(" ")[0]
+            logging.info(line.split(" ")[0])
         if "Reason" in line:
-            print line
+            logging.info(line)
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     if dargs['resume']:
@@ -86,7 +89,7 @@ def main():
             show_nodes("drain")
         else:
             if len(dargs['<reason>']) == 0:
-                sys.exit("You must specify a reason when DRAINING a node")
+                clara_exit("You must specify a reason when DRAINING a node")
             else:
                 run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
                      "State=DRAIN", 'Reason="' + " ".join(dargs['<reason>']) + '"'])
@@ -131,7 +134,7 @@ def main():
         spec = dargs['<spec>']
 
         if cmd not in cmd_list:
-            sys.exit("Known commands are: {0}".format(" ".join(cmd_list)))
+            clara_exit("Known commands are: {0}".format(" ".join(cmd_list)))
 
         if spec is None:
             if op is not None and "=" in op:
@@ -143,10 +146,10 @@ def main():
             op = 'show'
 
         if op not in op_list:
-            sys.exit("Known operations are: {0}".format(" ".join(op_list)))
+            clara_exit("Known operations are: {0}".format(" ".join(op_list)))
 
         if cmd not in op_list[op]:
-            sys.exit("You can't use {0} with {1}".format(cmd, op))
+            clara_exit("You can't use {0} with {1}".format(cmd, op))
 
         if op == 'show':
             # spec should be empty

@@ -56,28 +56,28 @@ conf = Conf()
 
 def clush(hosts, cmds):
     if conf.debug:
-        print "CLARA Debug - utils/clush: {0}".format(cmds)
+        logging.debug("utils/clush: {0} {1}".format(cmds, hosts))
 
     task = ClusterShell.Task.task_self()
     task.run(cmds, nodes=hosts)
 
     for output, nodes in task.iter_buffers():
-        print ClusterShell.NodeSet.NodeSet.fromlist(nodes), output
+        logging.info("{0} {1}".format(ClusterShell.NodeSet.NodeSet.fromlist(nodes), output))
 
 
 def run(cmd):
     if conf.debug:
-        print "CLARA Debug - utils/run: {0}".format(" ".join(cmd))
+        logging.debug("utils/run: {0}".format(" ".join(cmd)))
 
     try:
         retcode = subprocess.call(cmd)
     except OSError, e:
         if (e.errno == errno.ENOENT):
-            sys.exit("Binary not found, check your path and/or retry as root. \
+            clara_exit("Binary not found, check your path and/or retry as root. \
                       You were trying to run:\n {0}".format(" ".join(cmd)))
 
     if retcode != 0:
-        sys.exit('E: ' + ' '.join(cmd))
+        clara_exit(' '.join(cmd))
 
 
 def get_from_config(section, value, dist=''):
@@ -86,7 +86,7 @@ def get_from_config(section, value, dist=''):
         try:
             return getconfig().get(section, value)
         except:
-            sys.exit("E: Value '%s' not found in the section '%s'" % (value, section))
+            clara_exit("Value '{0}' not found in the section '{1}'".format(value, section))
 
     elif dist in getconfig().get("common", "allowed_distributions"):
         or_section = section + "-" + dist
@@ -96,14 +96,14 @@ def get_from_config(section, value, dist=''):
             try:
                 return getconfig().get(or_section, value)
             except:
-                sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
+                clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
         else:
             try:
                 return getconfig().get(section, value)
             except:
-                sys.exit("E: Value '%s' not found in section '%s'" % (value, section))
+                clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
     else:
-        sys.exit("{0} is not a known distribution".format(dist))
+        clara_exit("{0} is not a known distribution".format(dist))
 
 
 def getconfig():
@@ -128,7 +128,7 @@ def value_from_file(myfile, key):
                 texto = line.rstrip().split("=")
                 password = texto[1].strip('"').strip("'")
     if password == "":
-        sys.exit("{0} not found in the file {1}".format(key, myfile))
+        clara_exit("{0} not found in the file {1}".format(key, myfile))
     return password
 
 

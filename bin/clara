@@ -61,7 +61,7 @@ import importlib
 import subprocess
 
 from clara.version import __version__
-from clara.utils import conf
+from clara.utils import clara_exit, conf, initialize_logger
 
 if __name__ == '__main__':
 
@@ -69,6 +69,8 @@ if __name__ == '__main__':
 
     if args['-d']:
         conf.debug = True
+
+    initialize_logger(conf.debug)
 
     if args['--config']:
         if os.path.isfile(args['--config']):
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     try:
         m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
     except ImportError:
-        sys.exit("Sorry, the plugin {0} doesn't exist. "
+        clara_exit("Sorry, the plugin {0} doesn't exist. "
                  "See 'clara --help'.".format(args['<plugin>']))
 
     # We remove all the "[options]" since the plugins won't know them

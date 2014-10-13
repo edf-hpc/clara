@@ -46,6 +46,7 @@ Usage:
 """
 
 import errno
+import logging
 import os
 import pty
 import shutil
@@ -56,24 +57,24 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clush, conf, run, get_from_config
+from clara.utils import clara_exit, clush, conf, run, get_from_config
 
 
 def run_chroot(cmd):
     if conf.debug:
-        print "CLARA Debug: images/run_chroot: {0}".format(" ".join(cmd))
+        logging("images/run_chroot: {0}".format(" ".join(cmd)))
 
     try:
         retcode = subprocess.call(cmd)
     except OSError, e:
         if (e.errno == errno.ENOENT):
-            sys.exit("Binary not found, check your path and/or retry as root. \
+            clara_exit("Binary not found, check your path and/or retry as root. \
                       You were trying to run:\n {0}".format(" ".join(cmd)))
 
     if retcode != 0:
         umount_chroot()
         shutil.rmtree(work_dir)
-        sys.exit('E: ' + ' '.join(cmd))
+        clara_exit(' '.join(cmd))
 
 
 def base_install():
@@ -113,7 +114,7 @@ Pin-Priority: 6000
                 ip, host = elem.split(":")
                 fhost.write("{0} {1}\n".format(ip, host))
             else:
-                print "Clara: WARNING: the option etc_hosts is malformed or missing an argument"
+                logging.warning("The option etc_hosts is malformed or missing an argument")
 
     with open(dpkg_conf, 'w') as fdpkg:
         fdpkg.write("""# Drop locales except French
@@ -145,7 +146,7 @@ def umount_chroot():
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
             if work_dir in line:
-                sys.exit("Something went wrong when umounting in the chroot")
+                clara_exit("Something went wrong when umounting in the chroot")
 
 
 def system_install():
@@ -153,13 +154,13 @@ def system_install():
     if os.path.isfile(package_file):
         shutil.copy(package_file, work_dir + "/tmp/packages.file")
     else:
-        print "Clara: WARNING: %s is not a file!" % package_file
+        logging.warning("{0} is not a file!".format(package_file))
 
     preseed_file = get_from_config("images", "preseed_file", dist)
     if os.path.isfile(preseed_file):
         shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
     else:
-        print "Clara: WARNING: %s is not a file!" % preseed_file
+        logging.warning("{0} is not a file!".format(preseed_file))
 
     mount_chroot()
     run_chroot(["chroot", work_dir, "apt-get", "update"])
@@ -193,12 +194,12 @@ def system_install():
 def install_files():
     list_files_to_install = get_from_config("images", "list_files_to_install", dist)
     if not os.path.isfile(list_files_to_install):
-        print "Clara: WARNING: %s is not a file!" % list_files_to_install
+        logging.warning("{0} is not a file!".format(list_files_to_install))
 
     else:
         dir_origin = get_from_config("images", "dir_files_to_install", dist)
         if not os.path.isdir(dir_origin):
-            print "Clara: WARNING: %s is not a directory!" % dir_origin
+            logging.warning("{0} is not a directory!".format(dir_origin))
 
         with open(list_files_to_install, "r") as file_to_read:
             for line in file_to_read:
@@ -209,7 +210,7 @@ def install_files():
                 final_file = path_dest + orig
 
                 if not os.path.isfile(path_orig):
-                    print "Clara: WARNING: %s is not a file!" % path_orig
+                    logging.warning("{0} is not a file!".format(path_orig))
 
                 if not os.path.isdir(path_dest):
                     os.makedirs(path_dest)
@@ -234,7 +235,7 @@ def remove_files():
 def run_script_post_creation():
     script = get_from_config("images", "script_post_image_creation", dist)
     if not os.path.isfile(script):
-        print "Clara: WARNING: File %s not found!" % script
+        logging.warning("File {0} not found!".format(script))
     else:
         # Copy the script into the chroot and make sure it's executable
         shutil.copy(script, work_dir + "/tmp/script")
@@ -253,9 +254,9 @@ def genimg(image):
 
     if os.path.isfile(squashfs_file):
         os.rename(squashfs_file, squashfs_file + ".old")
-        print("Previous image renamed to {0}.".format(squashfs_file + ".old"))
+        logging.info("Previous image renamed to {0}.".format(squashfs_file + ".old"))
 
-    print "Creating image at {0}".format(squashfs_file)
+    logging.info("Creating image at {0}".format(squashfs_file))
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
@@ -268,13 +269,13 @@ def extract_image(image):
         squashfs_file = image
 
     if not os.path.isfile(squashfs_file):
-        sys.exit("The image {0} does not exist!".format(squashfs_file))
+        clara_exit("The image {0} does not exist!".format(squashfs_file))
 
     extract_dir = tempfile.mkdtemp()
-    print "Extracting {0} to {1} ...".format(squashfs_file, extract_dir)
+    logging.info("Extracting {0} to {1} ...".format(squashfs_file, extract_dir))
     run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
-    print "Modify the image at {0} and then run:\n" \
-          "\tclara images repack {0}".format(extract_dir)
+    logging.info("Modify the image at {0} and then run:\n"
+          "\tclara images repack {0}".format(extract_dir))
 
 
 def geninitrd(path):
@@ -292,13 +293,13 @@ def geninitrd(path):
 
     mkinitrfs = get_from_config("images", "mkinitramfs", dist)
     if not os.path.isfile(mkinitrfs):
-        sys.exit("{0} does not exist!".format(mkinitrfs))
+        clara_exit("{0} does not exist!".format(mkinitrfs))
     else:
         shutil.copy(mkinitrfs, work_dir + "/tmp/mkinitrfs")
 
     initramfsc = get_from_config("images", "initramfs-config", dist)
     if not os.path.isdir(initramfsc):
-        sys.exit("Directory {0} does not exist!".format(initramfsc))
+        clara_exit("Directory {0} does not exist!".format(initramfsc))
     else:
         shutil.copytree(initramfsc, work_dir + "/tmp/initramfsc")
 
@@ -315,11 +316,11 @@ def geninitrd(path):
     # Copy the initrd out of the chroot
     shutil.copy(work_dir + "/tmp/initrd-" + kver, trg_dir + "/initrd-" + kver)
     os.chmod(trg_dir + "/initrd-" + kver, 0o644)
-    print "Initrd available at " + trg_dir + "/initrd-" + kver
+    logging.info("Initrd available at " + trg_dir + "/initrd-" + kver)
 
     # Copy vmlinuz out of the chroot
     shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/vmlinuz-" + kver)
-    print "vmlinuz available at " + trg_dir + "/vmlinuz-" + kver
+    logging.info("vmlinuz available at " + trg_dir + "/vmlinuz-" + kver)
 
 
 def edit(image):
@@ -329,27 +330,27 @@ def edit(image):
         squashfs_file = image
 
     if not os.path.isfile(squashfs_file):
-        sys.exit("The image file {0} doesn't exist.".format(squashfs_file))
+        clara_exit("The image file {0} doesn't exist.".format(squashfs_file))
 
     # Extract the image.
-    print "Extracting {0} to {1} ...".format(squashfs_file, work_dir)
+    logging.info("Extracting {0} to {1} ...".format(squashfs_file, work_dir))
     run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
     # Work in the image
     os.chdir(work_dir)
-    print "Entering into a bash shell to edit the image. ^d when you have finished."
-    print "If you don't want to renerate the image just place an empty file named IGNORE in the root directory."
+    logging.info("Entering into a bash shell to edit the image. ^d when you have finished."
+                 "If you don't want to renerate the image just place an empty file named IGNORE in the root directory.")
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara images> \e[0m'".format(dist))
     pty.spawn(["/bin/bash"])
 
     if os.path.isfile(work_dir + "/IGNORE"):
-        sys.exit("Changes ignored. The image {0} hasn't been modified.".format(squashfs_file))
+        clara_exit("Changes ignored. The image {0} hasn't been modified.".format(squashfs_file))
 
     # Rename old image and recreate new one
     os.rename(squashfs_file, squashfs_file + ".old")
     run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
     os.chmod(squashfs_file, 0o755)
-    print "\nPrevious image renamed to {0}." \
-          "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file)
+    logging.info("\nPrevious image renamed to {0}."
+          "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
 
 
 def clean_and_exit():
@@ -359,6 +360,7 @@ def clean_and_exit():
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     global work_dir
@@ -378,7 +380,7 @@ def main():
     if dargs["--dist"] is not None:
         dist = dargs["--dist"]
     if dist not in get_from_config("common", "allowed_distributions"):
-        sys.exit("{0} is not a know distribution".format(dist))
+        clara_exit("{0} is not a know distribution".format(dist))
 
     if dargs['create']:
         base_install()

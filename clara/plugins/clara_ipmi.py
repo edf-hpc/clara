@@ -61,7 +61,9 @@ Alternative:
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
 """
+
 import errno
+import logging
 import os
 import re
 import subprocess
@@ -91,7 +93,7 @@ def ipmi_do(hosts, pty=False, *cmd):
         ipmitool.extend(command)
 
         if conf.debug:
-            print "CLARA Debug - ipmi/ipmi_do: {0}".format(" ".join(ipmitool))
+            logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
 
         if pty:
             run(ipmitool)
@@ -109,18 +111,18 @@ def getmac(hosts):
         if not pat.match(host):
             host = "imm" + host
 
-        print "%s: " % host
+        logging.info("{0}: ".format(host))
         cmd = ["ipmitool", "-I", "lanplus", "-H", host,
                "-U", imm_user, "-E", "fru", "print", "0"]
 
         if conf.debug:
-            print "CLARA Debug - ipmi/getmac: {0}".format(" ".join(cmd))
+            logging.debug("ipmi/getmac: {0}".format(" ".join(cmd)))
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15
         lines = proc.stdout.readlines()
         if (len(lines) < 14):
-            sys.exit("The host {0} can't be reached".format(host))
+            clara_exit("The host {0} can't be reached".format(host))
         full_mac = line.split(":")[1].strip().upper()
         mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
                                                         full_mac[2:4],
@@ -136,14 +138,14 @@ def getmac(hosts):
                                                         full_mac[20:22],
                                                         full_mac[22:24])
 
-        print "  eth0's MAC address is {0}\n" \
-              "  eth1's MAC address is {1}".format(mac_address1, mac_address2)
+        logging.info("  eth0's MAC address is {0}\n" \
+                     "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
 
 def do_connect(hosts):
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     if (len(nodeset) != 1):
-        sys.exit('Only one host allowed for this command')
+        clara_exit('Only one host allowed for this command')
     else:
         try:
             cmd = ["service", "conman", "status"]
@@ -152,7 +154,7 @@ def do_connect(hosts):
             fnull.close()
         except OSError, e:
             if (e.errno == errno.ENOENT):
-                sys.exit("Binary not found, check your path and/or retry as root."
+                clara_exit("Binary not found, check your path and/or retry as root."
                          "You were trying to run:\n {0}".format(" ".join(cmd)))
 
         if retcode == 0:  # if conman is running
@@ -162,7 +164,7 @@ def do_connect(hosts):
         elif retcode == 1 or retcode == 3:  # if conman is NOT running
             ipmi_do(hosts, True, "sol", "activate")
         else:
-            sys.exit('E: ' + ' '.join(cmd))
+            clara_exit(' '.join(cmd))
 
 
 def do_ping(hosts):
@@ -172,6 +174,7 @@ def do_ping(hosts):
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     if dargs['connect']:
@@ -179,7 +182,7 @@ def main():
     elif dargs['status']:
         ipmi_do(dargs['<hostlist>'], "power", "status")
     elif dargs['setpwd']:
-        sys.exit("Not tested!")  # TODO
+        clara_exit("Not tested!")  # TODO
         ipmi_do(dargs['<hostlist>'], "user", "set", "name", "2", "IMMUSER")
         ipmi_do(dargs['<hostlist>'], "user", "set", "password", "2", "IMMPASSWORD")
     elif dargs['getmac']:

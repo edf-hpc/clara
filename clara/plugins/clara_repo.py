@@ -53,6 +53,7 @@ Options:
 """
 
 import subprocess
+import logging
 import os
 import sys
 import tempfile
@@ -66,7 +67,7 @@ def do_key():
     fnull = open(os.devnull, 'w')
     cmd = ['gpg', '--list-secret-keys', key]
     if conf.debug:
-        print "CLARA Debug - repo/do_key: {0}".format(" ".join(cmd))
+        logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
     retcode = subprocess.call(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
@@ -80,33 +81,33 @@ def do_key():
                 fdesc, temp_path = tempfile.mkstemp()
                 cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
                 if conf.debug:
-                    print "CLARA Debug - repo/do_key: {0}".format(" ".join(cmd))
+                    logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                 retcode = subprocess.call(cmd)
 
                 if retcode != 0:
                     os.close(fdesc)
                     os.remove(temp_path)
-                    sys.exit('Command failed {0}'.format(" ".join(cmd)))
+                    clara_exit('Command failed {0}'.format(" ".join(cmd)))
                 else:
-                    print "Trying to import key {0}".format(key)
+                    logging.info("Trying to import key {0}".format(key))
                     fnull = open(os.devnull, 'w')
                     cmd = ['gpg', '--allow-secret-key-import', '--import', temp_path]
                     if conf.debug:
-                        print "CLARA Debug - repo/do_key: {0}".format(" ".join(cmd))
+                        logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                     retcode = subprocess.call(cmd)
                     fnull.close()
                     os.close(fdesc)
                     os.remove(temp_path)
                     if retcode != 0:
-                        print "\nThere was a problem with the import, make sure the key you imported " \
-                              "from {0} is the same you have in your configuration: {1}".format(file_stored_key, key)
+                        logging.info("\nThere was a problem with the import, make sure the key you imported " \
+                              "from {0} is the same you have in your configuration: {1}".format(file_stored_key, key))
 
             else:
-                sys.exit('There was some problem reading the value of ASUPASSWD')
+                clara_exit('There was some problem reading the value of ASUPASSWD')
         else:
-            sys.exit('Unable to read:  {0}'.format(file_stored_key))
+            clara_exit('Unable to read:  {0}'.format(file_stored_key))
     else:
-        print "GPG key was already imported."
+        logging.info("GPG key was already imported.")
 
 
 def do_init():
@@ -168,7 +169,7 @@ def do_sync(input_suites):
     else:  # If we select one or several suites, we check that are valid
         for s in input_suites:
             if s not in all_suites:
-                sys.exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(all_suites)))
+                clara_exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(all_suites)))
             suites = input_suites
 
     for s in suites:
@@ -209,6 +210,7 @@ def do_reprepro(action, package=None, flags=None):
 
 
 def main():
+    logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
     global dist
@@ -216,7 +218,7 @@ def main():
     if dargs["--dist"] is not None:
         dist = dargs["--dist"]
     if dist not in get_from_config("common", "allowed_distributions"):
-        sys.exit("{0} is not a know distribution".format(dist))
+        clara_exit("{0} is not a know distribution".format(dist))
 
     if dargs['key']:
         do_key()
@@ -236,7 +238,7 @@ def main():
             elif elem.endswith(".dsc"):
                 do_reprepro('includedsc', elem, dargs['--reprepro-flags'])
             else:
-                sys.exit("File is not a *.deb *.dsc or *.changes")
+                clara_exit("File is not a *.deb *.dsc or *.changes")
     elif dargs['del']:
         for elem in dargs['<name>']:
             do_reprepro('remove', elem)
