@@ -34,6 +34,8 @@
 ##############################################################################
 
 import errno
+import logging
+import os
 import subprocess
 import ConfigParser
 import sys
@@ -128,3 +130,39 @@ def value_from_file(myfile, key):
     if password == "":
         sys.exit("{0} not found in the file {1}".format(key, myfile))
     return password
+
+
+def initialize_logger(debug):
+    output_dir = "/var/log/clara"
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    # Create console handler and set level to info or debug, when it's enabled
+    handler = logging.StreamHandler()
+    if debug:
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("clara - %(levelname)s - %(message)s")
+    else:
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter("clara - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # Create a log file, with everything, handler and set level to debug
+    handler = logging.FileHandler(os.path.join(output_dir, "all.log"), "a")
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # create error file, with the most important messages, handler and set level to warning
+    handler = logging.FileHandler(os.path.join(output_dir, "important.log"),"a")
+    handler.setLevel(logging.WARNING)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
+def clara_exit(msg):
+    logging.error(msg)
+    sys.exit(1)
