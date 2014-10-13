@@ -1,0 +1,16 @@
+/var/log/clara/all.log {
+  rotate 52
+  weekly
+  compress
+  missingok
+  notifempty
+}
+
+/var/log/clara/important.log {
+  rotate 52
+  weekly
+  compress
+  missingok
+  notifempty
+}
+
