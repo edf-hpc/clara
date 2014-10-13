@@ -1,6 +1,7 @@
 clara (0.20141013) UNRELEASED; urgency=low
 
   * 'clara impi': do not append 'imm' when host is an IP address. Fix #35
+  * 'clara images create': only stop puppet and dbus daemons if they're installed.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 13 Oct 2014 12:01:49 +0200
 

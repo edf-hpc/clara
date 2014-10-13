@@ -183,8 +183,10 @@ def system_install():
         run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
     run_chroot(["chroot", work_dir, "/etc/init.d/rsyslog", "stop"])
-    run_chroot(["chroot", work_dir, "/etc/init.d/puppet", "stop"])
-    run_chroot(["chroot", work_dir, "/etc/init.d/dbus", "stop"])
+    if os.path.isfile(os.path.join(work_dir, "/etc/init.d/puppet")):
+        run_chroot(["chroot", work_dir, "/etc/init.d/puppet", "stop"])
+    if os.path.isfile(os.path.join(work_dir, "/etc/init.d/dbus")):
+        run_chroot(["chroot", work_dir, "/etc/init.d/dbus", "stop"])
     umount_chroot()
 
 
