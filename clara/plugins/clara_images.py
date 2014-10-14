@@ -274,7 +274,7 @@ def extract_image(image):
     if not os.path.isfile(squashfs_file):
         clara_exit("The image {0} does not exist!".format(squashfs_file))
 
-    extract_dir = tempfile.mkdtemp()
+    extract_dir = tempfile.mkdtemp(prefix="tmpClara")
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, extract_dir))
     run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
     logging.info("Modify the image at {0} and then run:\n"
@@ -370,7 +370,7 @@ def main():
     if dargs['repack']:
         work_dir = dargs['<directory>']
     else:
-        work_dir = tempfile.mkdtemp()
+        work_dir = tempfile.mkdtemp(prefix="tmpClara")
 
     # Not executed in the following cases
     # - the program dies because of a signal

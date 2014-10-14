@@ -78,7 +78,7 @@ def do_key():
             password = value_from_file(get_from_config("common", "master_passwd_file"), "ASUPASSWD")
 
             if len(password) > 20:
-                fdesc, temp_path = tempfile.mkstemp()
+                fdesc, temp_path = tempfile.mkstemp(prefix="tmpClara")
                 cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
                 if conf.debug:
                     logging.debug("repo/do_key: {0}".format(" ".join(cmd)))

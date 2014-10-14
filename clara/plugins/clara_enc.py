@@ -73,7 +73,7 @@ def get_encryption_key():
 
 def do(op, origfile):
     password = get_encryption_key()
-    f = tempfile.NamedTemporaryFile()
+    f = tempfile.NamedTemporaryFile(prefix="tmpClara")
 
     if op == "decrypt":
         cmd = ['openssl', 'aes-256-cbc', '-d', '-in', origfile, '-out', f.name, '-k', password]
@@ -97,7 +97,7 @@ def do_edit(origfile):
     if os.path.isfile(origfile):
         editfile = do("decrypt", origfile)
     else:
-        editfile = tempfile.NamedTemporaryFile()
+        editfile = tempfile.NamedTemporaryFile(prefix="tmpClara")
 
     subprocess.call(['sensible-editor', editfile.name])
     finalfile = do("encrypt", editfile.name)
