@@ -88,6 +88,13 @@ def base_install():
     run(["debootstrap", get_from_config("images", "debiandist", dist), work_dir,
          get_from_config("images", "debmirror", dist)])
 
+    # Prevent services from starting automatically
+    policy_rc = work_dir + "/usr/sbin/policy-rc.d"
+    with open(policy_rc, 'w') as p_rcd:
+        p_rcd.write("exit 101")
+    p_rcd.close()
+    os.chmod(work_dir + "/usr/sbin/policy-rc.d", 0o755)
+
     # Step 2 - Mirror setup
     list_repos = get_from_config("images", "list_repos", dist).split(",")
     with open(src_list, 'w') as fsources:
@@ -183,11 +190,6 @@ def system_install():
         output = part2.communicate()[0]
         run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
-    run_chroot(["chroot", work_dir, "/etc/init.d/rsyslog", "stop"])
-    if os.path.isfile(os.path.join(work_dir, "/etc/init.d/puppet")):
-        run_chroot(["chroot", work_dir, "/etc/init.d/puppet", "stop"])
-    if os.path.isfile(os.path.join(work_dir, "/etc/init.d/dbus")):
-        run_chroot(["chroot", work_dir, "/etc/init.d/dbus", "stop"])
     umount_chroot()
 
 
@@ -230,6 +232,7 @@ def remove_files():
     for f in files_to_remove:
         if os.path.isfile(work_dir + "/" + f):
             os.remove(work_dir + "/" + f)
+    os.remove(work_dir + "/usr/sbin/policy-rc.d")
 
 
 def run_script_post_creation():
