@@ -237,7 +237,9 @@ def remove_files():
 
 def run_script_post_creation():
     script = get_from_config("images", "script_post_image_creation", dist)
-    if not os.path.isfile(script):
+    if script in ["", " "]:
+       logging.warning("script_post_image_creation hasn't be set in the config.ini")
+    elif not os.path.isfile(script):
         logging.warning("File {0} not found!".format(script))
     else:
         # Copy the script into the chroot and make sure it's executable
