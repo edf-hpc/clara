@@ -36,7 +36,7 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images create [<image>] [--dist=<name>]
+    clara images create [<image>] [--keep-chroot-dir] [--dist=<name>]
     clara images unpack [<image>] [--dist=<name>]
     clara images repack <directory> [<image>] [--dist=<name>]
     clara images edit [<image>] [--dist=<name>]
@@ -73,7 +73,8 @@ def run_chroot(cmd):
 
     if retcode != 0:
         umount_chroot()
-        shutil.rmtree(work_dir)
+        if not keep_chroot_dir:
+            shutil.rmtree(work_dir)
         clara_exit(' '.join(cmd))
 
 
@@ -365,19 +366,21 @@ def edit(image):
 def clean_and_exit():
     if os.path.exists(work_dir):
         umount_chroot()
-        shutil.rmtree(work_dir)
+        if not keep_chroot_dir:
+            shutil.rmtree(work_dir)
 
 
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global work_dir
+    global work_dir, keep_chroot_dir
     if dargs['repack']:
         work_dir = dargs['<directory>']
     else:
         work_dir = tempfile.mkdtemp(prefix="tmpClara")
 
+    keep_chroot_dir = False
     # Not executed in the following cases
     # - the program dies because of a signal
     # - os._exit() is invoked directly
@@ -392,6 +395,8 @@ def main():
         clara_exit("{0} is not a know distribution".format(dist))
 
     if dargs['create']:
+        if dargs["--keep-chroot-dir"]:
+            keep_chroot_dir = True
         base_install()
         system_install()
         install_files()
@@ -406,8 +411,6 @@ def main():
         geninitrd(dargs['--output'])
     elif dargs['edit']:
         edit(dargs['<image>'])
-
-    shutil.rmtree(work_dir)
 
 
 if __name__ == '__main__':
