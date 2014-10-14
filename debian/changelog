@@ -1,11 +1,11 @@
-clara (0.20141014) UNRELEASED; urgency=low
+clara (0.20141014) calibre9; urgency=low
 
   * Prevent services from starting automatically when creating an image.
   * add to all the temp files and dirs the prefix 'tmpClara'
   * 'clara images create' add option --keep-chroot-dir to not remove
     temp chroot. Fix #36
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 14 Oct 2014 12:35:56 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 14 Oct 2014 16:04:03 +0200
 
 clara (0.20141013) calibre9; urgency=low
 
