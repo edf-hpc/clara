@@ -62,7 +62,7 @@ from clara.utils import clara_exit, clush, conf, run, get_from_config
 
 def run_chroot(cmd):
     if conf.debug:
-        logging("images/run_chroot: {0}".format(" ".join(cmd)))
+        logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
 
     try:
         retcode = subprocess.call(cmd)
