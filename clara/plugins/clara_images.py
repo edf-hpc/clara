@@ -174,8 +174,12 @@ def system_install():
     # Add here the must-have packages
     run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])
     # Extra packages to be listed in config.ini
-    pkgs = get_from_config("images", "extra_packages_image", dist).split(',')
-    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
+    extra_packages_image = get_from_config("images", "extra_packages_image", dist)
+    if extra_packages_image not in ["", " "]:
+        pkgs = extra_packages_image.split(",")
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
+    else:
+        logging.warning("extra_packages_image hasn't be set in the config.ini")
     run_chroot(["chroot", work_dir, "apt-get", "update"])
     # TODO: temporarily disabled until we found out why we need this.
     ##run_chroot(["chroot", work_dir, "aptitude", "reinstall", "--without-recommends", "~i ?not(?priority(required))"])
