@@ -37,6 +37,7 @@ Manages and get the status from the nodes of a cluster.
 
 Usage:
     clara ipmi connect <host>
+    clara ipmi deconnect <hostlist>
     clara ipmi (on|off|reboot) <hostlist>
     clara ipmi status <hostlist>
     clara ipmi setpwd <hostlist>
@@ -50,6 +51,7 @@ Usage:
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect
+    clara ipmi <hostlist> deconnect
     clara ipmi <hostlist> (on|off|reboot)
     clara ipmi <hostlist> status
     clara ipmi <hostlist> setpwd
@@ -179,6 +181,8 @@ def main():
 
     if dargs['connect']:
         do_connect(dargs['<host>'])
+    elif dargs['deconnect']:
+        ipmi_do(dargs['<hostlist>'], "sol", "deactivate")
     elif dargs['status']:
         ipmi_do(dargs['<hostlist>'], "power", "status")
     elif dargs['setpwd']:
