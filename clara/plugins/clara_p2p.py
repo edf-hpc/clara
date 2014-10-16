@@ -38,7 +38,7 @@ Makes torrent images and seeds them via BitTorrent
 Usage:
     clara p2p status
     clara p2p restart
-    clara p2p mktorrent [--image=<path>]
+    clara p2p mktorrent [--image=<path>] [--dist=<name>]
     clara p2p -h | --help | help
 
 Options:
@@ -53,26 +53,26 @@ import time
 import docopt
 import ClusterShell.NodeSet
 
-from clara.utils import clush, run, get_from_config, value_from_file
+from clara.utils import clara_exit, clush, run, get_from_config, value_from_file
 
 
 def mktorrent(image):
     ml_path = "/var/lib/mldonkey"
-    trg_dir = get_from_config("images", "trg_dir")
     if (image is None):
-        squashfs_file = get_from_config("images", "trg_img")
+        squashfs_file = get_from_config("images", "trg_img", dist)
     else:
         squashfs_file = image
-    seeders = get_from_config("p2p", "seeders")
-    trackers = get_from_config("p2p", "trackers")
-    trackers_port = get_from_config("p2p", "trackers_port")
-    trackers_schema = get_from_config("p2p", "trackers_schema")
+    torrent_file = squashfs_file + ".torrent"
+    seeders = get_from_config("p2p", "seeders", dist)
+    trackers = get_from_config("p2p", "trackers", dist)
+    trackers_port = get_from_config("p2p", "trackers_port", dist)
+    trackers_schema = get_from_config("p2p", "trackers_schema", dist)
 
     if not os.path.isfile(squashfs_file):
         clara_exit("The file {0} doesn't exist".format(squashfs_file))
 
-    if os.path.isfile(trg_dir + "/image.torrent"):
-        os.remove(trg_dir + "/image.torrent")
+    if os.path.isfile(torrent_file):
+        os.remove(torrent_file)
 
     clush(seeders, "service ctorrent stop")
     clush(trackers, "service mldonkey-server stop")
@@ -88,8 +88,8 @@ def mktorrent(image):
     announce = []
     for t in list(ClusterShell.NodeSet.NodeSet(trackers)):
         announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
-    run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trg_dir + "/image.torrent", squashfs_file])
-    clush(trackers, "ln -sf {0}/image.torrent {1}/torrents/seeded/".format(trg_dir, ml_path))
+    run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_file, squashfs_file])
+    clush(trackers, "ln -sf {0} {1}/torrents/seeded/".format(torrent_file, ml_path))
 
     clush(trackers, "service mldonkey-server start")
     clush(seeders, "service ctorrent start")
@@ -99,8 +99,15 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    trackers = get_from_config("p2p", "trackers")
-    seeders = get_from_config("p2p", "seeders")
+    global dist
+    dist = get_from_config("common", "default_distribution")
+    if dargs["--dist"] is not None:
+        dist = dargs["--dist"]
+    if dist not in get_from_config("common", "allowed_distributions"):
+        clara_exit("{0} is not a know distribution".format(dist))
+
+    trackers = get_from_config("p2p", "trackers", dist)
+    seeders = get_from_config("p2p", "seeders", dist)
 
     if dargs['status']:
         clush(trackers, "service mldonkey-server status")
