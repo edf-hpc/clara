@@ -84,7 +84,7 @@ def get_from_config(section, value, dist=''):
     """ Read a value from config.ini and return it"""
     if dist == '':
         try:
-            return getconfig().get(section, value)
+            return getconfig().get(section, value).strip()
         except:
             clara_exit("Value '{0}' not found in the section '{1}'".format(value, section))
 
@@ -94,12 +94,12 @@ def get_from_config(section, value, dist=''):
         # If the value is not in the override section, return the base value
         if getconfig().has_option(or_section, value):
             try:
-                return getconfig().get(or_section, value)
+                return getconfig().get(or_section, value).strip()
             except:
                 clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
         else:
             try:
-                return getconfig().get(section, value)
+                return getconfig().get(section, value).strip()
             except:
                 clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
     else:
