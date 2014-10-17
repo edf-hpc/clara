@@ -1,3 +1,10 @@
+clara (0.20141017) UNRELEASED; urgency=low
+
+  * Clara ipmi: Add deconnect command
+  * A few bugfixes.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 17 Oct 2014 11:18:34 +0200
+
 clara (0.20141014) calibre9; urgency=low
 
   * Prevent services from starting automatically when creating an image.
