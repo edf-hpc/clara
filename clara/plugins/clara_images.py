@@ -176,11 +176,12 @@ def system_install():
     run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])
     # Extra packages to be listed in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
-    if extra_packages_image not in ["", " "]:
+    if len(extra_packages_image) == 0:
+        logging.warning("extra_packages_image hasn't be set in the config.ini")
+    else:
         pkgs = extra_packages_image.split(",")
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
-    else:
-        logging.warning("extra_packages_image hasn't be set in the config.ini")
+
     run_chroot(["chroot", work_dir, "apt-get", "update"])
     # TODO: temporarily disabled until we found out why we need this.
     ##run_chroot(["chroot", work_dir, "aptitude", "reinstall", "--without-recommends", "~i ?not(?priority(required))"])
@@ -242,7 +243,7 @@ def remove_files():
 
 def run_script_post_creation():
     script = get_from_config("images", "script_post_image_creation", dist)
-    if script in ["", " "]:
+    if len(script) == 0:
        logging.warning("script_post_image_creation hasn't be set in the config.ini")
     elif not os.path.isfile(script):
         logging.warning("File {0} not found!".format(script))
