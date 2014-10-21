@@ -54,7 +54,7 @@ import subprocess
 import sys
 
 import docopt
-from clara.utils import clara_exit, clush, conf, run
+from clara.utils import clara_exit, clush, run
 
 
 def show_nodes(option):

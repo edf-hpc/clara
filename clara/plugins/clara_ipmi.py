@@ -73,7 +73,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, clush, conf, run, get_from_config, value_from_file
+from clara.utils import clara_exit, run, get_from_config, value_from_file
 
 
 def ipmi_do(hosts, pty=False, *cmd):
@@ -123,7 +123,7 @@ def getmac(hosts):
         lines = proc.stdout.readlines()
         if (len(lines) < 14):
             clara_exit("The host {0} can't be reached".format(host))
-        full_mac = line.split(":")[1].strip().upper()
+        full_mac = lines.split(":")[1].strip().upper()
         mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
                                                         full_mac[2:4],
                                                         full_mac[4:6],

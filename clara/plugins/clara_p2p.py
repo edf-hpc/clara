@@ -53,7 +53,7 @@ import time
 import docopt
 import ClusterShell.NodeSet
 
-from clara.utils import clara_exit, clush, run, get_from_config, value_from_file
+from clara.utils import clara_exit, clush, run, get_from_config
 
 
 def mktorrent(image):

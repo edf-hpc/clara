@@ -57,7 +57,7 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clara_exit, clush, conf, run, get_from_config
+from clara.utils import clara_exit, run, get_from_config
 
 
 def run_chroot(cmd):
@@ -78,7 +78,7 @@ def run_chroot(cmd):
 
 
 def base_install():
-    # Step 1 - Debootstrap
+    # Debootstrap
     src_list = work_dir + "/etc/apt/sources.list"
     apt_pref = work_dir + "/etc/apt/preferences.d/00custompreferences"
     apt_conf = work_dir + "/etc/apt/apt.conf.d/99nocheckvalid"
@@ -95,7 +95,7 @@ def base_install():
     p_rcd.close()
     os.chmod(work_dir + "/usr/sbin/policy-rc.d", 0o755)
 
-    # Step 2 - Mirror setup
+    # Mirror setup
     list_repos = get_from_config("images", "list_repos", dist).split(",")
     with open(src_list, 'w') as fsources:
         for line in list_repos:
@@ -111,6 +111,7 @@ Pin: release o={1}
 Pin-Priority: 6000
 """.format(dist, get_from_config("common", "origin", dist)))
 
+    # Misc config
     with open(apt_conf, 'w') as fconf:
         fconf.write('Acquire::Check-Valid-Until "false";\n')
 
@@ -248,7 +249,7 @@ def remove_files():
 def run_script_post_creation():
     script = get_from_config("images", "script_post_image_creation", dist)
     if len(script) == 0:
-       logging.warning("script_post_image_creation hasn't be set in the config.ini")
+        logging.warning("script_post_image_creation hasn't be set in the config.ini")
     elif not os.path.isfile(script):
         logging.warning("File {0} not found!".format(script))
     else:

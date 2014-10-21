@@ -52,7 +52,7 @@ import tempfile
 
 import docopt
 
-from clara.utils import clara_exit, conf, get_from_config, value_from_file
+from clara.utils import clara_exit, get_from_config, value_from_file
 
 
 # In the future, this function will get the key using several method,

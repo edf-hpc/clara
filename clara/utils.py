@@ -156,7 +156,7 @@ def initialize_logger(debug):
     logger.addHandler(handler)
 
     # create error file, with the most important messages, handler and set level to warning
-    handler = logging.FileHandler(os.path.join(output_dir, "important.log"),"a")
+    handler = logging.FileHandler(os.path.join(output_dir, "important.log"), "a")
     handler.setLevel(logging.WARNING)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)

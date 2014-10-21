@@ -59,7 +59,7 @@ import sys
 import tempfile
 
 import docopt
-from clara.utils import clara_exit, conf, run, get_from_config, value_from_file
+from clara.utils import clara_exit, run, get_from_config, value_from_file
 
 
 def do_key():
