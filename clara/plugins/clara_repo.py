@@ -135,10 +135,10 @@ DscIndices: Sources Release . .gz .bz2
             get_from_config("repo", "clustername", dist)))
         freprepro.close()
 
-    os.chdir(repo_dir)
-    run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
-         '--outdir', get_from_config("repo", "mirror_local", dist),
-         'export', dist])
+        os.chdir(repo_dir)
+        run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
+             '--outdir', get_from_config("repo", "mirror_local", dist),
+             'export', dist])
 
 
 def do_sync(input_suites):
