@@ -191,6 +191,12 @@ def do_sync(input_suites):
 
 
 def do_reprepro(action, package=None, flags=None):
+    repo_dir = get_from_config("repo", "repo_dir", dist)
+    reprepro_config = repo_dir + '/conf/distributions'
+
+    if not os.path.isfile(reprepro_config):
+        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init [--dist=<name>]'".format(dist))
+
     list_flags = ['--silent', '--ask-passphrase']
 
     if flags is not None:
