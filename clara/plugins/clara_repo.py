@@ -66,8 +66,7 @@ def do_key():
     key = get_from_config("repo", "gpg_key")
     fnull = open(os.devnull, 'w')
     cmd = ['gpg', '--list-secret-keys', key]
-    if conf.debug:
-        logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
+    logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
     retcode = subprocess.call(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
@@ -80,8 +79,7 @@ def do_key():
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp(prefix="tmpClara")
                 cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
-                if conf.debug:
-                    logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
+                logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                 retcode = subprocess.call(cmd)
 
                 if retcode != 0:
@@ -92,8 +90,7 @@ def do_key():
                     logging.info("Trying to import key {0}".format(key))
                     fnull = open(os.devnull, 'w')
                     cmd = ['gpg', '--allow-secret-key-import', '--import', temp_path]
-                    if conf.debug:
-                        logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
+                    logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                     retcode = subprocess.call(cmd)
                     fnull.close()
                     os.close(fdesc)

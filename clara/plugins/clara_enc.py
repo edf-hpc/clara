@@ -80,8 +80,7 @@ def do(op, origfile):
     elif op == "encrypt":
         cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
 
-    if conf.debug:
-        logging.debug("enc/do: {0}".format(" ".join(cmd)))
+    logging.debug("enc/do: {0}".format(" ".join(cmd)))
 
     retcode = subprocess.call(cmd)
 

@@ -94,8 +94,7 @@ def ipmi_do(hosts, pty=False, *cmd):
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!"]
         ipmitool.extend(command)
 
-        if conf.debug:
-            logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
+        logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
 
         if pty:
             run(ipmitool)
@@ -117,8 +116,7 @@ def getmac(hosts):
         cmd = ["ipmitool", "-I", "lanplus", "-H", host,
                "-U", imm_user, "-E", "fru", "print", "0"]
 
-        if conf.debug:
-            logging.debug("ipmi/getmac: {0}".format(" ".join(cmd)))
+        logging.debug("ipmi/getmac: {0}".format(" ".join(cmd)))
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         # The data we want is in line 15

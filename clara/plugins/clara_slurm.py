@@ -66,8 +66,7 @@ def show_nodes(option):
             selection.append(cols[-1])
 
     cmd = ["scontrol", "show", "node", ",".join(selection)]
-    if conf.debug:
-        logging.debug("slurm/show_nodes: {0}".format(" ".join(cmd)))
+    logging.debug("slurm/show_nodes: {0}".format(" ".join(cmd)))
 
     part2 = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     for line in part2.stdout:
