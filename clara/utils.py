@@ -55,8 +55,7 @@ conf = Conf()
 
 
 def clush(hosts, cmds):
-    if conf.debug:
-        logging.debug("utils/clush: {0} {1}".format(cmds, hosts))
+    logging.debug("utils/clush: {0} {1}".format(cmds, hosts))
 
     task = ClusterShell.Task.task_self()
     task.run(cmds, nodes=hosts)
@@ -66,8 +65,7 @@ def clush(hosts, cmds):
 
 
 def run(cmd):
-    if conf.debug:
-        logging.debug("utils/run: {0}".format(" ".join(cmd)))
+    logging.debug("utils/run: {0}".format(" ".join(cmd)))
 
     try:
         retcode = subprocess.call(cmd)
