@@ -134,6 +134,11 @@ path-include=/usr/share/locale/locale.alias
 ## path-exclude=/usr/share/man/*
 """)
 
+    # Set root password to 'clara'
+    part1 = subprocess.Popen(["echo", "root:clara"], stdout=subprocess.PIPE)
+    part2 = subprocess.Popen(["chroot", work_dir, "/usr/sbin/chpasswd"], stdin=part1.stdout)
+    part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
+    #output = part2.communicate()[0]
 
 def mount_chroot():
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])

@@ -1,6 +1,8 @@
 clara (0.20141017) UNRELEASED; urgency=low
 
   * Clara ipmi: Add deconnect command
+  * 'clara images create' always set the root password to 'clara', this is a
+    temporary password anyway. Fixes #38
   * A few bugfixes.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 17 Oct 2014 11:18:34 +0200
