@@ -73,7 +73,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clush, conf, run, get_from_config, value_from_file
+from clara.utils import clara_exit, clush, conf, run, get_from_config, value_from_file
 
 
 def ipmi_do(hosts, pty=False, *cmd):
