@@ -169,6 +169,7 @@ def do_sync(input_suites):
                 clara_exit("{0} is not a valid suite. Valid suites are: {1}".format(s, " ".join(all_suites)))
             suites = input_suites
 
+    logging.debug("The suites to sync are: {0}.".format(" ".join(suites)))
     for s in suites:
         mirror_root = get_from_config("repo", "mirror_root", suite_dist[s])
         dm_server = get_from_config("repo", "server", suite_dist[s])
