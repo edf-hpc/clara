@@ -142,14 +142,14 @@ def getmac(hosts):
                      "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
 
-def do_connect(hosts):
-    nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+def do_connect(host):
+    nodeset = ClusterShell.NodeSet.NodeSet(host)
     if (len(nodeset) != 1):
         clara_exit('Only one host allowed for this command')
     else:
         # conman doesn't work with IP addresses, only hostnames
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        if pat.match(hosts):
+        if pat.match(host):
             clara_exit("This command doesn't work with IP adresses. You must use a hostname.")
 
         try:
@@ -165,9 +165,9 @@ def do_connect(hosts):
         if retcode == 0:  # if conman is running
             os.environ["CONMAN_ESCAPE"] = '!'
             conmand = get_from_config("ipmi", "conmand")
-            run(["conman", "-d", conmand, hosts])
+            run(["conman", "-d", conmand, host])
         elif retcode == 1 or retcode == 3:  # if conman is NOT running
-            ipmi_do(hosts, True, "sol", "activate")
+            ipmi_do(host, True, "sol", "activate")
         else:
             clara_exit(' '.join(cmd))
 
