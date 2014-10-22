@@ -147,6 +147,11 @@ def do_connect(hosts):
     if (len(nodeset) != 1):
         clara_exit('Only one host allowed for this command')
     else:
+        # conman doesn't work with IP addresses, only hostnames
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        if pat.match(hosts):
+            clara_exit("This command doesn't work with IP adresses. You must use a hostname.")
+
         try:
             cmd = ["service", "conman", "status"]
             fnull = open(os.devnull, 'wb')  # Supress output of the following call

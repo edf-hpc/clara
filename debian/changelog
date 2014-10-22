@@ -1,3 +1,10 @@
+clara (0.20141022) UNRELEASED; urgency=low
+
+  * 'clara ipmi connect' won't work with IPs, add a check and an error message.
+    Fix #39.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 22 Oct 2014 09:26:53 +0200
+
 clara (0.20141021) calibre9; urgency=low
 
   * Clara ipmi: Add deconnect command
