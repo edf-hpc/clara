@@ -146,12 +146,12 @@ def do_connect(host):
     nodeset = ClusterShell.NodeSet.NodeSet(host)
     if (len(nodeset) != 1):
         clara_exit('Only one host allowed for this command')
-    else:
-        # conman doesn't work with IP addresses, only hostnames
-        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        if pat.match(host):
-            clara_exit("This command doesn't work with IP adresses. You must use a hostname.")
 
+    pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+    if pat.match(host):
+            logging.debugging("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
+            ipmi_do(host, True, "sol", "activate")
+    else:
         try:
             cmd = ["service", "conman", "status"]
             fnull = open(os.devnull, 'wb')  # Supress output of the following call

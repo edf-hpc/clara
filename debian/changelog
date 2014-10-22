@@ -1,9 +1,9 @@
 clara (0.20141022) UNRELEASED; urgency=low
 
-  * 'clara ipmi connect' won't work with IPs, add a check and an error message.
-    Fix #39.
+  * 'clara ipmi connect' fallback to ipmtool directly when the host is provided
+    using an IP address. Fix #39.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 22 Oct 2014 09:26:53 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 22 Oct 2014 14:08:51 +0200
 
 clara (0.20141021) calibre9; urgency=low
 
