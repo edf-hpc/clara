@@ -2,7 +2,7 @@
 # -*- makefile -*-
 
 %:
-	dh $@ --with python2
+	dh $@ --with python2,bash-completion
 
 override_dh_clean:
 	rm -rf Clara.egg-info/

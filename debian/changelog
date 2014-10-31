@@ -1,9 +1,10 @@
-clara (0.20141022) UNRELEASED; urgency=low
+clara (0.20141031) calibre8; urgency=low
 
   * 'clara ipmi connect' fallback to ipmtool directly when the host is provided
     using an IP address. Fix #39.
+  * Add initial bash_completion file. Fix #37.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 22 Oct 2014 14:08:51 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 31 Oct 2014 14:05:34 +0100
 
 clara (0.20141021) calibre9; urgency=low
 
