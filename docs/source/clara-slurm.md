@@ -14,10 +14,11 @@ clara-slurm - performs tasks using SLURM's controller
     clara slurm -h | --help
 
 Options:
-
     <op> is one of the following ones: show, create, update and delete.
 
-    <cmd> is one of the following ones: job, node, steps, frontend, partition, reservation, block and submp.
+    <cmd> is one of the following ones: job, node, steps, frontend,
+    partition, reservation, block and submp.
+
 
 # DESCRIPTION
 
@@ -46,11 +47,14 @@ Options:
     clara slurm <cmd> <subject> [<op>] [<spec>...]
 
         Simplified interface for scontrol.
-        Not all the <op> options are compatible with any <cmd> option but clara will warn you of not allowed combinations.
+        Not all the <op> options are compatible with any <cmd> option but clara 
+        will warn you of not allowed combinations.
 
 # EXAMPLES
 
-TODO
+Put the nodes node[3-6] down
+
+    clara slurm down node[3-6]
 
 # SEE ALSO
 

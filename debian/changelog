@@ -1,3 +1,9 @@
+clara (0.20141103) calibre8; urgency=low
+
+  * Update manpages.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 03 Nov 2014 14:26:08 +0100
+
 clara (0.20141031) calibre8; urgency=low
 
   * 'clara ipmi connect' fallback to ipmtool directly when the host is provided

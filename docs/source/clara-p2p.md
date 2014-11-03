@@ -8,7 +8,7 @@ clara-p2p - makes torrent images and seeds them via BitTorrent
 
     clara p2p status
     clara p2p restart
-    clara p2p mktorrent [--image=<path>]
+    clara p2p mktorrent [--image=<path>] [--dist=<name>]
     clara p2p -h | --help | help
 
 # DESCRIPTION
@@ -26,13 +26,19 @@ and controlling the seeders and trackers of the cluster to see the new torrent f
 
         Restart the BitTorrent trackers and seeders
 
-    clara p2p mktorrent [--image=<path>]
+    clara p2p mktorrent [--image=<path>] [--dist=<name>]
 
-        Create a new torrent file for the squashfs image and restart trackers and initial seeders.
+        Create a new torrent file for the squashfs image and restart trackers 
+        and initial seeders.
 
-# EXAMPLE
+The option [--dist=<name>] allows to select a distribution different to the default one.
+This distribution must be listed in the field "allowed_distributions" from the section [common].
 
-TODO
+# EXAMPLES
+
+To create a torrent file for the images placed at /tmp/calibre9.squashfs
+
+    clara p2p mktorrent --image=/tmp/calibre9.squashfs --dist=calibre9
 
 # SEE ALSO
 

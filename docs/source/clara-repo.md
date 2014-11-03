@@ -9,7 +9,7 @@ clara-repo - creates, updates and synchronizes local Debian repositories
     clara repo key
     clara repo init [--dist=<name>]
     clara repo sync (all|<suite>...|--dist=<name>)
-    clara repo add <file>... [--dist=<name>]
+    clara repo add <file>... [--dist=<name>] [--reprepro-flags="list of flags"...]
     clara repo del <name>...[--dist=<name>]
     clara repo list [--dist=<name>]
     clara repo -h | --help | help
@@ -22,7 +22,6 @@ Options:
     <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
 
     <name> is the package to remove, if the package is a source name, it'll
-
     remove all the associated binaries
 
 # DESCRIPTION
@@ -48,10 +47,11 @@ of remote Debian repositories locally.
         wheezy-backports, calibre8, etc; we can choose all the suites with the parameter
         'all' or just all the suites used by a distribution with --dist=<name>.
 
-    clara repo add <file>... [--dist=<name>]
+    clara repo add <file>... [--dist=<name>] [--reprepro-flags="list of flags"...]
 
         Add packages to the local repository.
         <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
+        For the --reprepro-flags, check the documentation of reprepro.
 
     clara repo del <name>...[--dist=<name>]
 

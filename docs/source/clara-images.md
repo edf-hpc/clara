@@ -6,11 +6,11 @@ clara-images - creates and updates the images of installation of a cluster
 
 # SYNOPSIS
 
-    clara images create [<image>] [--dist=<name>]
+    clara images create [<image>] [--keep-chroot-dir] [--dist=<name>]
     clara images unpack [<image>] [--dist=<name>]
     clara images repack <directory> [<image>] [--dist=<name>]
     clara images edit [<image>] [--dist=<name>]
-    clara images initrd [--dist=<name>]
+    clara images initrd [--dist=<name>] [--output=<dirpath>]
     clara images -h | --help | help
 
 Options:
@@ -23,11 +23,13 @@ Options:
 
 # OPTIONS
 
-    clara images create [<image>] [--dist=<name>]
+    clara images create [<image>] [--keep-chroot-dir] [--dist=<name>]
 
         Create a new squashfs image to use as operating system on the cluster nodes.
-        By default it unpacks the default image but the user can provide  the path to a
+        By default it unpacks the default image but the user can provide the path to a
         different file.
+        The option --keep-chroot-dir allows to create the chroot used to generate
+        the image. By default, this chroot directory is deleted.
 
     clara images unpack [<image>] [--dist=<name>]
 
@@ -46,16 +48,28 @@ Options:
         the image again after. By default it edits the default image but the user can
         provide the path to a different image.
 
-    clara images initrd [--dist=<name>]
+    clara images initrd [--dist=<name>] [--output=<dirpath>]
 
         Create a new initrd image to boot the cluster nodes.
+        The user can use the --output option to select a directory different to the default
+        one to save the generated initrd.
 
 The option [--dist=<name>] allows to select a distribution different to the default one.
 This distribution must be listed in the field "allowed_distributions" from the section [common].
 
 # EXAMPLES
 
-TODO
+To create a image for calibre8 and store it in /tmp/c8.squashfs
+
+    clara images create /tmp/c8.squashfs --dist=calibre8
+
+To edit the default distribution image
+
+    clara images edit
+
+To create a initrd for the default distribution image:
+
+     clara images initrd
 
 # SEE ALSO
 

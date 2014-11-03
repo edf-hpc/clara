@@ -39,7 +39,7 @@ to get the encryption key and encrypt/decrypt files.
         in its name. The resulting file will have the same name than the original without
         the suffix ".enc"
 
-# EXAMPLE
+# EXAMPLES
 
 To create an encrypted file in /data/mydata.enc:
 
