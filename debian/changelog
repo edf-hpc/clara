@@ -1,6 +1,7 @@
-clara (0.20141103) calibre8; urgency=low
+clara (0.20141105) calibre8; urgency=low
 
   * Update manpages.
+  * Update depends on slurm-llnl to slurm-client.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 03 Nov 2014 14:26:08 +0100
 

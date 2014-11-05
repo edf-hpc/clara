@@ -13,7 +13,7 @@ Recommends: gnupg-agent
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  python-docopt, python-importlib, clustershell,
 # slurm
- slurm-llnl,
+ slurm-client,
 # repo
  reprepro, gnupg, debmirror,
 # impi
