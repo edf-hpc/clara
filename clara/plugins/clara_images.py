@@ -335,7 +335,7 @@ def geninitrd(path):
     logging.info("Initrd available at " + trg_dir + "/initrd-" + kver)
 
     # Copy vmlinuz out of the chroot
-    shutil.copy("/boot/vmlinuz-" + kver, trg_dir + "/vmlinuz-" + kver)
+    shutil.copy(trg_dir + "/boot/vmlinuz-" + kver, trg_dir + "/vmlinuz-" + kver)
     logging.info("vmlinuz available at " + trg_dir + "/vmlinuz-" + kver)
 
 
