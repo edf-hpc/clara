@@ -178,14 +178,6 @@ def system_install():
         run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
         run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
 
-    # Extra packages to be listed in config.ini
-    extra_packages_image = get_from_config("images", "extra_packages_image", dist)
-    if len(extra_packages_image) == 0:
-        logging.warning("extra_packages_image hasn't be set in the config.ini")
-    else:
-        pkgs = extra_packages_image.split(",")
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
-
     # Install packages from package_file if this file has been set in config.ini
     package_file = get_from_config("images", "package_file", dist)
     if not os.path.isfile(package_file):
@@ -200,6 +192,14 @@ def system_install():
             part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
             output = part2.communicate()[0]
             run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
+
+    # Install extra packages if extra_packages_image has been set in config.ini
+    extra_packages_image = get_from_config("images", "extra_packages_image", dist)
+    if len(extra_packages_image) == 0:
+        logging.warning("extra_packages_image hasn't be set in the config.ini")
+    else:
+        pkgs = extra_packages_image.split(",")
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
     umount_chroot()
