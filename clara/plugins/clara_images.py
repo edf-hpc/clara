@@ -163,16 +163,21 @@ def umount_chroot():
 
 
 def system_install():
-    preseed_file = get_from_config("images", "preseed_file", dist)
-    if os.path.isfile(preseed_file):
-        shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
-    else:
-        logging.warning("{0} is not a file!".format(preseed_file))
-
     mount_chroot()
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    # Add here the must-have packages
-    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])
+
+    # Set presseding if the file has been set in config.ini
+    preseed_file = get_from_config("images", "preseed_file", dist)
+    if not os.path.isfile(preseed_file):
+        logging.warning("preseed_file contains '{0}' and it is not a file!".format(preseed_file))
+    else:
+        shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
+        # we need to install debconf-utils
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])
+        run_chroot(["chroot", work_dir, "apt-get", "update"])
+        run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
+        run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
+
     # Extra packages to be listed in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
     if len(extra_packages_image) == 0:
@@ -180,12 +185,6 @@ def system_install():
     else:
         pkgs = extra_packages_image.split(",")
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
-
-    run_chroot(["chroot", work_dir, "apt-get", "update"])
-    # TODO: temporarily disabled until we found out why we need this.
-    ##run_chroot(["chroot", work_dir, "aptitude", "reinstall", "--without-recommends", "~i ?not(?priority(required))"])
-    run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
-    run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
 
     # Install packages from package_file if this file has been set in config.ini
     package_file = get_from_config("images", "package_file", dist)
