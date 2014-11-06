@@ -149,7 +149,7 @@ def do_connect(host):
 
     pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
     if pat.match(host):
-            logging.debugging("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
+            logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
             ipmi_do(host, True, "sol", "activate")
     else:
         try:
