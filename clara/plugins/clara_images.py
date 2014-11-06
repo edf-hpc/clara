@@ -265,7 +265,7 @@ def genimg(image):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
         path_to_image = os.path.dirname(image)
-        if not os.path.isdir(path_to_image):
+        if not os.path.isdir(path_to_image) and len(path_to_image) != 0:
             os.makedirs(path_to_image)
         squashfs_file = image
 
