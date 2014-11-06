@@ -320,10 +320,13 @@ def geninitrd(path):
     else:
         shutil.copytree(initramfsc, work_dir + "/tmp/initramfsc")
 
-    kver = get_from_config("images", "kver", dist)
     # Install the kernel in the image
-    run_chroot(["chroot", work_dir, "apt-get", "update"])
-    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
+    kver = get_from_config("images", "kver", dist)
+    if len(kver) == 0:
+        clara_exit("kver hasn't be set in config.ini")
+    else:
+        run_chroot(["chroot", work_dir, "apt-get", "update"])
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
 
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
