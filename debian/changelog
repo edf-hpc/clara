@@ -3,6 +3,8 @@ clara (0.20141106) calibre8; urgency=low
   * 'clara images create': make 'package_file' and 'preseed_file' optional.
     Fix #40.
   * 'clara images' several bugfixes.
+  * 'clara images initrd': remove mkinitrfs and initramfsc. We'll use the system's
+   mkinitramfs and the configuration is installed by a package.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 06 Nov 2014 09:11:39 +0100
 

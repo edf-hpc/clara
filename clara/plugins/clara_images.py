@@ -308,18 +308,6 @@ def geninitrd(path):
     run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
     mount_chroot()
 
-    mkinitrfs = get_from_config("images", "mkinitramfs", dist)
-    if not os.path.isfile(mkinitrfs):
-        clara_exit("{0} does not exist!".format(mkinitrfs))
-    else:
-        shutil.copy(mkinitrfs, work_dir + "/tmp/mkinitrfs")
-
-    initramfsc = get_from_config("images", "initramfs-config", dist)
-    if not os.path.isdir(initramfsc):
-        clara_exit("Directory {0} does not exist!".format(initramfsc))
-    else:
-        shutil.copytree(initramfsc, work_dir + "/tmp/initramfsc")
-
     # Install the kernel in the image
     kver = get_from_config("images", "kver", dist)
     if len(kver) == 0:
@@ -337,7 +325,7 @@ def geninitrd(path):
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
     # Generate the initrd in the image
-    run_chroot(["chroot", work_dir, "/tmp/mkinitrfs", "-d", "/tmp/initramfsc", "-o", "/tmp/initrd-" + kver, kver])
+    run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver])
     umount_chroot()
 
     # Copy the initrd out of the chroot
