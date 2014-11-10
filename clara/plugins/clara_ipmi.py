@@ -36,7 +36,7 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
-    clara ipmi connect <host>
+    clara ipmi connect [-jf] <host>
     clara ipmi deconnect <hostlist>
     clara ipmi (on|off|reboot) <hostlist>
     clara ipmi status <hostlist>
@@ -142,7 +142,7 @@ def getmac(hosts):
                      "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
 
-def do_connect(host):
+def do_connect(host, j=False, f=False):
     nodeset = ClusterShell.NodeSet.NodeSet(host)
     if (len(nodeset) != 1):
         clara_exit('Only one host allowed for this command')
@@ -165,7 +165,16 @@ def do_connect(host):
         if retcode == 0:  # if conman is running
             os.environ["CONMAN_ESCAPE"] = '!'
             conmand = get_from_config("ipmi", "conmand")
-            run(["conman", "-d", conmand, host])
+            if (len(conmand) == 0):
+               clara_exit("You must set the paramenter 'conmand' in the configuration file")
+
+            cmd = ["conman"]
+            if j:
+                cmd = cmd + ["-j"]
+            if f:
+                cmd = cmd + ["-f"]
+            cmd = cmd + ["-d", conmand, host]
+            run(cmd)
         elif retcode == 1 or retcode == 3:  # if conman is NOT running
             ipmi_do(host, True, "sol", "activate")
         else:
@@ -183,7 +192,7 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     if dargs['connect']:
-        do_connect(dargs['<host>'])
+        do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])
     elif dargs['deconnect']:
         ipmi_do(dargs['<hostlist>'], "sol", "deactivate")
     elif dargs['status']:

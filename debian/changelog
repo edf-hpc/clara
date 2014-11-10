@@ -1,6 +1,8 @@
-clara (0.20141110) UNRELEASED; urgency=low
+clara (0.20141110) calibre8; urgency=low
 
-  * Make health check program configurable. Fix #42.
+  * 'clara slurm health': Make health check program configurable. Fix #42.
+  * 'clara ipmi connect' Add the possibility to pass -j and -f cli flags to conman.
+    Fix #41
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 10 Nov 2014 08:53:13 +0100
 
