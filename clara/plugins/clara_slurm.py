@@ -54,7 +54,7 @@ import subprocess
 import sys
 
 import docopt
-from clara.utils import clara_exit, clush, run
+from clara.utils import clara_exit, clush, run, get_from_config
 
 
 def show_nodes(option):
@@ -99,8 +99,11 @@ def main():
             run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
                  "State=DOWN"])
     elif dargs['health']:
-        clush(dargs['<nodeset>'],
-              "/usr/lib/slurm/check_node_health.sh --no-slurm")
+        script_slurm_health = get_from_config("slurm", "script_slurm_health")
+        if (len(script_slurm_health) > 0):
+            clush(dargs['<nodeset>'], script_slurm_health)
+        else:
+            clara_exit("You must set a health check program in the configuration file.")
     else:
         cmd_list = ['job', 'node', 'steps', 'frontend', 'partition', 'reservation',
                     'block', 'submp']
