@@ -96,7 +96,7 @@ def do_key():
                     os.close(fdesc)
                     os.remove(temp_path)
                     if retcode != 0:
-                        logging.info("\nThere was a problem with the import, make sure the key you imported " \
+                        logging.info("\nThere was a problem with the import, make sure the key you imported "
                               "from {0} is the same you have in your configuration: {1}".format(file_stored_key, key))
 
             else:

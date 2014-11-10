@@ -138,7 +138,7 @@ def getmac(hosts):
                                                         full_mac[20:22],
                                                         full_mac[22:24])
 
-        logging.info("  eth0's MAC address is {0}\n" \
+        logging.info("  eth0's MAC address is {0}\n"
                      "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
 
@@ -149,8 +149,8 @@ def do_connect(host, j=False, f=False):
 
     pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
     if pat.match(host):
-            logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
-            ipmi_do(host, True, "sol", "activate")
+        logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
+        ipmi_do(host, True, "sol", "activate")
     else:
         try:
             cmd = ["service", "conman", "status"]
@@ -166,7 +166,7 @@ def do_connect(host, j=False, f=False):
             os.environ["CONMAN_ESCAPE"] = '!'
             conmand = get_from_config("ipmi", "conmand")
             if (len(conmand) == 0):
-               clara_exit("You must set the paramenter 'conmand' in the configuration file")
+                clara_exit("You must set the paramenter 'conmand' in the configuration file")
 
             cmd = ["conman"]
             if j:

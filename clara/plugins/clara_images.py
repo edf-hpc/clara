@@ -141,6 +141,7 @@ path-include=/usr/share/locale/locale.alias
     part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
     #output = part2.communicate()[0]
 
+
 def mount_chroot():
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
