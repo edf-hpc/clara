@@ -3,6 +3,7 @@
 MAN = clara.1 clara-images.1 clara-ipmi.1 clara-p2p.1 clara-repo.1 clara-slurm.1 clara-enc.1
 
 all: $(MAN)
+	pandoc --variable=geometry:a4paper users_guide.md -o users_guide.pdf
 
 clean:
 	rm -f man/*.1 *.ps *.pdf *.html

@@ -4,13 +4,12 @@
 %:
 	dh $@ --with python2,bash-completion
 
+override_dh_auto_build:
+	mkdir docs/man
+	$(MAKE) -C docs/
+
 override_dh_clean:
 	rm -rf Clara.egg-info/
 	rm -rf docs/man
 	$(MAKE) -C docs  clean
 	dh_clean
-
-override_dh_installman:
-	mkdir docs/man
-	$(MAKE) -C docs/
-	dh_installman
