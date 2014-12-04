@@ -1,3 +1,10 @@
+clara (0.20141203) calibre8; urgency=medium
+
+  * 'clara impi connect' add also flags in alternative commands.
+    Update documentation. Fix #43
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 04 Dec 2014 10:01:59 +0100
+
 clara (0.20141118) calibre8; urgency=low
 
   * Add Clara's user guide.

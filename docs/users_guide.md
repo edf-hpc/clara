@@ -233,7 +233,7 @@ automatically.
 
 ### Sypnosis
 
-    clara ipmi connect <host>
+    clara ipmi connect [-jf] <host>
     clara ipmi deconnect <hostlist>
     clara ipmi (on|off|reboot) <hostlist>
     clara ipmi status <hostlist>
@@ -247,7 +247,7 @@ automatically.
     clara ipmi bios <hostlist>
     clara ipmi -h | --help
 
-    clara ipmi <host> connect
+    clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> deconnect
     clara ipmi <hostlist> (on|off|reboot)
     clara ipmi <hostlist> status
@@ -262,9 +262,10 @@ automatically.
 
 ### Options
 
-    clara ipmi connect <host>
+    clara ipmi connect [-jf] <host>
 
 Connect to IMM serial console, including video, keyboard and mouse controlling
+The flag -j joins the connection and the flag -f forces it.
 
     clara ipmi deconnect <host>
 

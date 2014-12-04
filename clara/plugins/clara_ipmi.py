@@ -50,7 +50,7 @@ Usage:
     clara ipmi bios <hostlist>
     clara ipmi -h | --help
 Alternative:
-    clara ipmi <host> connect
+    clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> deconnect
     clara ipmi <hostlist> (on|off|reboot)
     clara ipmi <hostlist> status

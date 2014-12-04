@@ -6,7 +6,7 @@ clara-ipmi - manages and get the status from the nodes of a cluster
 
 # SYNOPSIS
 
-    clara ipmi connect <host>
+    clara ipmi connect [-jf] <host>
     clara ipmi deconnect <hostlist>
     clara ipmi (on|off|reboot) <hostlist>
     clara ipmi status <hostlist>
@@ -20,7 +20,7 @@ clara-ipmi - manages and get the status from the nodes of a cluster
     clara ipmi bios <hostlist>
     clara ipmi -h | --help
 
-    clara ipmi <host> connect
+    clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> deconnect
     clara ipmi <hostlist> (on|off|reboot)
     clara ipmi <hostlist> status
@@ -35,15 +35,16 @@ clara-ipmi - manages and get the status from the nodes of a cluster
 
 # DESCRIPTION
 
-*clara ipmi* offers a simplified interface of ipmitool, an utility for controlling 
-IPMI-enabled devices. The username and password needed by ipmitool are handled 
+*clara ipmi* offers a simplified interface of ipmitool, an utility for controlling
+IPMI-enabled devices. The username and password needed by ipmitool are handled
 automatically.
 
 # OPTIONS
 
-    clara ipmi connect <host>
+    clara ipmi connect [-jf] <host>
 
         Connect to IMM serial console, including video, keyboard and mouse controlling
+        The flag -j joins the connection and the flag -f forces it.
 
     clara ipmi deconnect <host>
 
