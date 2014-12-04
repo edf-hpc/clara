@@ -186,7 +186,7 @@ def do_sync(input_suites):
              "--host={0}".format(dm_server),
              "--root={0}".format(dm_root),
              "--dist={0}".format(suite_name),
-             "--section=main,contrib,non-free",
+             "--section=main,contrib,non-free,main/debian-installer",
               mirror_root + "/" + s])
 
 
