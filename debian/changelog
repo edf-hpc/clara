@@ -8,6 +8,7 @@ clara (0.20141205) calibre8; urgency=medium
     of looking for /IGNORE. Fix #46
   * 'clara images' the 'dist' parameter is now mandatory. Fix #45
   * 'clara repo' the 'dist' parameter is now mandatory. Fix #44
+  * Update documentation.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 05 Dec 2014 08:23:05 +0100
 
