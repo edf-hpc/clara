@@ -4,6 +4,8 @@ clara (0.20141205) calibre8; urgency=medium
     Update documentation. Fix #43
   * 'clara repo sync' also sync debian-installer section. Fix #47
   * Update build-depends to build the new documentation in pdf.
+  * 'clara images edit': it asks now the user how to proceed instead
+    of looking for /IGNORE. Fix #46
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 05 Dec 2014 08:23:05 +0100
 
