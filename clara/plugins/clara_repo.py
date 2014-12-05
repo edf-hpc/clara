@@ -37,11 +37,11 @@ Creates, updates and synchronizes local Debian repositories.
 
 Usage:
     clara repo key
-    clara repo init [--dist=<name>]
-    clara repo sync (all|<suite>...|--dist=<name>)
-    clara repo add <file>... [--dist=<name>] [--reprepro-flags="list of flags"...]
-    clara repo del <name>...[--dist=<name>]
-    clara repo list [--dist=<name>]
+    clara repo init <dist>
+    clara repo sync (all|<suite>...|--all-suites=<dist>)
+    clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
+    clara repo del <dist> <name>...
+    clara repo list <dist>
     clara repo -h | --help | help
 
 Options:
@@ -219,8 +219,8 @@ def main():
 
     global dist
     dist = get_from_config("common", "default_distribution")
-    if dargs["--dist"] is not None:
-        dist = dargs["--dist"]
+    if dargs["<dist>"] is not None:
+        dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
 
@@ -231,6 +231,9 @@ def main():
     elif dargs['sync']:
         if dargs['all']:
             do_sync('all')
+        elif dargs['--all-suites'] is not None:
+            dist = dargs['--all-suites']
+            do_sync([])
         else:
             do_sync(dargs['<suite>'])
     elif dargs['add']:
