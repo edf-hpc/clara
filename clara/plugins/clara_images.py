@@ -36,11 +36,11 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images create [<image>] [--keep-chroot-dir] [--dist=<name>]
-    clara images unpack [<image>] [--dist=<name>]
-    clara images repack <directory> [<image>] [--dist=<name>]
-    clara images edit [<image>] [--dist=<name>]
-    clara images initrd [--dist=<name>] [--output=<dirpath>]
+    clara images create <dist> [<image>] [--keep-chroot-dir]
+    clara images unpack ( <dist> | --image=<path> )
+    clara images repack <directory> ( <dist> | --image=<path> )
+    clara images edit <dist> [<image>]
+    clara images initrd <dist> [--output=<dirpath>]
     clara images -h | --help | help
 
 """
@@ -293,7 +293,7 @@ def extract_image(image):
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, extract_dir))
     run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
     logging.info("Modify the image at {0} and then run:\n"
-          "\tclara images repack {0}".format(extract_dir))
+          "\tclara images repack {0} ( <dist> | --image=<path> )".format(extract_dir))
 
 
 def geninitrd(path):
@@ -396,8 +396,8 @@ def main():
 
     global dist
     dist = get_from_config("common", "default_distribution")
-    if dargs["--dist"] is not None:
-        dist = dargs["--dist"]
+    if dargs['<dist>'] is not None:
+        dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
 
@@ -411,9 +411,9 @@ def main():
         run_script_post_creation()
         genimg(dargs['<image>'])
     elif dargs['repack']:
-        genimg(dargs['<image>'])
+        genimg(dargs['--image'])
     elif dargs['unpack']:
-        extract_image(dargs['<image>'])
+        extract_image(dargs['--image'])
     elif dargs['initrd']:
         geninitrd(dargs['--output'])
     elif dargs['edit']:
