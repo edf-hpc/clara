@@ -1,10 +1,11 @@
-clara (0.20141203) calibre8; urgency=medium
+clara (0.20141205) calibre8; urgency=medium
 
   * 'clara impi connect' add also flags in alternative commands.
     Update documentation. Fix #43
   * 'clara repo sync' also sync debian-installer section. Fix #47
+  * Update build-depends to build the new documentation in pdf.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 04 Dec 2014 10:01:59 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 05 Dec 2014 08:23:05 +0100
 
 clara (0.20141118) calibre8; urgency=low
 
