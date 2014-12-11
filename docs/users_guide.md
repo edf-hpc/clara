@@ -460,7 +460,7 @@ file.
 
     clara p2p status
     clara p2p restart
-    clara p2p mktorrent [--image=<path>] [--dist=<name>]
+    clara p2p mktorrent <dist> [--image=<path>]
     clara p2p -h | --help | help
 
 ### Options
@@ -473,20 +473,17 @@ Check the status of the BitTorrent trackers and seeders
 
 Restart the BitTorrent trackers and seeders
 
-    clara p2p mktorrent [--image=<path>] [--dist=<name>]
+    clara p2p mktorrent <dist> [--image=<path>]
 
 Create a new torrent file for the squashfs image and restart trackers
-and initial seeders.
-
-The option `[--dist=<name>]` allows to select a distribution different to the
-default one. This distribution must be listed in the field `"allowed_distributions"`
-from the section `[common]`.
+and initial seeders. The distribution in <dist> must be listed in the field
+"allowed_distributions" from the section [common].
 
 ### Examples
 
 To create a torrent file for the images placed at `/tmp/calibre9.squashfs`
 
-    # clara p2p mktorrent --image=/tmp/calibre9.squashfs --dist=calibre9
+    # clara p2p mktorrent calibre9 --image=/tmp/calibre9.squashfs
 
 ## Plugin 'enc'
 
