@@ -57,7 +57,6 @@ from clara.utils import clara_exit, clush, run, get_from_config
 
 
 def mktorrent(image):
-    ml_path = "/var/lib/mldonkey"
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
@@ -75,23 +74,12 @@ def mktorrent(image):
         os.remove(torrent_file)
 
     clush(seeders, "service ctorrent stop")
-    clush(trackers, "service mldonkey-server stop")
-
-    for files in ["torrents/old", "torrents/seeded", "torrents/tracked"]:
-        clush(trackers, "rm -f {0}/{1}/*".format(ml_path, files))
-
-    clush(trackers, "ln -sf {0} {1}/incoming/files/".format(squashfs_file, ml_path))
-
-    clush(trackers, "awk 'BEGIN{verb=1}; / tracked_files = / {verb=0}; /^$/ {verb=1}; {if (verb==1) print}' /var/lib/mldonkey/bittorrent.ini > /var/lib/mldonkey/bittorrent.ini.new")
-    clush(trackers, "mv {0}/bittorrent.ini.new {0}/bittorrent.ini".format(ml_path))
 
     announce = []
     for t in list(ClusterShell.NodeSet.NodeSet(trackers)):
         announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
     run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_file, squashfs_file])
-    clush(trackers, "ln -sf {0} {1}/torrents/seeded/".format(torrent_file, ml_path))
 
-    clush(trackers, "service mldonkey-server start")
     clush(seeders, "service ctorrent start")
 
 
@@ -110,13 +98,13 @@ def main():
     seeders = get_from_config("p2p", "seeders", dist)
 
     if dargs['status']:
-        clush(trackers, "service mldonkey-server status")
+        clush(trackers, "service opentracker status")
         clush(seeders, "service ctorrent status")
     elif dargs['restart']:
         clush(seeders, "service ctorrent stop")
-        clush(trackers, "service mldonkey-server stop")
+        clush(trackers, "service opentracker stop")
         time.sleep(1)
-        clush(trackers, "service mldonkey-server start")
+        clush(trackers, "service opentracker start")
         clush(seeders, "service ctorrent start")
     elif dargs['mktorrent']:
         mktorrent(dargs['--image'])
