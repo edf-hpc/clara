@@ -42,7 +42,7 @@ of remote Debian repositories locally.
 
         Mirror locally a Debian suite. We can choose a single suite such as wheezy,
         wheezy-backports, calibre8, etc; we can choose all the suites with the parameter
-        'all' or just all the suites used by a distribution with --dist=<name>.
+        'all' or just all the suites used by a distribution with --all-suites=<dist>.
 
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
 

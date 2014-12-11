@@ -45,8 +45,7 @@ Usage:
     clara repo -h | --help | help
 
 Options:
-    --dist=<name>  Distribution target [default is set on distribution field
-                   at the file config.ini].
+    <dist> is the target distribution
     <file> can be one or more *.deb binaries, *.changes files or *.dsc files.
     <name> is the package to remove, if the package is a source name, it'll
     remove all the associated binaries
@@ -195,7 +194,7 @@ def do_reprepro(action, package=None, flags=None):
     reprepro_config = repo_dir + '/conf/distributions'
 
     if not os.path.isfile(reprepro_config):
-        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init [--dist=<name>]'".format(dist))
+        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
 
     list_flags = ['--silent', '--ask-passphrase']
 

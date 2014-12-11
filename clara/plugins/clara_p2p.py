@@ -42,6 +42,7 @@ Usage:
     clara p2p -h | --help | help
 
 Options:
+    <dist> is the target distribution
     --image=<path>  Path to squashfs image.
 """
 
