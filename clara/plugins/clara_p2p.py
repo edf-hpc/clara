@@ -38,7 +38,7 @@ Makes torrent images and seeds them via BitTorrent
 Usage:
     clara p2p status
     clara p2p restart
-    clara p2p mktorrent [--image=<path>] [--dist=<name>]
+    clara p2p mktorrent <dist> [--image=<path>]
     clara p2p -h | --help | help
 
 Options:
@@ -89,8 +89,8 @@ def main():
 
     global dist
     dist = get_from_config("common", "default_distribution")
-    if dargs["--dist"] is not None:
-        dist = dargs["--dist"]
+    if dargs["<dist>"] is not None:
+        dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
 

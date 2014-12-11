@@ -1,6 +1,7 @@
 clara (0.20141211) UNRELEASED; urgency=low
 
   * 'clara p2p' replace completely mldonkey with opentracker.
+  * 'clara p2p mktorrent': the 'dist' parameter is now mandatory.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 11 Dec 2014 10:46:10 +0100
 
