@@ -178,14 +178,17 @@ def do_sync(input_suites):
         if s in ["wheezy-security", "jessie-security"]:
             suite_name = s.split("-")[0] + "/updates"
 
+        archs = get_from_config("repo", "archs", suite_dist[s])
+        sections = get_from_config("repo", "sections", suite_dist[s])
+
         run(['debmirror',
              # '--dry-run', '--debug', '--progress', '--verbose',
-             "--diff=none", "--method=http", "--arch=i386,amd64",
+             "--diff=none", "--method=http", "--arch={0}".format(archs),
              "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
              "--host={0}".format(dm_server),
              "--root={0}".format(dm_root),
              "--dist={0}".format(suite_name),
-             "--section=main,contrib,non-free,main/debian-installer",
+             "--section={0}".format(sections),
               mirror_root + "/" + s])
 
 
