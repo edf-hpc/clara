@@ -1,6 +1,8 @@
 clara (0.20141212) UNRELEASED; urgency=low
 
   * 'clara repo sync': add archs and sections as configuration parameters.
+  * Disable the bash_completion for clara. After all the last syntax changes
+    it is not useful anymore.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 12 Dec 2014 09:25:11 +0100
 

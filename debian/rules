@@ -2,7 +2,7 @@
 # -*- makefile -*-
 
 %:
-	dh $@ --with python2,bash-completion
+	dh $@ --with python2
 
 override_dh_auto_build:
 	mkdir docs/man
