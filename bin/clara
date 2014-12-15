@@ -33,13 +33,14 @@
 #                                                                            #
 ##############################################################################
 """
-Usage: clara [options] <plugin> [<args>...]
+Usage: clara [-d | -dd] [options] <plugin> [<args>...]
        clara help <plugin>
        clara [--version]
        clara [--help]
 
 Options:
     -d                 Enable debug output
+    -dd                Enable debug output for third party applications
     --config=<file>    Provide a configuration file
 
 Clara provides the following plugins:
@@ -71,8 +72,11 @@ if __name__ == '__main__':
     if os.geteuid() != 0:
         os.execvp("sudo", ["sudo"] + sys.argv)
 
-    if args['-d']:
+    if args['-d'] > 0:
         conf.debug = True
+
+    if args['-d'] == 2:
+        conf.ddebug = True
 
     initialize_logger(conf.debug)
 

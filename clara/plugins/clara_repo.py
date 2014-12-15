@@ -58,7 +58,7 @@ import sys
 import tempfile
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, value_from_file
+from clara.utils import clara_exit, run, get_from_config, value_from_file, conf
 
 
 def do_key():
@@ -181,7 +181,11 @@ def do_sync(input_suites):
         archs = get_from_config("repo", "archs", suite_dist[s])
         sections = get_from_config("repo", "sections", suite_dist[s])
 
-        run(['debmirror', "--diff=none", "--method=http",
+        extra = []
+        if conf.ddebug:  # if extra debug for 3rd party software
+            extra = ['--debug']
+
+        run(['debmirror'] + extra + ["--diff=none", "--method=http",
              "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
              "--arch={0}".format(archs),
              "--host={0}".format(dm_server),

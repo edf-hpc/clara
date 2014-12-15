@@ -48,6 +48,7 @@ class Conf:
     """Class which contains runtime variables"""
     def __init__(self):
         self.debug = False
+        self.ddebug = False
         self.config = None
 
 # global runtime Conf object
