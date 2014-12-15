@@ -181,10 +181,9 @@ def do_sync(input_suites):
         archs = get_from_config("repo", "archs", suite_dist[s])
         sections = get_from_config("repo", "sections", suite_dist[s])
 
-        run(['debmirror',
-             # '--dry-run', '--debug', '--progress', '--verbose',
-             "--diff=none", "--method=http", "--arch={0}".format(archs),
+        run(['debmirror', "--diff=none", "--method=http",
              "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
+             "--arch={0}".format(archs),
              "--host={0}".format(dm_server),
              "--root={0}".format(dm_root),
              "--dist={0}".format(suite_name),
