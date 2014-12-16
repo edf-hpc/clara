@@ -57,7 +57,7 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config
+from clara.utils import clara_exit, run, get_from_config, conf
 
 
 def run_chroot(cmd):
@@ -85,8 +85,13 @@ def base_install():
     dpkg_conf = work_dir + "/etc/dpkg/dpkg.cfg.d/excludes"
     etc_host = work_dir + "/etc/hosts"
 
-    run(["debootstrap", get_from_config("images", "debiandist", dist), work_dir,
-         get_from_config("images", "debmirror", dist)])
+    debiandist = get_from_config("images", "debiandist", dist)
+    debmirror = get_from_config("images", "debmirror", dist)
+
+    if conf.ddebug:
+        run(["debootstrap", "--verbose", debiandist, work_dir, debmirror])
+    else:
+        run(["debootstrap", debiandist, work_dir, debmirror])
 
     # Prevent services from starting automatically
     policy_rc = work_dir + "/usr/sbin/policy-rc.d"
@@ -276,7 +281,11 @@ def genimg(image):
 
     logging.info("Creating image at {0}".format(squashfs_file))
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
-    run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
+    if conf.ddebug:
+        run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend", "-info"])
+    else:
+        run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
+
     os.chmod(squashfs_file, 0o755)
 
 
@@ -291,7 +300,11 @@ def extract_image(image):
 
     extract_dir = tempfile.mkdtemp(prefix="tmpClara")
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, extract_dir))
-    run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
+    if conf.ddebug:
+        run(["unsquashfs", "-li", "-f", "-d", extract_dir, squashfs_file])
+    else:
+        run(["unsquashfs", "-f", "-d", extract_dir, squashfs_file])
+
     logging.info("Modify the image at {0} and then run:\n"
           "\tclara images repack {0} ( <dist> | --image=<path> )".format(extract_dir))
 
@@ -306,7 +319,11 @@ def geninitrd(path):
         os.makedirs(trg_dir)
 
     squashfs_file = get_from_config("images", "trg_img", dist)
-    run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+    if conf.ddebug:
+        run(["unsquashfs", "-li", "-f", "-d", work_dir, squashfs_file])
+    else:
+        run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+
     mount_chroot()
 
     # Install the kernel in the image
@@ -350,7 +367,11 @@ def edit(image):
 
     # Extract the image.
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, work_dir))
-    run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+    if conf.ddebug:
+        run(["unsquashfs", "-li", "-f", "-d", work_dir, squashfs_file])
+    else:
+        run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
+
     # Work in the image
     os.chdir(work_dir)
     logging.info("Entering into a bash shell to edit the image. ^d when you have finished.")
@@ -364,7 +385,11 @@ def edit(image):
 
     # Rename old image and recreate new one
     os.rename(squashfs_file, squashfs_file + ".old")
-    run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
+    if conf.ddebug:
+        run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend", "-info"])
+    else:
+        run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend"])
+
     os.chmod(squashfs_file, 0o755)
     logging.info("\nPrevious image renamed to {0}."
           "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
