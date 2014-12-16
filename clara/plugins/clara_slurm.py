@@ -54,7 +54,7 @@ import subprocess
 import sys
 
 import docopt
-from clara.utils import clara_exit, clush, run, get_from_config
+from clara.utils import clara_exit, clush, run, get_from_config, conf
 
 
 def show_nodes(option):
@@ -80,8 +80,12 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
+    debug = []
+    if conf.ddebug:
+        debug = ["--verbose", "--details"]
+
     if dargs['resume']:
-        run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
+        run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
              "State=RESUME"])
     elif dargs['drain']:
         if dargs['<nodeset>'] is None:
@@ -90,13 +94,13 @@ def main():
             if len(dargs['<reason>']) == 0:
                 clara_exit("You must specify a reason when DRAINING a node")
             else:
-                run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
+                run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
                      "State=DRAIN", 'Reason="' + " ".join(dargs['<reason>']) + '"'])
     elif dargs['down']:
         if dargs['<nodeset>'] is None:
             show_nodes("down")
         else:
-            run(["scontrol", "update", "NodeName=" + dargs['<nodeset>'],
+            run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
                  "State=DOWN"])
     elif dargs['health']:
         script_slurm_health = get_from_config("slurm", "script_slurm_health")
@@ -155,10 +159,10 @@ def main():
 
         if op == 'show':
             # spec should be empty
-            run(["scontrol", op, cmd, subject])
+            run(["scontrol"] + debug + [op, cmd, subject])
         else:
-            run(["scontrol",
-                 op,
+            run(["scontrol"] + debug + \
+                [op,
                  "{0}={1}".format(key_list[cmd], subject),
                  " ".join(spec)])
 
