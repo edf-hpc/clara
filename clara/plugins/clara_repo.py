@@ -135,7 +135,13 @@ DscIndices: Sources Release . .gz .bz2
         freprepro.close()
 
         os.chdir(repo_dir)
-        run(['reprepro', '--ask-passphrase', '--basedir', repo_dir,
+
+        list_flags = ['--ask-passphrase']
+        if conf.ddebug:
+            list_flags.append("-V")
+
+        run(['reprepro'] + list_flags + \
+            ['--basedir', repo_dir,
              '--outdir', get_from_config("repo", "mirror_local", dist),
              'export', dist])
 
@@ -203,6 +209,8 @@ def do_reprepro(action, package=None, flags=None):
         clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
 
     list_flags = ['--silent', '--ask-passphrase']
+    if conf.ddebug:
+        list_flags = ['-V', '--ask-passphrase']
 
     if flags is not None:
         list_flags.append(flags)
