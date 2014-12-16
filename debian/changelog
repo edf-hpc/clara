@@ -1,3 +1,10 @@
+clara (0.20141216) calibre8; urgency=low
+
+  * Add debugging output with "-dd" for all the third party software.
+    (Continues #48)
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 16 Dec 2014 10:14:53 +0100
+
 clara (0.20141215) calibre8; urgency=low
 
   * 'clara repo sync': add archs and sections as configuration parameters.
