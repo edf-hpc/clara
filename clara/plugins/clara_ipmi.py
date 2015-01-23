@@ -198,9 +198,10 @@ def main():
     elif dargs['status']:
         ipmi_do(dargs['<hostlist>'], "power", "status")
     elif dargs['setpwd']:
-        clara_exit("Not tested!")  # TODO
-        ipmi_do(dargs['<hostlist>'], "user", "set", "name", "2", "IMMUSER")
-        ipmi_do(dargs['<hostlist>'], "user", "set", "password", "2", "IMMPASSWORD")
+        imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
+        imm_pwd = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
+        ipmi_do(dargs['<hostlist>'], "user", "set", "name", "2", imm_user)
+        ipmi_do(dargs['<hostlist>'], "user", "set", "password", "2", imm_pwd)
     elif dargs['getmac']:
         getmac(dargs['<hostlist>'])
     elif dargs['on']:

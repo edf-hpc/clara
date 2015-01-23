@@ -1,3 +1,9 @@
+clara (0.20150123) UNRELEASED; urgency=medium
+
+  * 'clara ipmi setpwd': re-add. Fix #49.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 16 Dec 2014 10:14:53 +0100
+
 clara (0.20141216) calibre8; urgency=low
 
   * Add debugging output with "-dd" for all the third party software.
