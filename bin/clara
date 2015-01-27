@@ -49,7 +49,8 @@ Clara provides the following plugins:
    slurm    Performs tasks using SLURM's controller.
    images   Creates and updates the images of installation of a cluster.
    p2p      Makes torrent images and seeds them via BitTorrent.
-   enc      Interact with encrypted files using configurable methods
+   enc      Interact with encrypted files using configurable methods.
+   build    Builds Debian packages.
 
 See 'clara help <plugin>' for detailed help on a plugin
 and 'clara <plugin> --help' for a quick list of options of a plugin.

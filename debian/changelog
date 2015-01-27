@@ -1,3 +1,9 @@
+clara (0.20150128) UNRELEASED; urgency=low
+
+  * 'clara build': new plugin
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 28 Jan 2015 09:41:31 +0100
+
 clara (0.20150127) calibre8; urgency=low
 
   * 'clara ipmi': check for remote conman server instead of assuming that's
