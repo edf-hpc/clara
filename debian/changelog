@@ -1,9 +1,9 @@
-clara (0.20150123) UNRELEASED; urgency=medium
+clara (0.20150126) calibre8; urgency=medium
 
   * 'clara ipmi setpwd': re-add. Fix #49.
   * 'clara ipmi reset': implements the raw cold reset. Fix #50.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 16 Dec 2014 10:14:53 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 27 Jan 2015 10:30:55 +0100
 
 clara (0.20141216) calibre8; urgency=low
 
