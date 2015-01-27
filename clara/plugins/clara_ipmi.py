@@ -70,6 +70,7 @@ import errno
 import logging
 import os
 import re
+import socket
 import subprocess
 import sys
 
@@ -154,21 +155,13 @@ def do_connect(host, j=False, f=False):
         logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
         ipmi_do(host, True, "sol", "activate")
     else:
+        conmand = get_from_config("ipmi", "conmand")
+        if (len(conmand) == 0):
+            clara_exit("You must set the paramenter 'conmand' in the configuration file")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            cmd = ["service", "conman", "status"]
-            fnull = open(os.devnull, 'wb')  # Supress output of the following call
-            retcode = subprocess.call(cmd, stdout=fnull, stderr=subprocess.STDOUT)
-            fnull.close()
-        except OSError, e:
-            if (e.errno == errno.ENOENT):
-                clara_exit("Binary not found, check your path and/or retry as root."
-                         "You were trying to run:\n {0}".format(" ".join(cmd)))
-
-        if retcode == 0:  # if conman is running
+            s.connect((conmand, 7890))
             os.environ["CONMAN_ESCAPE"] = '!'
-            conmand = get_from_config("ipmi", "conmand")
-            if (len(conmand) == 0):
-                clara_exit("You must set the paramenter 'conmand' in the configuration file")
 
             cmd = ["conman"]
             if j:
@@ -177,11 +170,11 @@ def do_connect(host, j=False, f=False):
                 cmd = cmd + ["-f"]
             cmd = cmd + ["-d", conmand, host]
             run(cmd)
-        elif retcode == 1 or retcode == 3:  # if conman is NOT running
+        except socket.error as e:
+            logging.debug("Conman not running. Message on connect: {0}" % e)
             ipmi_do(host, True, "sol", "activate")
-        else:
-            clara_exit(' '.join(cmd))
 
+        s.close()
 
 def do_ping(hosts):
     nodes = ClusterShell.NodeSet.NodeSet(hosts)
