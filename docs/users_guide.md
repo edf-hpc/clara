@@ -241,6 +241,7 @@ automatically.
     clara ipmi blink <hostlist>
     clara ipmi immdhcp <hostlist>
     clara ipmi bios <hostlist>
+    clara ipmi reset <hostlist>
     clara ipmi -h | --help
 
     clara ipmi <host> connect [-jf]
@@ -255,6 +256,7 @@ automatically.
     clara ipmi <hostlist> blink
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
+    clara ipmi <hostlist> reset
 
 ### Options
 
@@ -314,6 +316,11 @@ Set selected ipmi interfaces to grab an IP via DHCP
     clara ipmi bios <hostlist>
 
 Make selected machines go directly into BIOS on next reboot
+
+    clara ipmi reset <hostlist>
+
+Reset the IMM device (cold reset)
+
 
 ### Examples
 

@@ -48,6 +48,7 @@ Usage:
     clara ipmi blink <hostlist>
     clara ipmi immdhcp <hostlist>
     clara ipmi bios <hostlist>
+    clara ipmi reset <hostlist>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
@@ -62,6 +63,7 @@ Alternative:
     clara ipmi <hostlist> blink
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
+    clara ipmi <hostlist> reset
 """
 
 import errno
@@ -220,9 +222,10 @@ def main():
         ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "pxe")
     elif dargs['disk']:
         ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "disk")
+    elif dargs['reset']:
+        ipmi_do(dargs['<hostlist>'], "mc", "reset", "cold")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
-
 
 if __name__ == '__main__':
     main()
