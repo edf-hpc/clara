@@ -56,6 +56,8 @@ The remaining dependencies, listed by plugin, are:
 
 + p2p: [mktorrent](http://mktorrent.sourceforge.net/)
 
++ build: [cowbuilder](https://wiki.debian.org/cowbuilder)
+
 # Getting started
 
 Clara itself is not a tool, but rather provides a common interface to several
@@ -80,6 +82,7 @@ example.
        images   Creates and updates the images of installation of a cluster.
        p2p      Makes torrent images and seeds them via BitTorrent.
        enc      Interact with encrypted files using configurable methods
+       build    Builds Debian packages
 
     See 'clara help <plugin>' for detailed help on a plugin
     and 'clara <plugin> --help' for a quick list of options of a plugin.
@@ -543,3 +546,41 @@ To create a plain text copy of an encrypted file:
 
 This will create an unencrypted file "this_is_my_file"
 
+
+## Plugin 'build'
+
+*clara build* allows to build packages for any of the custom distributions
+and also rebuild a package that's already in the local repository of another
+custom distribution.
+This plugin requires *cowbuilder* installed and configured.
+
+
+### Synopsis
+
+    clara build source <dist> <dsc_file>
+    clara build repo <dist> <origin_dist> <package_name>
+    clara build -h | --help | help
+
+### Options
+
+    clara build source <dist> <dsc_file>
+
+Build a source package targetting the distro indicated.
+
+    clara build repo <dist> <origin_dist> <package_name>
+
+Rebuilds a package from the local repository of the "origin_dist" for the distro
+indicated. The repository must contain the source package of the package we want
+to rebuild.
+
+
+### Examples
+
+To build the source package of calibre-hpc for calibre8 that is at /tmp/calibre-hpc_1.2.dsc
+
+    # clara build calibre8 /tmp/calibre-hpc_1.2.dsc
+
+To rebuild the same package for calibre9 using the package in the local repository
+of calibre8:
+
+    # clara build calibre8 calibre9 calibre-hpc
