@@ -156,11 +156,12 @@ def do_connect(host, j=False, f=False):
         ipmi_do(host, True, "sol", "activate")
     else:
         conmand = get_from_config("ipmi", "conmand")
+        port = get_from_config("ipmi", "port")
         if (len(conmand) == 0):
             clara_exit("You must set the paramenter 'conmand' in the configuration file")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            s.connect((conmand, 7890))
+            s.connect((conmand, port))
             os.environ["CONMAN_ESCAPE"] = '!'
 
             cmd = ["conman"]
@@ -175,6 +176,7 @@ def do_connect(host, j=False, f=False):
             ipmi_do(host, True, "sol", "activate")
 
         s.close()
+
 
 def do_ping(hosts):
     nodes = ClusterShell.NodeSet.NodeSet(hosts)
