@@ -22,7 +22,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
 # images
  debootstrap, squashfs-tools,
 # p2p
- mktorrent
+ mktorrent,
+# build
+ cowbuilder
 Description: cluster administration tools
  Clara is a set of tools to help administering and installing clusters.
  .
@@ -33,3 +35,4 @@ Description: cluster administration tools
   images   Creates and updates the images of installation of a cluster.
   p2p      Makes torrent images and seeds them via BitTorrent.
   enc      Interact with encrypted files using configurable methods.
+  build    Builds Debian packages
