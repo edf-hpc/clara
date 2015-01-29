@@ -1,9 +1,9 @@
-clara (0.20150128) UNRELEASED; urgency=low
+clara (0.20150128) calibre8; urgency=low
 
-  * 'clara build': new plugin
+  * 'clara build': new plugin. Fix #51.
   * 'clara ipmi': add conmand port in the config.ini
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 28 Jan 2015 09:41:31 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 29 Jan 2015 12:19:32 +0100
 
 clara (0.20150127) calibre8; urgency=low
 
