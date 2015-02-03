@@ -156,7 +156,7 @@ def do_connect(host, j=False, f=False):
         ipmi_do(host, True, "sol", "activate")
     else:
         conmand = get_from_config("ipmi", "conmand")
-        port = get_from_config("ipmi", "port")
+        port = int(get_from_config("ipmi", "port"))
         if (len(conmand) == 0):
             clara_exit("You must set the paramenter 'conmand' in the configuration file")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

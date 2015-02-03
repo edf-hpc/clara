@@ -1,3 +1,9 @@
+clara (0.20150203) UNRELEASED; urgency=low
+
+  * 'clara ipmi': convert port string in an integer.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 03 Feb 2015 10:00:44 +0100
+
 clara (0.20150128) calibre8; urgency=low
 
   * 'clara build': new plugin. Fix #51.
