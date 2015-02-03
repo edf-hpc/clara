@@ -139,8 +139,11 @@ def main():
         area = "main"
         if "non-free" in line:
             area = "non-free"
-        # TODO: case for libraries not covered here!
-        package_dir = package_name[0] + "/" + package_name
+
+        if package_name.startswith("lib"):
+            package_dir = package_name[0:4] + "/" + package_name
+        else:
+            package_dir = package_name[0] + "/" + package_name
 
         # Note this is the path from the *origin* dist
         repo_path_pool = get_from_config("build", "repo_path_pool", origin_dist)

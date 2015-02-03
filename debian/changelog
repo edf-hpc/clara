@@ -1,8 +1,10 @@
-clara (0.20150203) UNRELEASED; urgency=low
+clara (0.20150204) UNRELEASED; urgency=low
 
   * 'clara ipmi': convert port string in an integer.
+  * 'clara build': set the proper directory when looking for a library source
+    in the reprepro pool.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 03 Feb 2015 10:00:44 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 03 Feb 2015 11:12:49 +0100
 
 clara (0.20150128) calibre8; urgency=low
 
