@@ -1,3 +1,9 @@
+clara (0.20150209) UNRELEASED; urgency=low
+
+  * 'clara enc': do not log passwords.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 09 Feb 2015 13:24:41 +0100
+
 clara (0.20150204) calibre8; urgency=low
 
   * 'clara ipmi': convert port string in an integer.

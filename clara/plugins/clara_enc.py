@@ -80,13 +80,14 @@ def do(op, origfile):
     elif op == "encrypt":
         cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
 
-    logging.debug("enc/do: {0}".format(" ".join(cmd)))
+    cmd_log = cmd[:-1] + ["Password"]
+    logging.debug("enc/do: {0}".format(" ".join(cmd_log)))
 
     retcode = subprocess.call(cmd)
 
     if retcode != 0:
         f.close()
-        clara_exit('Command failed {0}'.format(" ".join(cmd)))
+        clara_exit('Command failed {0}'.format(" ".join(cmd_log)))
     else:
         return f
 
