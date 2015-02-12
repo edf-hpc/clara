@@ -1,6 +1,7 @@
 clara (0.20150209) UNRELEASED; urgency=low
 
   * 'clara enc': do not log passwords.
+  * 'clara build': fix handling of native versions.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 09 Feb 2015 13:24:41 +0100
 

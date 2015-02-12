@@ -95,7 +95,10 @@ def main():
 
         # Find out versioning
         name, full_version = os.path.basename(dsc_file)[:-4].split("_")
-        upstream_version, debian_version = full_version.rsplit("-", 1)
+        if "-" in full_version:
+            upstream_version, debian_version = full_version.rsplit("-", 1)
+        else:   # Binary package
+            upstream_version, debian_version = full_version, ""
 
         print_info(name, full_version, upstream_version, debian_version)
 
@@ -196,7 +199,11 @@ def main():
 
     # Recreate the source package
     os.chdir(work_dir)
-    cmd = ["dpkg-source", "-b", path]
+    if "-" in new_full_version:
+        cmd = ["dpkg-source", "-b", path]
+    else:   # Native
+        cmd = ["dpkg-source", "-b", "{0}-{1}".format(name, new_full_version)]
+
     logging.debug(" ".join(cmd))
     p = subprocess.call(cmd)
 
