@@ -38,7 +38,7 @@ Creates, updates and synchronizes local Debian repositories.
 Usage:
     clara repo key
     clara repo init <dist>
-    clara repo sync (all|<suite>...|--all-suites=<dist>)
+    clara repo sync (all|<dist> [<suites>...])
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
     clara repo del <dist> <name>...
     clara repo list <dist>
@@ -146,7 +146,7 @@ DscIndices: Sources Release . .gz .bz2
              'export', dist])
 
 
-def do_sync(input_suites):
+def do_sync(selected_dist, input_suites=[]):
     info_suites = {}  # Contains all the information
     suite_dist = {}  # Contains the pairs suite - webdir
     all_suites = []  # Contains a list with all the suites names
@@ -164,10 +164,10 @@ def do_sync(input_suites):
         info_suites[distribution] = tmp_info_suites
 
     suites = []
-    if input_suites == 'all':
+    if selected_dist == 'all':  # We sync everything
         suites = all_suites
     elif len(input_suites) == 0:  # We only sync suites related to the default distribution
-        suites = info_suites[dist].keys()
+        suites = info_suites[selected_dist].keys()
     else:  # If we select one or several suites, we check that are valid
         for s in input_suites:
             if s not in all_suites:
@@ -244,11 +244,8 @@ def main():
     elif dargs['sync']:
         if dargs['all']:
             do_sync('all')
-        elif dargs['--all-suites'] is not None:
-            dist = dargs['--all-suites']
-            do_sync([])
         else:
-            do_sync(dargs['<suite>'])
+            do_sync(dargs['<dist>'], dargs['<suites>'])
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):

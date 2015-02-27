@@ -1,3 +1,9 @@
+clara (0.20150227) UNRELEASED; urgency=low
+
+  * 'clara repo sync': rework syntax. Fix #53.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 27 Feb 2015 16:16:22 +0100
+
 clara (0.20150212) calibre8; urgency=low
 
   * 'clara enc': do not log passwords.
