@@ -99,14 +99,19 @@ def main():
     seeders = get_from_config("p2p", "seeders", dist)
 
     if dargs['status']:
-        clush(trackers, "service opentracker status")
-        clush(seeders, "service ctorrent status")
+        init_status = get_from_config("p2p", "init_status")
+        clush(trackers, init_status.format("opentracker"))
+        clush(seeders, init_status.format("ctorrent"))
+        print init_status.format("opentracker")
+        print init_status.format("ctorrent")
     elif dargs['restart']:
-        clush(seeders, "service ctorrent stop")
-        clush(trackers, "service opentracker stop")
+        init_stop = get_from_config("p2p", "init_stop")
+        clush(seeders, init_stop.format("ctorrent"))
+        clush(trackers, init_stop.format("opentracker"))
         time.sleep(1)
-        clush(trackers, "service opentracker start")
-        clush(seeders, "service ctorrent start")
+        init_start = get_from_config("p2p", "init_start")
+        clush(trackers, init_start.format("opentracker"))
+        clush(seeders, init_start.format("ctorrent"))
     elif dargs['mktorrent']:
         mktorrent(dargs['--image'])
 

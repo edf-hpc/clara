@@ -1,8 +1,11 @@
-clara (0.20150227) UNRELEASED; urgency=low
+clara (0.20150302) UNRELEASED; urgency=low
 
   * 'clara repo sync': rework syntax. Fix #53.
+  * 'clara p2p status|restart': allow to configure in config.ini the string
+     format to check the status, stop and start the service. This allows
+     to use systemctl (systemd) or service (system V).
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 27 Feb 2015 16:16:22 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Mon, 02 Mar 2015 15:45:05 +0100
 
 clara (0.20150212) calibre8; urgency=low
 
