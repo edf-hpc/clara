@@ -8,7 +8,7 @@ clara-repo - creates, updates and synchronizes local Debian repositories
 
     clara repo key
     clara repo init <dist>
-    clara repo sync (all|<suite>...|--all-suites=<dist>)
+    clara repo sync (all|<dist> [<suites>...])
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
     clara repo del <dist> <name>...
     clara repo list <dist>
@@ -38,11 +38,11 @@ of remote Debian repositories locally.
         Create the initial configuration for reprepro for our local repository and makes
         the first export.
 
-    clara repo sync (all|<suite>...|--all-suites=<dist>)
+    clara repo sync (all|<dist> [<suites>...])
 
         Mirror locally a Debian suite. We can choose a single suite such as wheezy,
         wheezy-backports, calibre8, etc; we can choose all the suites with the parameter
-        'all' or just all the suites used by a distribution with --all-suites=<dist>.
+        'all' or just all the suites used by a distribution.
 
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
 
@@ -64,9 +64,13 @@ This distribution in <dist> must be listed in the field "allowed_distributions" 
 
 # EXAMPLES
 
+To mirror locally all the suites from calibre8:
+
+    clara repo sync calibre8
+
 To mirror locally Debian backports for Wheezy:
 
-    clara repo sync wheezy-backports
+    clara repo sync calibre8 wheezy-backports
 
 To create a local repository and add packages to it:
 
