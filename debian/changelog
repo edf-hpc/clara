@@ -1,4 +1,4 @@
-clara (0.20150310) UNRELEASED; urgency=low
+clara (0.20150310) calibre8; urgency=low
 
   * 'clara repo sync': rework syntax. Fix #53.
   * 'clara p2p status|restart': allow to configure in config.ini the string
@@ -6,7 +6,7 @@ clara (0.20150310) UNRELEASED; urgency=low
      to use systemctl (systemd) or service (system V).
   * Re-add and update bash-completion. Fix #37.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 10 Mar 2015 14:24:21 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 10 Mar 2015 15:45:49 +0100
 
 clara (0.20150212) calibre8; urgency=low
 
