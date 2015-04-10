@@ -126,7 +126,7 @@ def getmac(hosts):
         lines = proc.stdout.readlines()
         if (len(lines) < 14):
             clara_exit("The host {0} can't be reached".format(host))
-        full_mac = lines.split(":")[1].strip().upper()
+        full_mac = lines[14].split(":")[1].strip().upper()
         mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
                                                         full_mac[2:4],
                                                         full_mac[4:6],
