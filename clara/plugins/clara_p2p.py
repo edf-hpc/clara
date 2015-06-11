@@ -67,6 +67,9 @@ def mktorrent(image):
     trackers = get_from_config("p2p", "trackers", dist)
     trackers_port = get_from_config("p2p", "trackers_port", dist)
     trackers_schema = get_from_config("p2p", "trackers_schema", dist)
+    seeding_service = get_from_config("p2p", "seeding_service", dist)
+    init_stop = get_from_config("p2p", "init_stop", dist)
+    init_start = get_from_config("p2p", "init_start", dist)
 
     if not os.path.isfile(squashfs_file):
         clara_exit("The file {0} doesn't exist".format(squashfs_file))
@@ -74,15 +77,14 @@ def mktorrent(image):
     if os.path.isfile(torrent_file):
         os.remove(torrent_file)
 
-    clush(seeders, "service ctorrent stop")
+    clush(seeders, init_stop.format(seeding_service))
 
     announce = []
     for t in list(ClusterShell.NodeSet.NodeSet(trackers)):
         announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
     run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_file, squashfs_file])
 
-    clush(seeders, "service ctorrent start")
-
+    clush(seeders, init_start.format(seeding_service))
 
 def main():
     logging.debug(sys.argv)
@@ -98,18 +100,21 @@ def main():
     trackers = get_from_config("p2p", "trackers", dist)
     seeders = get_from_config("p2p", "seeders", dist)
 
+    tracking_service = get_from_config("p2p", "tracking_service", dist)
+    seeding_service = get_from_config("p2p", "seeding_service", dist)
+
     if dargs['status']:
         init_status = get_from_config("p2p", "init_status")
-        clush(trackers, init_status.format("opentracker"))
-        clush(seeders, init_status.format("ctorrent"))
+        clush(trackers, init_status.format(tracking_service))
+        clush(seeders, init_status.format(seeding_service))
     elif dargs['restart']:
         init_stop = get_from_config("p2p", "init_stop")
-        clush(seeders, init_stop.format("ctorrent"))
-        clush(trackers, init_stop.format("opentracker"))
+        clush(seeders, init_stop.format(seeding_service))
+        clush(trackers, init_stop.format(tracking_service))
         time.sleep(1)
         init_start = get_from_config("p2p", "init_start")
-        clush(trackers, init_start.format("opentracker"))
-        clush(seeders, init_start.format("ctorrent"))
+        clush(trackers, init_start.format(tracking_service))
+        clush(seeders, init_start.format(seeding_service))
     elif dargs['mktorrent']:
         mktorrent(dargs['--image'])
 
