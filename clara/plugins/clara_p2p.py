@@ -102,8 +102,6 @@ def main():
         init_status = get_from_config("p2p", "init_status")
         clush(trackers, init_status.format("opentracker"))
         clush(seeders, init_status.format("ctorrent"))
-        print init_status.format("opentracker")
-        print init_status.format("ctorrent")
     elif dargs['restart']:
         init_stop = get_from_config("p2p", "init_stop")
         clush(seeders, init_stop.format("ctorrent"))
