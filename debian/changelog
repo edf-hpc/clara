@@ -1,8 +1,10 @@
-clara (0.20150410) UNRELEASED; urgency=low
+clara (0.20150611) UNRELEASED; urgency=low
 
   * 'clara ipmi getmac': fix mac address parsing.
+  * setup.py: write the version number as a string in debian/version.
+    Thanks to P. LAMARE.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 10 Apr 2015 10:06:16 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 11 Jun 2015 10:41:43 +0200
 
 clara (0.20150310) calibre8; urgency=low
 

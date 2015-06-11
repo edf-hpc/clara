@@ -45,7 +45,7 @@ with open("debian/changelog", 'r') as fcl:
 VERSION = fl[fl.find("(")+1:fl.find(")")]
 
 with open("clara/version.py", 'w') as fwv:
-    fwv.write("__version__ = {0}".format(VERSION))
+    fwv.write("__version__ = '{0}'".format(VERSION))
 
 setup(name='Clara',
       version=VERSION,
