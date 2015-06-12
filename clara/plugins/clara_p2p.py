@@ -62,27 +62,34 @@ def mktorrent(image):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
         squashfs_file = image
-    torrent_file = squashfs_file + ".torrent"
     seeders = get_from_config("p2p", "seeders", dist)
-    trackers = get_from_config("p2p", "trackers", dist)
     trackers_port = get_from_config("p2p", "trackers_port", dist)
     trackers_schema = get_from_config("p2p", "trackers_schema", dist)
     seeding_service = get_from_config("p2p", "seeding_service", dist)
     init_stop = get_from_config("p2p", "init_stop", dist)
     init_start = get_from_config("p2p", "init_start", dist)
 
+    # trackers is a dictionary with pairs nodeset and torrent file
+    trackers = {}
+    for e in get_from_config("p2p", "trackers", dist).split(";"):
+        k, v = e.split(":")
+        trackers[k] = v
+
     if not os.path.isfile(squashfs_file):
         clara_exit("The file {0} doesn't exist".format(squashfs_file))
 
-    if os.path.isfile(torrent_file):
-        os.remove(torrent_file)
+    # Remove old torrent files
+    for f in trackers.values():
+        if os.path.isfile(f):
+            os.remove(f)
 
     clush(seeders, init_stop.format(seeding_service))
 
-    announce = []
-    for t in list(ClusterShell.NodeSet.NodeSet(trackers)):
-        announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
-    run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_file, squashfs_file])
+    for e in trackers.keys():
+        announce = []
+        for t in list(ClusterShell.NodeSet.NodeSet(e)):
+            announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
+        run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trackers[e], squashfs_file])
 
     clush(seeders, init_start.format(seeding_service))
 

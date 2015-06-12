@@ -1,9 +1,11 @@
-clara (0.20150611) UNRELEASED; urgency=low
+clara (0.20150612) UNRELEASED; urgency=low
 
   * 'clara ipmi getmac': fix mac address parsing.
   * setup.py: write the version number as a string in debian/version.
     Thanks to P. LAMARE.
   * Add configuration parameters for the tracking and seeding services.
+  * The configuration parameter 'trackers' contains now pairs of tracker servers
+    and the torrent files they should serve.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 11 Jun 2015 10:41:43 +0200
 
