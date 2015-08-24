@@ -49,6 +49,8 @@ Usage:
     clara ipmi immdhcp <hostlist>
     clara ipmi bios <hostlist>
     clara ipmi reset <hostlist>
+    clara ipmi sellist <hostlist>
+    clara ipmi selclear <hostlist>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
@@ -64,6 +66,8 @@ Alternative:
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
     clara ipmi <hostlist> reset
+    clara ipmi <hostlist> sellist
+    clara ipmi <hostlist> selclear
 """
 
 import errno
@@ -219,6 +223,10 @@ def main():
         ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "disk")
     elif dargs['reset']:
         ipmi_do(dargs['<hostlist>'], "mc", "reset", "cold")
+    elif dargs['sellist']:
+        ipmi_do(dargs['<hostlist>'], "sel", "list")
+    elif dargs['selclear']:
+        ipmi_do(dargs['<hostlist>'], "sel", "clear")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
 

@@ -249,6 +249,8 @@ automatically.
     clara ipmi immdhcp <hostlist>
     clara ipmi bios <hostlist>
     clara ipmi reset <hostlist>
+    clara ipmi sellist <hostlist>
+    clara ipmi selclear <hostlist>
     clara ipmi -h | --help
 
     clara ipmi <host> connect [-jf]
@@ -263,6 +265,8 @@ automatically.
     clara ipmi <hostlist> blink
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
+    clara ipmi <hostlist> sellist
+    clara ipmi <hostlist> selclear
     clara ipmi <hostlist> reset
 
 ### Options
@@ -323,6 +327,14 @@ Set selected ipmi interfaces to grab an IP via DHCP
     clara ipmi bios <hostlist>
 
 Make selected machines go directly into BIOS on next reboot
+
+    clara ipmi sellist <hostlist>
+
+Display the entire content of the System Event Log (SEL).
+
+    clara ipmi selclear <hostlist>
+
+Clear the contents of the System Event Log (SEL). It cannot be undone so be careful.
 
     clara ipmi reset <hostlist>
 

@@ -1,3 +1,9 @@
+clara (0.20150824) calibre8; urgency=medium
+
+  * 'clara ipmi': add commands sellist and selclear.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 25 Aug 2015 19:57:18 +0200
+
 clara (0.20150612) calibre8; urgency=low
 
   * 'clara ipmi getmac': fix mac address parsing.

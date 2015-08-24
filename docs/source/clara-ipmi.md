@@ -19,6 +19,8 @@ clara-ipmi - manages and get the status from the nodes of a cluster
     clara ipmi immdhcp <hostlist>
     clara ipmi bios <hostlist>
     clara ipmi reset <hostlist>
+    clara ipmi sellist <hostlist>
+    clara ipmi selclear <hostlist>
     clara ipmi -h | --help
 
     clara ipmi <host> connect [-jf]
@@ -33,6 +35,8 @@ clara-ipmi - manages and get the status from the nodes of a cluster
     clara ipmi <hostlist> blink
     clara ipmi <hostlist> immdhcp
     clara ipmi <hostlist> bios
+    clara ipmi <hostlist> sellist
+    clara ipmi <hostlist> selclear
     clara ipmi <hostlist> reset
 
 # DESCRIPTION
@@ -99,6 +103,14 @@ automatically.
     clara ipmi bios <hostlist>
 
         Make selected machines go directly into BIOS on next reboot
+
+    clara ipmi sellist <hostlist>
+
+        Display the entire content of the System Event Log (SEL).
+
+    clara ipmi selclear <hostlist>
+
+        Clear the contents of the System Event Log (SEL). It cannot be undone so be careful.
 
     clara ipmi reset <hostlist>
 
