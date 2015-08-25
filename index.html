@@ -43,17 +43,20 @@
 <a href="https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md">build</a>     builds Debian packages</li>
 </ul>
 
+<p>There is also a <a href="https://github.com/edf-hpc/clara/blob/master/docs/users_guide.md">user's guide</a>.</p>
+
 <hr>
 
-<p>% clara-repo(1)</p>
-
 <h1>
-<a id="name" class="anchor" href="#name" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+<a id="clara-repo1" class="anchor" href="#clara-repo1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-repo(1)</h1>
+
+<h2>
+<a id="name" class="anchor" href="#name" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
 
 <p>clara-repo - creates, updates and synchronizes local Debian repositories</p>
 
-<h1>
-<a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+<h2>
+<a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
 
 <pre><code>clara repo key
 clara repo init &lt;dist&gt;
@@ -72,15 +75,15 @@ clara repo -h | --help | help
 remove all the associated binaries
 </code></pre>
 
-<h1>
-<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+<h2>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
 
 <p><em>clara repo</em> offers simple commands to create a local Debian repository with reprepro and
 update, add and remove files from them. It also provides the possibility of making mirror
 of remote Debian repositories locally.</p>
 
-<h1>
-<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+<h2>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
 
 <pre><code>clara repo key
 
@@ -116,8 +119,8 @@ clara repo list &lt;dist&gt;
 
 <p>This distribution in  must be listed in the field "allowed_distributions" from the section [common].</p>
 
-<h1>
-<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+<h2>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
 
 <p>To mirror locally all the suites from calibre8:</p>
 
@@ -136,17 +139,23 @@ clara repo init calibre8
 clara repo add calibre8 mypackage_1-2.dsc
 </code></pre>
 
+<h2>
+<a id="see-also" class="anchor" href="#see-also" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-ipmi(1), clara-p2p(1), clara-slurm(1), clara-enc(1), clara-build(1)</p>
+
 <hr>
 
-<p>% clara-ipmi(1)</p>
-
 <h1>
-<a id="name-1" class="anchor" href="#name-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+<a id="clara-ipmi1" class="anchor" href="#clara-ipmi1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-ipmi(1)</h1>
+
+<h2>
+<a id="name-1" class="anchor" href="#name-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
 
 <p>clara-ipmi - manages and get the status from the nodes of a cluster</p>
 
-<h1>
-<a id="synopsis-1" class="anchor" href="#synopsis-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+<h2>
+<a id="synopsis-1" class="anchor" href="#synopsis-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
 
 <pre><code>clara ipmi connect [-jf] &lt;host&gt;
 clara ipmi deconnect &lt;hostlist&gt;
@@ -178,15 +187,15 @@ clara ipmi &lt;hostlist&gt; bios
 clara ipmi &lt;hostlist&gt; reset
 </code></pre>
 
-<h1>
-<a id="description-1" class="anchor" href="#description-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+<h2>
+<a id="description-1" class="anchor" href="#description-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
 
 <p><em>clara ipmi</em> offers a simplified interface of ipmitool, an utility for controlling
 IPMI-enabled devices. The username and password needed by ipmitool are handled
 automatically.</p>
 
-<h1>
-<a id="options-1" class="anchor" href="#options-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+<h2>
+<a id="options-1" class="anchor" href="#options-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
 
 <pre><code>clara ipmi connect [-jf] &lt;host&gt;
 
@@ -250,8 +259,8 @@ clara ipmi reset &lt;hostlist&gt;
     Reset the IMM device (cold reset)
 </code></pre>
 
-<h1>
-<a id="examples-1" class="anchor" href="#examples-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+<h2>
+<a id="examples-1" class="anchor" href="#examples-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
 
 <p>This command will ping all hosts nodes from node12 to n99:</p>
 
@@ -268,17 +277,25 @@ clara ipmi reset &lt;hostlist&gt;
 <pre><code>clara ipmi node13 status
 </code></pre>
 
+<p>TODO</p>
+
+<h2>
+<a id="see-also-1" class="anchor" href="#see-also-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1)</p>
+
 <hr>
 
-<p>% clara-slurm(1)</p>
-
 <h1>
-<a id="name-2" class="anchor" href="#name-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+<a id="clara-slurm1" class="anchor" href="#clara-slurm1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-slurm(1)</h1>
+
+<h2>
+<a id="name-2" class="anchor" href="#name-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
 
 <p>clara-slurm - performs tasks using SLURM's controller</p>
 
-<h1>
-<a id="synopsis-2" class="anchor" href="#synopsis-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+<h2>
+<a id="synopsis-2" class="anchor" href="#synopsis-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
 
 <pre><code>clara slurm health &lt;nodeset&gt;
 clara slurm resume &lt;nodeset&gt;
@@ -295,13 +312,13 @@ clara slurm -h | --help
 partition, reservation, block and submp.
 </code></pre>
 
-<h1>
-<a id="description-2" class="anchor" href="#description-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+<h2>
+<a id="description-2" class="anchor" href="#description-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
 
 <p><em>clara slurm</em> provides a simplified interface to the most useful commands from SLURM.</p>
 
-<h1>
-<a id="options-2" class="anchor" href="#options-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+<h2>
+<a id="options-2" class="anchor" href="#options-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
 
 <pre><code>clara slurm health &lt;nodeset&gt;
 
@@ -328,17 +345,299 @@ clara slurm &lt;cmd&gt; &lt;subject&gt; [&lt;op&gt;] [&lt;spec&gt;...]
     will warn you of not allowed combinations.
 </code></pre>
 
-<h1>
-<a id="examples-2" class="anchor" href="#examples-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+<h2>
+<a id="examples-2" class="anchor" href="#examples-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
 
 <p>Put the nodes node[3-6] down</p>
 
 <pre><code>clara slurm down node[3-6]
 </code></pre>
 
-<hr>
+<h2>
+<a id="see-also-2" class="anchor" href="#see-also-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-enc(1), clara-build(1)</p>
 
 <hr>
+
+<h1>
+<a id="clara-images1" class="anchor" href="#clara-images1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-images(1)</h1>
+
+<h2>
+<a id="name-3" class="anchor" href="#name-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
+
+<p>clara-images - creates and updates the images of installation of a cluster</p>
+
+<h2>
+<a id="synopsis-3" class="anchor" href="#synopsis-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
+
+<pre><code>clara images create &lt;dist&gt; [&lt;image&gt;] [--keep-chroot-dir]
+clara images unpack ( &lt;dist&gt; | --image=&lt;path&gt; )
+clara images repack &lt;directory&gt; ( &lt;dist&gt; | --image=&lt;path&gt; )
+clara images edit &lt;dist&gt; [&lt;image&gt;]
+clara images initrd &lt;dist&gt; [--output=&lt;dirpath&gt;]
+clara images -h | --help | help
+</code></pre>
+
+<p>Options:</p>
+
+<pre><code>--image=&lt;path&gt;  Path to squashfs image.
+</code></pre>
+
+<h2>
+<a id="description-3" class="anchor" href="#description-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
+
+<p><em>clara images</em> makes easy to create and update the images to boot the nodes of a cluster.</p>
+
+<h2>
+<a id="options-3" class="anchor" href="#options-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
+
+<pre><code>clara images create &lt;dist&gt; [&lt;image&gt;] [--keep-chroot-dir]
+
+    Create a new squashfs image to use as operating system on the cluster nodes.
+    By default it unpacks the default image but the user can provide the path to a
+    different file.
+    The option --keep-chroot-dir allows to create the chroot used to generate
+    the image. By default, this chroot directory is deleted.
+
+clara images unpack ( &lt;dist&gt; | --image=&lt;path&gt; )
+
+    Unpack the squashfs file. By default it unpacks the default image but the user can
+    provide the path to a different file.
+
+clara images repack &lt;directory&gt; ( &lt;dist&gt; | --image=&lt;path&gt; )
+
+    Repack the squashfs file providing the image.  By default it repacks and replace
+    the default image but the user can choose to provide a path to save it with a different
+    name.
+
+clara images edit &lt;dist&gt; [&lt;image&gt;]
+
+    Unpacks the image for editing, spawns a bash to make the changes and repacks
+    the image again after. By default it edits the default image but the user can
+    provide the path to a different image.
+
+clara images initrd &lt;dist&gt; [--output=&lt;dirpath&gt;]
+
+    Create a new initrd image to boot the cluster nodes.
+    The user can use the --output option to select a directory different to the default
+    one to save the generated initrd.
+</code></pre>
+
+<p>This distribution in  must be listed in the field "allowed_distributions" from the section [common].</p>
+
+<h2>
+<a id="examples-3" class="anchor" href="#examples-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
+
+<p>To create a image for calibre8 and store it in /tmp/c8.squashfs</p>
+
+<pre><code>clara images create calibre8 /tmp/c8.squashfs
+</code></pre>
+
+<p>To edit the image</p>
+
+<pre><code>clara images edit calibre8
+</code></pre>
+
+<p>To create a initrd for the default distribution image:</p>
+
+<pre><code> clara images initrd calibre8
+</code></pre>
+
+<h2>
+<a id="see-also-3" class="anchor" href="#see-also-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1)</p>
+
+<hr>
+
+<h1>
+<a id="clara-p2p1" class="anchor" href="#clara-p2p1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-p2p(1)</h1>
+
+<h2>
+<a id="name-4" class="anchor" href="#name-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
+
+<p>clara-p2p - makes torrent images and seeds them via BitTorrent</p>
+
+<h2>
+<a id="synopsis-4" class="anchor" href="#synopsis-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
+
+<pre><code>clara p2p status
+clara p2p restart
+clara p2p mktorrent &lt;dist&gt; [--image=&lt;path&gt;]
+clara p2p -h | --help | help
+</code></pre>
+
+<h2>
+<a id="description-4" class="anchor" href="#description-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
+
+<p><em>clara p2p</em> eases creating torrent files for the cluster installation images
+and controlling the seeders and trackers of the cluster to see the new torrent file.</p>
+
+<h2>
+<a id="options-4" class="anchor" href="#options-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
+
+<pre><code>clara p2p status
+
+    Check the status of the BitTorrent trackers and seeders
+
+clara p2p restart
+
+    Restart the BitTorrent trackers and seeders
+
+clara p2p mktorrent &lt;dist&gt; [--image=&lt;path&gt;]
+
+    Create a new torrent file for the squashfs image and restart trackers 
+    and initial seeders. The distribution in &lt;dist&gt; must be listed in the
+    field "allowed_distributions" from the section [common]
+</code></pre>
+
+<h2>
+<a id="examples-4" class="anchor" href="#examples-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
+
+<p>To create a torrent file for the images placed at /tmp/calibre9.squashfs</p>
+
+<pre><code>clara p2p mktorrent calibre9 --image=/tmp/calibre9.squashfs
+</code></pre>
+
+<h2>
+<a id="see-also-4" class="anchor" href="#see-also-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-ipmi(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1)</p>
+
+<hr>
+
+<h1>
+<a id="clara-enc1" class="anchor" href="#clara-enc1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-enc(1)</h1>
+
+<h2>
+<a id="name-5" class="anchor" href="#name-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
+
+<p>clara-enc - interact with encrypted files using configurable methods</p>
+
+<h2>
+<a id="synopsis-5" class="anchor" href="#synopsis-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
+
+<pre><code>clara enc show &lt;file&gt;
+clara enc edit &lt;file&gt;
+clara enc encode &lt;file&gt;
+clara enc decode &lt;file&gt;
+clara enc -h | --help | help
+</code></pre>
+
+<h2>
+<a id="description-5" class="anchor" href="#description-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
+
+<p><em>clara enc</em> shows, edits and creates encrypted files using configurable methods
+to get the encryption key and encrypt/decrypt files.</p>
+
+<h2>
+<a id="options-5" class="anchor" href="#options-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
+
+<pre><code>clara enc show &lt;file&gt;
+
+    Shows a encoded filed in plain in the terminal. It'll use $PAGER to show it.
+
+clara enc edit &lt;file&gt;
+
+    Allows to create or edit a file that will be automatically encoded after closing
+    the editor and the copy in plain text will be erased. It'll use $EDITOR to edit it.
+
+clara enc encode &lt;file&gt;
+
+    It will encode a file. The resulting file will have the same name than
+    the original appendix the suffix ".enc"
+
+clara enc decode &lt;file&gt;
+
+    It will decode a encrypted file. The encrypted file must have the suffix ".enc"
+    in its name. The resulting file will have the same name than the original without
+    the suffix ".enc"
+</code></pre>
+
+<h2>
+<a id="examples-5" class="anchor" href="#examples-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
+
+<p>To create an encrypted file in /data/mydata.enc:</p>
+
+<pre><code>clara enc edit /data/mydata.enc
+</code></pre>
+
+<p>To see quickly the contents of an encrypted file:</p>
+
+<pre><code>clara enc show this_is_my_file.enc
+</code></pre>
+
+<p>To create a plain text copy of an encrypted file:</p>
+
+<pre><code> clara en decode this_is_my_file.enc
+</code></pre>
+
+<p>This will create an unencrypted file "this_is_my_file"</p>
+
+<h2>
+<a id="see-also-5" class="anchor" href="#see-also-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-ipmi(1), clara-repo(1), clara-slurm(1), clara-p2p(1), clara-build(1)</p>
+
+<hr>
+
+<h1>
+<a id="clara-build-1" class="anchor" href="#clara-build-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>clara-build (1)</h1>
+
+<h2>
+<a id="name-6" class="anchor" href="#name-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h2>
+
+<p>clara-build - builds Debian packages</p>
+
+<h2>
+<a id="synopsis-6" class="anchor" href="#synopsis-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h2>
+
+<pre><code>clara build source &lt;dist&gt; &lt;dsc_file&gt;
+clara build repo &lt;dist&gt; &lt;origin_dist&gt; &lt;package_name&gt;
+clara build -h | --help | help
+</code></pre>
+
+<h2>
+<a id="description-6" class="anchor" href="#description-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
+
+<p><em>clara build</em> allows to build packages for any of the custom distributions
+and also rebuild a package that's already in the local repository of another
+custom distribution.
+This plugin requires <em>cowbuilder</em> installed and configured.</p>
+
+<h2>
+<a id="options-6" class="anchor" href="#options-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h2>
+
+<pre><code>clara build source &lt;dist&gt; &lt;dsc_file&gt; 
+
+    Build a source package targetting the distro indicated.
+
+clara build repo &lt;dist&gt; &lt;origin_dist&gt; &lt;package_name&gt;
+
+    Rebuilds a package from the local repository of the "origin_dist"
+    for the distro indicated. The repository must contain the source package
+    of the package we want to rebuild.
+</code></pre>
+
+<h2>
+<a id="examples-6" class="anchor" href="#examples-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h2>
+
+<p>To build the source package of calibre-hpc for calibre8 that is at /tmp/calibre-hpc_1.2.dsc</p>
+
+<pre><code>clara build calibre8 /tmp/calibre-hpc_1.2.dsc
+</code></pre>
+
+<p>To rebuild the same package for calibre9 using the package in the local repository
+of calibre8:</p>
+
+<pre><code>clara build calibre8 calibre9 calibre-hpc
+</code></pre>
+
+<h2>
+<a id="see-also-6" class="anchor" href="#see-also-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEE ALSO</h2>
+
+<p>clara(1), clara-images(1), clara-ipmi(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-p2p(1)</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/edf-hpc/clara">Clara</a> is maintained by <a href="https://github.com/edf-hpc">edf-hpc</a>.</span>
