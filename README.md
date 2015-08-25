@@ -12,4 +12,4 @@ Clara provides the following plugins:
 * [enc](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-enc.md)     interact with encrypted files using configurable methods
 * [build](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md)     builds Debian packages
 
-There is also a [user's guide](https://github.com/edf-hpc/clara/blob/master/docs/users_guide.md).
+Read the full [user's guide](http://edf-hpc.github.io/clara/).
