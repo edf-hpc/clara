@@ -43,7 +43,302 @@
 <a href="https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md">build</a>     builds Debian packages</li>
 </ul>
 
-<p>There is also a <a href="https://github.com/edf-hpc/clara/blob/master/docs/users_guide.md">user's guide</a>.</p>
+<hr>
+
+<p>% clara-repo(1)</p>
+
+<h1>
+<a id="name" class="anchor" href="#name" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+
+<p>clara-repo - creates, updates and synchronizes local Debian repositories</p>
+
+<h1>
+<a id="synopsis" class="anchor" href="#synopsis" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+
+<pre><code>clara repo key
+clara repo init &lt;dist&gt;
+clara repo sync (all|&lt;dist&gt; [&lt;suites&gt;...])
+clara repo add &lt;dist&gt; &lt;file&gt;... [--reprepro-flags="list of flags"...]
+clara repo del &lt;dist&gt; &lt;name&gt;...
+clara repo list &lt;dist&gt;
+clara repo -h | --help | help
+</code></pre>
+
+<p>Options:</p>
+
+<pre><code>&lt;file&gt; can be one or more *.deb binaries, *.changes files or *.dsc files.
+
+&lt;name&gt; is the package to remove, if the package is a source name, it'll
+remove all the associated binaries
+</code></pre>
+
+<h1>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+
+<p><em>clara repo</em> offers simple commands to create a local Debian repository with reprepro and
+update, add and remove files from them. It also provides the possibility of making mirror
+of remote Debian repositories locally.</p>
+
+<h1>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+
+<pre><code>clara repo key
+
+    Install the secret GPG key to use in the repository.
+
+clara repo init &lt;dist&gt;
+
+    Create the initial configuration for reprepro for our local repository and makes
+    the first export.
+
+clara repo sync (all|&lt;dist&gt; [&lt;suites&gt;...])
+
+    Mirror locally a Debian suite. We can choose a single suite such as wheezy,
+    wheezy-backports, calibre8, etc; we can choose all the suites with the parameter
+    'all' or just all the suites used by a distribution.
+
+clara repo add &lt;dist&gt; &lt;file&gt;... [--reprepro-flags="list of flags"...]
+
+    Add packages to the local repository.
+    &lt;file&gt; can be one or more *.deb binaries, *.changes files or *.dsc files.
+    For the --reprepro-flags, check the documentation of reprepro.
+
+clara repo del &lt;dist&gt; &lt;name&gt;...
+
+    Remove package to the local repository.
+    &lt;name&gt; is the package to remove, if the package is a source name, it'll also
+    remove all the associated binaries.
+
+clara repo list &lt;dist&gt;
+
+    Lists all contents of the repository.
+</code></pre>
+
+<p>This distribution in  must be listed in the field "allowed_distributions" from the section [common].</p>
+
+<h1>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+
+<p>To mirror locally all the suites from calibre8:</p>
+
+<pre><code>clara repo sync calibre8
+</code></pre>
+
+<p>To mirror locally Debian backports for Wheezy:</p>
+
+<pre><code>clara repo sync calibre8 wheezy-backports
+</code></pre>
+
+<p>To create a local repository and add packages to it:</p>
+
+<pre><code>clara repo key
+clara repo init calibre8
+clara repo add calibre8 mypackage_1-2.dsc
+</code></pre>
+
+<hr>
+
+<p>% clara-ipmi(1)</p>
+
+<h1>
+<a id="name-1" class="anchor" href="#name-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+
+<p>clara-ipmi - manages and get the status from the nodes of a cluster</p>
+
+<h1>
+<a id="synopsis-1" class="anchor" href="#synopsis-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+
+<pre><code>clara ipmi connect [-jf] &lt;host&gt;
+clara ipmi deconnect &lt;hostlist&gt;
+clara ipmi (on|off|reboot) &lt;hostlist&gt;
+clara ipmi status &lt;hostlist&gt;
+clara ipmi setpwd &lt;hostlist&gt;
+clara ipmi getmac &lt;hostlist&gt;
+clara ipmi pxe &lt;hostlist&gt;
+clara ipmi disk &lt;hostlist&gt;
+clara ipmi ping &lt;hostlist&gt;
+clara ipmi blink &lt;hostlist&gt;
+clara ipmi immdhcp &lt;hostlist&gt;
+clara ipmi bios &lt;hostlist&gt;
+clara ipmi reset &lt;hostlist&gt;
+clara ipmi -h | --help
+
+clara ipmi &lt;host&gt; connect [-jf]
+clara ipmi &lt;hostlist&gt; deconnect
+clara ipmi &lt;hostlist&gt; (on|off|reboot)
+clara ipmi &lt;hostlist&gt; status
+clara ipmi &lt;hostlist&gt; setpwd
+clara ipmi &lt;hostlist&gt; getmac
+clara ipmi &lt;hostlist&gt; pxe
+clara ipmi &lt;hostlist&gt; disk
+clara ipmi &lt;hostlist&gt; ping
+clara ipmi &lt;hostlist&gt; blink
+clara ipmi &lt;hostlist&gt; immdhcp
+clara ipmi &lt;hostlist&gt; bios
+clara ipmi &lt;hostlist&gt; reset
+</code></pre>
+
+<h1>
+<a id="description-1" class="anchor" href="#description-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+
+<p><em>clara ipmi</em> offers a simplified interface of ipmitool, an utility for controlling
+IPMI-enabled devices. The username and password needed by ipmitool are handled
+automatically.</p>
+
+<h1>
+<a id="options-1" class="anchor" href="#options-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+
+<pre><code>clara ipmi connect [-jf] &lt;host&gt;
+
+    Connect to IMM serial console, including video, keyboard and mouse controlling
+    The flag -j joins the connection and the flag -f forces it.
+
+clara ipmi deconnect &lt;host&gt;
+
+    Deconnect from a IMM serial console
+
+clara ipmi on &lt;hostlist&gt;
+
+    Power up chassis
+
+clara ipmi off &lt;hostlist&gt;
+
+    Power down chassis into soft off. WARNING: it does do a clean shutdown of the OS.
+
+clara ipmi reboot &lt;hostlist&gt;
+
+    This command will perform a hard reset
+
+clara ipmi status &lt;hostlist&gt;
+
+    Get target node power status using the IMM device
+
+clara ipmi setpwd &lt;hostlist&gt;
+
+    Set up IMM user id/password on a new device
+
+clara ipmi getmac &lt;hostlist&gt;
+
+    Get node MAC addresses using the IMM device
+
+clara ipmi pxe &lt;hostlist&gt;
+
+    Use IMM to perform a network boot on the next reboot
+
+clara ipmi disk &lt;hostlist&gt;
+
+    Use IMM to perform a disk boot on the next reboot
+
+clara ipmi ping &lt;hostlist&gt;
+
+    Use fping to check status of the machines
+
+clara ipmi blink &lt;hostlist&gt;
+
+    Make chassis blink to help on-site admins to identify the machine
+
+clara ipmi immdhcp &lt;hostlist&gt;
+
+    Set selected ipmi interfaces to grab an IP via DHCP
+
+clara ipmi bios &lt;hostlist&gt;
+
+    Make selected machines go directly into BIOS on next reboot
+
+clara ipmi reset &lt;hostlist&gt;
+
+    Reset the IMM device (cold reset)
+</code></pre>
+
+<h1>
+<a id="examples-1" class="anchor" href="#examples-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+
+<p>This command will ping all hosts nodes from node12 to n99:</p>
+
+<pre><code>clara ipmi ping node[12-99]
+</code></pre>
+
+<p>To check the status from node13:</p>
+
+<pre><code>clara ipmi status node13
+</code></pre>
+
+<p>Or also:</p>
+
+<pre><code>clara ipmi node13 status
+</code></pre>
+
+<hr>
+
+<p>% clara-slurm(1)</p>
+
+<h1>
+<a id="name-2" class="anchor" href="#name-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAME</h1>
+
+<p>clara-slurm - performs tasks using SLURM's controller</p>
+
+<h1>
+<a id="synopsis-2" class="anchor" href="#synopsis-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+
+<pre><code>clara slurm health &lt;nodeset&gt;
+clara slurm resume &lt;nodeset&gt;
+clara slurm drain [&lt;nodeset&gt;] [&lt;reason&gt;...]
+clara slurm down [&lt;nodeset&gt;]
+clara slurm &lt;cmd&gt; &lt;subject&gt; [&lt;op&gt;] [&lt;spec&gt;...]
+clara slurm -h | --help
+</code></pre>
+
+<p>Options:
+     is one of the following ones: show, create, update and delete.</p>
+
+<pre><code>&lt;cmd&gt; is one of the following ones: job, node, steps, frontend,
+partition, reservation, block and submp.
+</code></pre>
+
+<h1>
+<a id="description-2" class="anchor" href="#description-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+
+<p><em>clara slurm</em> provides a simplified interface to the most useful commands from SLURM.</p>
+
+<h1>
+<a id="options-2" class="anchor" href="#options-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTIONS</h1>
+
+<pre><code>clara slurm health &lt;nodeset&gt;
+
+    Show nodes' health
+
+clara slurm resume &lt;nodeset&gt;
+
+    Resume the nodes.
+
+clara slurm drain [&lt;nodeset&gt;] [&lt;reason&gt;...]
+
+    Shows drained nodes and reason why they have been drained, when used without arguments.
+    When it is given a nodeset, it drains the specified nodes.
+
+clara slurm down [&lt;nodeset&gt;]
+
+    Shows nodes down when used without arguments.
+    When it is given a nodeset, it puts down the specified nodes.
+
+clara slurm &lt;cmd&gt; &lt;subject&gt; [&lt;op&gt;] [&lt;spec&gt;...]
+
+    Simplified interface for scontrol.
+    Not all the &lt;op&gt; options are compatible with any &lt;cmd&gt; option but clara 
+    will warn you of not allowed combinations.
+</code></pre>
+
+<h1>
+<a id="examples-2" class="anchor" href="#examples-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>EXAMPLES</h1>
+
+<p>Put the nodes node[3-6] down</p>
+
+<pre><code>clara slurm down node[3-6]
+</code></pre>
+
+<hr>
+
+<hr>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/edf-hpc/clara">Clara</a> is maintained by <a href="https://github.com/edf-hpc">edf-hpc</a>.</span>
