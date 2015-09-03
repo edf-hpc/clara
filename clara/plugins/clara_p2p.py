@@ -104,7 +104,11 @@ def main():
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
 
-    trackers = get_from_config("p2p", "trackers", dist)
+    trackers_dict = {}
+    for e in get_from_config("p2p", "trackers", dist).split(";"):
+        k, v = e.split(":")
+        trackers_dict[k] = v
+    trackers = ",".join(trackers_dict.keys())
     seeders = get_from_config("p2p", "seeders", dist)
 
     tracking_service = get_from_config("p2p", "tracking_service", dist)

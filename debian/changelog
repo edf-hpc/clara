@@ -1,3 +1,10 @@
+clara (0.20150903) calibre8; urgency=medium
+
+  * 'clara p2p': trackers needed to be update somewhere else after the
+    configuration updates to include torrent files. Fixed now.
+
+ -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Thu, 03 Sep 2015 11:09:25 +0200
+
 clara (0.20150825) calibre8; urgency=medium
 
   * 'clara ipmi': add commands sellist and selclear.
