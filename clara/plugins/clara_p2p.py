@@ -62,7 +62,6 @@ def mktorrent(image):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
         squashfs_file = image
-    seeders = get_from_config("p2p", "seeders", dist)
     trackers_port = get_from_config("p2p", "trackers_port", dist)
     trackers_schema = get_from_config("p2p", "trackers_schema", dist)
     seeding_service = get_from_config("p2p", "seeding_service", dist)
@@ -74,6 +73,13 @@ def mktorrent(image):
     for e in get_from_config("p2p", "trackers", dist).split(";"):
         k, v = e.split(":")
         trackers[k] = v
+
+    # seeders in the config file is a dictionary with pairs nodeset and torrent file
+    seeders_dict = {}
+    for e in get_from_config("p2p", "seeders", dist).split(";"):
+        k, v = e.split(":")
+        seeders_dict[k] = v
+    seeders = ",".join(seeders_dict.keys())
 
     if not os.path.isfile(squashfs_file):
         clara_exit("The file {0} doesn't exist".format(squashfs_file))
@@ -109,7 +115,12 @@ def main():
         k, v = e.split(":")
         trackers_dict[k] = v
     trackers = ",".join(trackers_dict.keys())
-    seeders = get_from_config("p2p", "seeders", dist)
+
+    seeders_dict = {}
+    for e in get_from_config("p2p", "seeders", dist).split(";"):
+        k, v = e.split(":")
+        seeders_dict[k] = v
+    seeders = ",".join(seeders_dict.keys())
 
     tracking_service = get_from_config("p2p", "tracking_service", dist)
     seeding_service = get_from_config("p2p", "seeding_service", dist)
