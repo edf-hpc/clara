@@ -69,10 +69,10 @@ def copy_files_to_workdir(orig, dest):
 
 
 def print_info(name, full_version, upstream_version, debian_version):
-    logging.info("Extracting package source name: {}".format(name))
-    logging.info("Full version: {}".format(full_version))
-    logging.info("Upstream version: {}".format(upstream_version))
-    logging.info("Debian version: {}".format(debian_version))
+    logging.info("Extracting package source name: {0}".format(name))
+    logging.info("Full version: {0}".format(full_version))
+    logging.info("Upstream version: {0}".format(upstream_version))
+    logging.info("Debian version: {0}".format(debian_version))
 
 
 def main():
@@ -123,7 +123,7 @@ def main():
         lines_proc = proc.stdout.readlines()
         found_package = False
         for line in lines_proc:
-            if ("|source: {} ".format(package_name) in line):
+            if ("|source: {0} ".format(package_name) in line):
                 found_package = True
                 break
 

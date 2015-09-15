@@ -1,3 +1,9 @@
+clara (0.20150915) calibre9; urgency=medium
+
+  * Fix compatibility with Python2.6
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 15 Sep 2015 14:47:42 +0200
+
 clara (0.20150911) calibre9; urgency=medium
 
   * 'clara p2p': use the same format in the configuration file for 'seeders'
