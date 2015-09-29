@@ -1,3 +1,9 @@
+clara (0.20150929) UNRELEASED; urgency=medium
+
+  * 'clara ipmi': add the option -p to run the ipmi commands in parallel.
+
+ -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Tue, 29 Sep 2015 13:50:50 +0200
+
 clara (0.20150915) calibre9; urgency=medium
 
   * Fix compatibility with Python2.6

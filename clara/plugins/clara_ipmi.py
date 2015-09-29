@@ -37,40 +37,41 @@ Manages and get the status from the nodes of a cluster.
 
 Usage:
     clara ipmi connect [-jf] <host>
-    clara ipmi deconnect <hostlist>
-    clara ipmi (on|off|reboot) <hostlist>
-    clara ipmi status <hostlist>
-    clara ipmi setpwd <hostlist>
     clara ipmi getmac <hostlist>
-    clara ipmi pxe <hostlist>
-    clara ipmi disk <hostlist>
-    clara ipmi ping <hostlist>
-    clara ipmi blink <hostlist>
-    clara ipmi immdhcp <hostlist>
-    clara ipmi bios <hostlist>
-    clara ipmi reset <hostlist>
-    clara ipmi sellist <hostlist>
-    clara ipmi selclear <hostlist>
+    clara ipmi [-p] deconnect <hostlist>
+    clara ipmi [-p] (on|off|reboot) <hostlist>
+    clara ipmi [-p] status <hostlist>
+    clara ipmi [-p] setpwd <hostlist>
+    clara ipmi [-p] pxe <hostlist>
+    clara ipmi [-p] disk <hostlist>
+    clara ipmi [-p] ping <hostlist>
+    clara ipmi [-p] blink <hostlist>
+    clara ipmi [-p] immdhcp <hostlist>
+    clara ipmi [-p] bios <hostlist>
+    clara ipmi [-p] reset <hostlist>
+    clara ipmi [-p] sellist <hostlist>
+    clara ipmi [-p] selclear <hostlist>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
-    clara ipmi <hostlist> deconnect
-    clara ipmi <hostlist> (on|off|reboot)
-    clara ipmi <hostlist> status
-    clara ipmi <hostlist> setpwd
     clara ipmi <hostlist> getmac
-    clara ipmi <hostlist> pxe
-    clara ipmi <hostlist> disk
-    clara ipmi <hostlist> ping
-    clara ipmi <hostlist> blink
-    clara ipmi <hostlist> immdhcp
-    clara ipmi <hostlist> bios
-    clara ipmi <hostlist> reset
-    clara ipmi <hostlist> sellist
-    clara ipmi <hostlist> selclear
+    clara ipmi [-p] <hostlist> deconnect
+    clara ipmi [-p] <hostlist> (on|off|reboot)
+    clara ipmi [-p] <hostlist> status
+    clara ipmi [-p] <hostlist> setpwd
+    clara ipmi [-p] <hostlist> pxe
+    clara ipmi [-p] <hostlist> disk
+    clara ipmi [-p] <hostlist> ping
+    clara ipmi [-p] <hostlist> blink
+    clara ipmi [-p] <hostlist> immdhcp
+    clara ipmi [-p] <hostlist> bios
+    clara ipmi [-p] <hostlist> reset
+    clara ipmi [-p] <hostlist> sellist
+    clara ipmi [-p] <hostlist> selclear
 """
 
 import errno
+import multiprocessing
 import logging
 import os
 import re
@@ -92,6 +93,10 @@ def ipmi_do(hosts, pty=False, *cmd):
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+
+    if parallel:
+        jobs = []
+
     for host in nodeset:
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
@@ -104,9 +109,19 @@ def ipmi_do(hosts, pty=False, *cmd):
         logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
 
         if pty:
-            run(ipmitool)
+            if parallel:
+                jobs.append(multiprocessing.Process(target=run, args=(ipmitool,)))
+            else:
+                run(ipmitool)
         else:
-            os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
+            if parallel:
+                jobs.append(multiprocessing.Process(target=os.system, args=("echo -n '{0}: ' ;{1}".format(host, " ".join(ipmitool)),)))
+            else:
+                os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
+
+    if parallel:
+        for j in jobs:
+            j.start()
 
 
 def getmac(hosts):
@@ -191,6 +206,8 @@ def do_ping(hosts):
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
+    global parallel
+    parallel = dargs['-p']
 
     if dargs['connect']:
         do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])
