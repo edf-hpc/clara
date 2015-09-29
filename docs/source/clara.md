@@ -6,13 +6,15 @@ clara -  set of cluster administration tools
 
 # SYNOPSIS
 
-    clara [options] <command> [<args>...]
+    clara [-d | -dd] [options] <plugin> [<args>...]
+    clara help <plugin>
     clara [--version]
     clara [--help]
 
 Options:
 
-	-d				Enable debug output
+	-d			Enable debug output
+	-dd 			Enable debug output for third party applications
 	--config=<file>		Provide a configuration file
 
 # DESCRIPTION
@@ -24,12 +26,13 @@ as plugins that can be added or removed independently.
 
 Clara provides the following plugins:
 
-	repo		Creates, updates and synchronizes local Debian repositories.
-	ipmi		Manages and get the status from the nodes of a cluster.
-	slurm 		Performs tasks using SLURM's controller.
-	images		Creates and updates the images of installation of a cluster.
-	p2p			Makes torrent images and seeds them via BitTorrent.
-	enc			Interact with encrypted files using configurable methods.
+    repo     Creates, updates and synchronizes local Debian repositories.
+    ipmi     Manages and get the status from the nodes of a cluster.
+    slurm    Performs tasks using SLURM's controller.
+    images   Creates and updates the images of installation of a cluster.
+    p2p      Makes torrent images and seeds them via BitTorrent.
+    enc      Interact with encrypted files using configurable methods.
+    build    Builds Debian packages.
 
 # SEE ALSO
 

@@ -1,8 +1,9 @@
-clara (0.20150929) UNRELEASED; urgency=medium
+clara (0.20150929) calibre9; urgency=medium
 
   * 'clara ipmi': add the option -p to run the ipmi commands in parallel.
+  * Documentation updates.
 
- -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Tue, 29 Sep 2015 13:50:50 +0200
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 29 Sep 2015 15:07:50 +0200
 
 clara (0.20150915) calibre9; urgency=medium
 

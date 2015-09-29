@@ -66,13 +66,14 @@ example.
 
     # clara
 
-    Usage: clara [options] <plugin> [<args>...]
+    Usage: clara [-d | -dd] [options] <plugin> [<args>...]
            clara help <plugin>
            clara [--version]
            clara [--help]
 
     Options:
         -d                 Enable debug output
+        -dd                Enable debug output for third party applications
         --config=<file>    Provide a configuration file
 
     Clara provides the following plugins:
@@ -81,8 +82,8 @@ example.
        slurm    Performs tasks using SLURM's controller.
        images   Creates and updates the images of installation of a cluster.
        p2p      Makes torrent images and seeds them via BitTorrent.
-       enc      Interact with encrypted files using configurable methods
-       build    Builds Debian packages
+       enc      Interact with encrypted files using configurable methods.
+       build    Builds Debian packages.
 
     See 'clara help <plugin>' for detailed help on a plugin
     and 'clara <plugin> --help' for a quick list of options of a plugin.
