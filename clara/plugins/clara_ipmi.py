@@ -84,12 +84,8 @@ import docopt
 from clara.utils import clara_exit, run, get_from_config, value_from_file
 
 
-def ipmi_do(hosts, pty=False, *cmd):
-    command = []
-    if not isinstance(pty, bool):
-        command.append(pty)
-        pty = False
-    command.extend(cmd)
+def ipmi_do(hosts, *cmd):
+
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
@@ -101,14 +97,9 @@ def ipmi_do(hosts, pty=False, *cmd):
             host = "imm" + host
 
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!"]
-        ipmitool.extend(command)
-
+        ipmitool.extend(cmd)
         logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
-
-        if pty:
-            run(ipmitool)
-        else:
-            os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
+        os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
 
 
 def getmac(hosts):
@@ -151,6 +142,20 @@ def getmac(hosts):
                      "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
 
+def do_connect_ipmi(host):
+
+    imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
+    os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
+
+    pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+    if not pat.match(host):
+        host = "imm" + host
+
+    ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!", "sol", "activate"]
+    logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
+    run(ipmitool)
+
+
 def do_connect(host, j=False, f=False):
     nodeset = ClusterShell.NodeSet.NodeSet(host)
     if (len(nodeset) != 1):
@@ -159,7 +164,7 @@ def do_connect(host, j=False, f=False):
     pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
     if pat.match(host):
         logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
-        ipmi_do(host, True, "sol", "activate")
+        do_connect_ipmi(host)
     else:
         conmand = get_from_config("ipmi", "conmand")
         port = int(get_from_config("ipmi", "port"))
@@ -179,7 +184,7 @@ def do_connect(host, j=False, f=False):
             run(cmd)
         except socket.error as e:
             logging.debug("Conman not running. Message on connect: {0}" % e)
-            ipmi_do(host, True, "sol", "activate")
+            do_connect_ipmi(host)
 
         s.close()
 
