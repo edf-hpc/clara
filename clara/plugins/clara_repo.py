@@ -186,13 +186,15 @@ def do_sync(selected_dist, input_suites=[]):
 
         archs = get_from_config("repo", "archs", suite_dist[s])
         sections = get_from_config("repo", "sections", suite_dist[s])
+        method = get_from_config("repo", "method", suite_dist[s])
 
         extra = []
         if conf.ddebug:  # if extra debug for 3rd party software
             extra = ['--debug']
 
-        run(['debmirror'] + extra + ["--diff=none", "--method=http",
+        run(['debmirror'] + extra + ["--diff=none",
              "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
+             "--method={0}".format(method),
              "--arch={0}".format(archs),
              "--host={0}".format(dm_server),
              "--root={0}".format(dm_root),
