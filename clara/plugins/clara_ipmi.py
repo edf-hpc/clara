@@ -38,36 +38,36 @@ Manages and get the status from the nodes of a cluster.
 Usage:
     clara ipmi connect [-jf] <host>
     clara ipmi getmac <hostlist>
-    clara ipmi [-p] deconnect <hostlist>
-    clara ipmi [-p] (on|off|reboot) <hostlist>
-    clara ipmi [-p] status <hostlist>
-    clara ipmi [-p] setpwd <hostlist>
-    clara ipmi [-p] pxe <hostlist>
-    clara ipmi [-p] disk <hostlist>
-    clara ipmi [-p] ping <hostlist>
-    clara ipmi [-p] blink <hostlist>
-    clara ipmi [-p] immdhcp <hostlist>
-    clara ipmi [-p] bios <hostlist>
-    clara ipmi [-p] reset <hostlist>
-    clara ipmi [-p] sellist <hostlist>
-    clara ipmi [-p] selclear <hostlist>
+    clara ipmi [--p=<level>] deconnect <hostlist>
+    clara ipmi [--p=<level>] (on|off|reboot) <hostlist>
+    clara ipmi [--p=<level>] status <hostlist>
+    clara ipmi [--p=<level>] setpwd <hostlist>
+    clara ipmi [--p=<level>] pxe <hostlist>
+    clara ipmi [--p=<level>] disk <hostlist>
+    clara ipmi [--p=<level>] ping <hostlist>
+    clara ipmi [--p=<level>] blink <hostlist>
+    clara ipmi [--p=<level>] immdhcp <hostlist>
+    clara ipmi [--p=<level>] bios <hostlist>
+    clara ipmi [--p=<level>] reset <hostlist>
+    clara ipmi [--p=<level>] sellist <hostlist>
+    clara ipmi [--p=<level>] selclear <hostlist>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> getmac
-    clara ipmi [-p] <hostlist> deconnect
-    clara ipmi [-p] <hostlist> (on|off|reboot)
-    clara ipmi [-p] <hostlist> status
-    clara ipmi [-p] <hostlist> setpwd
-    clara ipmi [-p] <hostlist> pxe
-    clara ipmi [-p] <hostlist> disk
-    clara ipmi [-p] <hostlist> ping
-    clara ipmi [-p] <hostlist> blink
-    clara ipmi [-p] <hostlist> immdhcp
-    clara ipmi [-p] <hostlist> bios
-    clara ipmi [-p] <hostlist> reset
-    clara ipmi [-p] <hostlist> sellist
-    clara ipmi [-p] <hostlist> selclear
+    clara ipmi [--p=<level>] <hostlist> deconnect
+    clara ipmi [--p=<level>] <hostlist> (on|off|reboot)
+    clara ipmi [--p=<level>] <hostlist> status
+    clara ipmi [--p=<level>] <hostlist> setpwd
+    clara ipmi [--p=<level>] <hostlist> pxe
+    clara ipmi [--p=<level>] <hostlist> disk
+    clara ipmi [--p=<level>] <hostlist> ping
+    clara ipmi [--p=<level>] <hostlist> blink
+    clara ipmi [--p=<level>] <hostlist> immdhcp
+    clara ipmi [--p=<level>] <hostlist> bios
+    clara ipmi [--p=<level>] <hostlist> reset
+    clara ipmi [--p=<level>] <hostlist> sellist
+    clara ipmi [--p=<level>] <hostlist> selclear
 """
 
 import errno
@@ -84,11 +84,24 @@ import docopt
 from clara.utils import clara_exit, run, get_from_config, value_from_file
 
 
+def ipmi_run(cmd):
+
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        return "ERROR: " + e.output
+    else:
+        return "OK: " + output
+
+
 def ipmi_do(hosts, *cmd):
 
     imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+
+    p = multiprocessing.Pool(parallel)
+    result_map = {}
 
     for host in nodeset:
 
@@ -99,7 +112,13 @@ def ipmi_do(hosts, *cmd):
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!"]
         ipmitool.extend(cmd)
         logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
-        os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
+        result_map[host] = p.apply_async(ipmi_run, (ipmitool,))
+
+    p.close()
+    p.join()
+
+    for host, result in result_map.items():
+        print host, result.get()
 
 
 def getmac(hosts):
@@ -199,7 +218,10 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
     global parallel
-    parallel = dargs['-p']
+    if dargs['--p'] is not None and dargs['--p'].isdigit():
+        parallel = int(dargs['--p'])
+    else:
+        parallel = 1
 
     if dargs['connect']:
         do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])

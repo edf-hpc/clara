@@ -2,6 +2,8 @@ clara (0.20151116) UNRELEASED; urgency=medium
 
   * 'clara repo sync': add a configuration parameter to choose the method
     that debmirror should use to download files.
+  * 'clara ipmi': make do_ipmi fully parallel and allow to choose the level
+    of parallelism with --p=<level>.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 29 Sep 2015 15:07:50 +0200
 
