@@ -94,9 +94,6 @@ def ipmi_do(hosts, pty=False, *cmd):
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
 
-    if parallel:
-        jobs = []
-
     for host in nodeset:
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
@@ -109,19 +106,9 @@ def ipmi_do(hosts, pty=False, *cmd):
         logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
 
         if pty:
-            if parallel:
-                jobs.append(multiprocessing.Process(target=run, args=(ipmitool,)))
-            else:
-                run(ipmitool)
+            run(ipmitool)
         else:
-            if parallel:
-                jobs.append(multiprocessing.Process(target=os.system, args=("echo -n '{0}: ' ;{1}".format(host, " ".join(ipmitool)),)))
-            else:
-                os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
-
-    if parallel:
-        for j in jobs:
-            j.start()
+            os.system("echo -n '%s: ' ;" % host + " ".join(ipmitool))
 
 
 def getmac(hosts):
