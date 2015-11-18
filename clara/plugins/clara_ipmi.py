@@ -217,11 +217,17 @@ def do_ping(hosts):
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
+
     global parallel
+    # Read the value from the config file and use 1 if it hasn't been set
+    try:
+        parallel = get_from_config("ipmi", "parallel")
+    except:
+        logging.warning("parallel hasn't been set in config.ini, using 1 as value")
+        parallel = 1
+    # Use the value provided by the user in the command line
     if dargs['--p'] is not None and dargs['--p'].isdigit():
         parallel = int(dargs['--p'])
-    else:
-        parallel = 1
 
     if dargs['connect']:
         do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])
