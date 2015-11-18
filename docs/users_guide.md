@@ -238,37 +238,37 @@ automatically.
 ### Sypnosis
 
     clara ipmi connect [-jf] <host>
-    clara ipmi deconnect <hostlist>
-    clara ipmi (on|off|reboot) <hostlist>
-    clara ipmi status <hostlist>
-    clara ipmi setpwd <hostlist>
     clara ipmi getmac <hostlist>
-    clara ipmi pxe <hostlist>
-    clara ipmi disk <hostlist>
-    clara ipmi ping <hostlist>
-    clara ipmi blink <hostlist>
-    clara ipmi immdhcp <hostlist>
-    clara ipmi bios <hostlist>
-    clara ipmi reset <hostlist>
-    clara ipmi sellist <hostlist>
-    clara ipmi selclear <hostlist>
+    clara ipmi [--p=<level>] deconnect <hostlist>
+    clara ipmi [--p=<level>] (on|off|reboot) <hostlist>
+    clara ipmi [--p=<level>] status <hostlist>
+    clara ipmi [--p=<level>] setpwd <hostlist>
+    clara ipmi [--p=<level>] pxe <hostlist>
+    clara ipmi [--p=<level>] disk <hostlist>
+    clara ipmi [--p=<level>] ping <hostlist>
+    clara ipmi [--p=<level>] blink <hostlist>
+    clara ipmi [--p=<level>] immdhcp <hostlist>
+    clara ipmi [--p=<level>] bios <hostlist>
+    clara ipmi [--p=<level>] reset <hostlist>
+    clara ipmi [--p=<level>] sellist <hostlist>
+    clara ipmi [--p=<level>] selclear <hostlist>
     clara ipmi -h | --help
 
     clara ipmi <host> connect [-jf]
-    clara ipmi <hostlist> deconnect
-    clara ipmi <hostlist> (on|off|reboot)
-    clara ipmi <hostlist> status
-    clara ipmi <hostlist> setpwd
     clara ipmi <hostlist> getmac
-    clara ipmi <hostlist> pxe
-    clara ipmi <hostlist> disk
-    clara ipmi <hostlist> ping
-    clara ipmi <hostlist> blink
-    clara ipmi <hostlist> immdhcp
-    clara ipmi <hostlist> bios
-    clara ipmi <hostlist> sellist
-    clara ipmi <hostlist> selclear
-    clara ipmi <hostlist> reset
+    clara ipmi [--p=<level>] <hostlist> deconnect
+    clara ipmi [--p=<level>] <hostlist> (on|off|reboot)
+    clara ipmi [--p=<level>] <hostlist> status
+    clara ipmi [--p=<level>] <hostlist> setpwd
+    clara ipmi [--p=<level>] <hostlist> pxe
+    clara ipmi [--p=<level>] <hostlist> disk
+    clara ipmi [--p=<level>] <hostlist> ping
+    clara ipmi [--p=<level>] <hostlist> blink
+    clara ipmi [--p=<level>] <hostlist> immdhcp
+    clara ipmi [--p=<level>] <hostlist> bios
+    clara ipmi [--p=<level>] <hostlist> reset
+    clara ipmi [--p=<level>] <hostlist> sellist
+    clara ipmi [--p=<level>] <hostlist> selclear
 
 ### Options
 
@@ -341,6 +341,11 @@ Clear the contents of the System Event Log (SEL). It cannot be undone so be care
 
 Reset the IMM device (cold reset)
 
+For the commands that allow to interact multiple nodes at the same time,
+the command can be run in parallel using [--p=<level>].
+The parallelism to use by default can be set in the configuration file
+in the [ipmi] section with the paramenter "parallel". This value is
+overridden by the input from the command line.
 
 ### Examples
 
@@ -355,6 +360,10 @@ To check the status from node13:
 Or also:
 
     # clara ipmi node13 status
+
+And you can check the status of all the nodes using parallelism:
+
+    # clara ipmi --p=16 status node[12-99]
 
 ## Plugin 'slurm'
 
