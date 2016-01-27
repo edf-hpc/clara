@@ -12,13 +12,13 @@ Package: clara
 Architecture: all
 Recommends: gnupg-agent
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
- python-docopt, clustershell,
+ python-docopt, clustershell (>= 1.7),
 # slurm
  slurm-client,
 # repo
  reprepro, gnupg, debmirror,
 # impi
- fping, ipmitool,
+ fping, ipmitool, sshpass,
 # images
  debootstrap, squashfs-tools,
 # p2p

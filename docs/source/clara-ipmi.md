@@ -21,6 +21,7 @@ clara-ipmi - manages and get the status from the nodes of a cluster
     clara ipmi [--p=<level>] reset <hostlist>
     clara ipmi [--p=<level>] sellist <hostlist>
     clara ipmi [--p=<level>] selclear <hostlist>
+    clara ipmi [--p=<level>] ssh <hostlist> <command>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
@@ -38,6 +39,7 @@ Alternative:
     clara ipmi [--p=<level>] <hostlist> reset
     clara ipmi [--p=<level>] <hostlist> sellist
     clara ipmi [--p=<level>] <hostlist> selclear
+    clara ipmi [--p=<level>] <hostlist> ssh <command>
 
 # DESCRIPTION
 
@@ -115,6 +117,10 @@ automatically.
     clara ipmi reset <hostlist>
 
         Reset the IMM device (cold reset)
+
+    clara ipmi ssh <hostlist> <command>
+
+        Run a command through the SSH interface of the IMM
 
 For the commands that allow to interact multiple nodes at the same time,
 the command can be run in parallel using [--p=<level>].

@@ -51,6 +51,7 @@ Usage:
     clara ipmi [--p=<level>] reset <hostlist>
     clara ipmi [--p=<level>] sellist <hostlist>
     clara ipmi [--p=<level>] selclear <hostlist>
+    clara ipmi ssh <hostlist> <command>
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
@@ -68,6 +69,7 @@ Alternative:
     clara ipmi [--p=<level>] <hostlist> reset
     clara ipmi [--p=<level>] <hostlist> sellist
     clara ipmi [--p=<level>] <hostlist> selclear
+    clara ipmi <hostlist> ssh <command>
 """
 
 import errno
@@ -214,6 +216,29 @@ def do_ping(hosts):
     run(cmd)
 
 
+def do_ssh(hosts, command):
+
+    hosts = "imm" + hosts
+
+    os.environ["SSHPASS"] = \
+        value_from_file(get_from_config("common", "master_passwd_file"),
+                        "IMMPASSWORD")
+    imm_user = \
+        value_from_file(get_from_config("common", "master_passwd_file"),
+                        "IMMUSER")
+
+    task = ClusterShell.Task.task_self()
+    task.set_info("ssh_user", imm_user)
+    task.set_info("ssh_path", "/usr/bin/sshpass -e /usr/bin/ssh")
+    task.set_info("ssh_options", "-oBatchMode=no")
+    task.shell(command, nodes=hosts)
+    task.resume()
+
+    for buf, nodes in task.iter_buffers():
+        print "---\n%s:\n---\n %s" \
+              % (ClusterShell.NodeSet.fold(",".join(nodes)),
+                 buf)
+
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
@@ -266,6 +291,8 @@ def main():
         ipmi_do(dargs['<hostlist>'], "sel", "clear")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
+    elif dargs['ssh']:
+        do_ssh(dargs['<hostlist>'], dargs['<command>'])
 
 if __name__ == '__main__':
     main()
