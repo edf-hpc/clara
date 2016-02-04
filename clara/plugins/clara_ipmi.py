@@ -221,7 +221,7 @@ def main():
     global parallel
     # Read the value from the config file and use 1 if it hasn't been set
     try:
-        parallel = get_from_config("ipmi", "parallel")
+        parallel = int(get_from_config("ipmi", "parallel"))
     except:
         logging.warning("parallel hasn't been set in config.ini, using 1 as value")
         parallel = 1
