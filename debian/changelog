@@ -1,3 +1,12 @@
+clara (0.20160218) UNRELEASED; urgency=medium
+
+  * 'clara ipmi': add a SSH option, this allows to run a command through
+     the SSH interface of the IMM.
+  * Update the dependency on clustershell to version >= 1.7.
+  * Add new dependency on sshpass.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 18 Feb 2016 10:20:05 +0100
+
 clara (0.20151117) calibre9; urgency=medium
 
   * 'clara repo sync': add a configuration parameter to choose the method
