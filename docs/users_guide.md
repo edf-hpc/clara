@@ -50,7 +50,7 @@ The remaining dependencies, listed by plugin, are:
 
 + repo: [reprepro](http://mirrorer.alioth.debian.org/), [gnupg](https://www.gnupg.org/), [debmirror](https://packages.debian.org/sid/debmirror)
 
-+ impi: [fping](http://fping.org/), [ipmitool](http://sourceforge.net/projects/ipmitool/)
++ impi: [fping](http://fping.org/), [ipmitool](http://sourceforge.net/projects/ipmitool/), [sshpass](https://sourceforge.net/projects/sshpass/)
 
 + images: [debootstrap](https://packages.debian.org/sid/debootstrap), [squashfs-tools](http://squashfs.sourceforge.net/)
 
@@ -252,6 +252,7 @@ automatically.
     clara ipmi [--p=<level>] reset <hostlist>
     clara ipmi [--p=<level>] sellist <hostlist>
     clara ipmi [--p=<level>] selclear <hostlist>
+    clara ipmi [--p=<level>] ssh <hostlist> <command>
     clara ipmi -h | --help
 
     clara ipmi <host> connect [-jf]
@@ -269,6 +270,7 @@ automatically.
     clara ipmi [--p=<level>] <hostlist> reset
     clara ipmi [--p=<level>] <hostlist> sellist
     clara ipmi [--p=<level>] <hostlist> selclear
+    clara ipmi [--p=<level>] <hostlist> ssh <command>
 
 ### Options
 
@@ -340,6 +342,10 @@ Clear the contents of the System Event Log (SEL). It cannot be undone so be care
     clara ipmi reset <hostlist>
 
 Reset the IMM device (cold reset)
+
+    clara ipmi ssh <hostlist> <command>
+
+Run a command through the SSH interface of the IMM
 
 For the commands that allow to interact multiple nodes at the same time,
 the command can be run in parallel using [--p=<level>].
