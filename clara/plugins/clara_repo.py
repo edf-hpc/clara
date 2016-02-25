@@ -43,6 +43,7 @@ Usage:
     clara repo del <dist> <name>...
     clara repo list (all|<dist>)
     clara repo search <keyword>
+    clara repo copy <dist> <package> <from-dist>
     clara repo -h | --help | help
 
 Options:
@@ -290,6 +291,10 @@ def main():
             do_reprepro('list')
     elif dargs['search']:
         do_reprepro_cmd(['ls', dargs['<keyword>']])
+    elif dargs['copy']:
+        if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
+            clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
+        do_reprepro_cmd(['copy', dist, dargs['<from-dist>'], dargs['<package>']])
 
 if __name__ == '__main__':
     main()

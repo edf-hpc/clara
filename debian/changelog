@@ -2,6 +2,7 @@ clara (0.20160225) UNRELEASES; urgency=medium
 
   * 'clara repo list': add option to list the packages in all the repositories.
   * 'clara repo search': new option to search a package in all the repositories.
+  * 'clara repo copy': add option to copy packages from a distribution to another.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 19 Feb 2016 14:45:15 +0100
 
