@@ -41,7 +41,8 @@ Usage:
     clara repo sync (all|<dist> [<suites>...])
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
     clara repo del <dist> <name>...
-    clara repo list <dist>
+    clara repo list (all|<dist>)
+    clara repo search <keyword>
     clara repo -h | --help | help
 
 Options:
@@ -140,7 +141,7 @@ DscIndices: Sources Release . .gz .bz2
         if conf.ddebug:
             list_flags.append("-V")
 
-        run(['reprepro'] + list_flags + \
+        run(['reprepro'] + list_flags +
             ['--basedir', repo_dir,
              '--outdir', get_from_config("repo", "mirror_local", dist),
              'export', dist])
@@ -228,6 +229,26 @@ def do_reprepro(action, package=None, flags=None):
     run(cmd)
 
 
+def do_reprepro_cmd(action, flags=None):
+    repo_dir = get_from_config("repo", "repo_dir", dist)
+    reprepro_config = repo_dir + '/conf/distributions'
+
+    if not os.path.isfile(reprepro_config):
+        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
+
+    list_flags = ['--silent', '--ask-passphrase']
+    if conf.ddebug:
+        list_flags = ['-V', '--ask-passphrase']
+
+    if flags is not None:
+        list_flags.append(flags)
+
+    cmd = ['reprepro'] + list_flags + \
+         ['--basedir', get_from_config("repo", "repo_dir", dist)] + action
+
+    run(cmd)
+
+
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
@@ -263,7 +284,12 @@ def main():
             do_reprepro('remove', elem)
             do_reprepro('removesrc', elem)
     elif dargs['list']:
-        do_reprepro('list')
+        if dargs['all']:
+            do_reprepro_cmd(['dumpreferences'])
+        else:
+            do_reprepro('list')
+    elif dargs['search']:
+        do_reprepro_cmd(['ls', dargs['<keyword>']])
 
 if __name__ == '__main__':
     main()

@@ -1,3 +1,10 @@
+clara (0.20160225) UNRELEASES; urgency=medium
+
+  * 'clara repo list': add option to list the packages in all the repositories.
+  * 'clara repo search': new option to search a package in all the repositories.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 19 Feb 2016 14:45:15 +0100
+
 clara (0.20160219) calibre9; urgency=medium
 
   * 'clara ipmi': add a SSH option, this allows to run a command through

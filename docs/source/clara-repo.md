@@ -11,7 +11,8 @@ clara-repo - creates, updates and synchronizes local Debian repositories
     clara repo sync (all|<dist> [<suites>...])
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
     clara repo del <dist> <name>...
-    clara repo list <dist>
+    clara repo list (all|<dist>)
+    clara repo search <keyword>
     clara repo -h | --help | help
 
 Options:
@@ -56,9 +57,14 @@ of remote Debian repositories locally.
         <name> is the package to remove, if the package is a source name, it'll also
         remove all the associated binaries.
 
-    clara repo list <dist>
+    clara repo list (all|<dist>)
 
-        Lists all contents of the repository.
+        Lists all the contents of every repository with the argument "all"
+        or only the conrent of a given distribution.
+
+    clara repo search <keyword>
+
+        Search for the name of a given package in every repository controlled by clara.
 
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
 
