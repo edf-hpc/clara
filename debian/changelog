@@ -1,10 +1,19 @@
-clara (0.20160225) UNRELEASES; urgency=medium
+clara (0.20160226) UNRELEASED; urgency=medium
 
   * 'clara repo list': add option to list the packages in all the repositories.
   * 'clara repo search': new option to search a package in all the repositories.
   * 'clara repo copy': add option to copy packages from a distribution to another.
+  * 'clara repo sync': reimplentation. Code is now less dependent of the calibre
+    infra and all the repositories information is now in a new configuration file
+    named repos.ini.
+  * Configuration files updates:
+    - the variable info_suites has been replaced by suites and it's only a list
+    of suites now.
+    - new file repos.ini with the configuration for every suite. Global values
+    can still be set in config.ini and an override can be added in a specific
+    section of repos.ini when needed.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 19 Feb 2016 14:45:15 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 26 Feb 2016 10:52:44 +0100
 
 clara (0.20160219) calibre9; urgency=medium
 
