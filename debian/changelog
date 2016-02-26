@@ -1,4 +1,4 @@
-clara (0.20160226) UNRELEASED; urgency=medium
+clara (0.20160226) calibre9; urgency=medium
 
   * 'clara repo list': add option to list the packages in all the repositories.
   * 'clara repo search': new option to search a package in all the repositories.
@@ -13,7 +13,7 @@ clara (0.20160226) UNRELEASED; urgency=medium
     can still be set in config.ini and an override can be added in a specific
     section of repos.ini when needed.
 
- -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 26 Feb 2016 10:52:44 +0100
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 26 Feb 2016 15:01:21 +0100
 
 clara (0.20160219) calibre9; urgency=medium
 
