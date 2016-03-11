@@ -1,3 +1,10 @@
+clara (0.20160311) UNRELEASED; urgency=medium
+
+  * Remove parameter "group" from repos.ini.
+    Fix: #61, #62
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 26 Feb 2016 15:01:21 +0100
+
 clara (0.20160226) calibre9; urgency=medium
 
   * 'clara repo list': add option to list the packages in all the repositories.

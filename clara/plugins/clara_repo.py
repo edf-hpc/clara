@@ -151,19 +151,12 @@ DscIndices: Sources Release . .gz .bz2
 
 def get(config, section, value):
 
-    # Get dist from the repos.ini config file first
-    #  if this key doesn't exist, exit with an error
-    if config.has_option(section, "group"):
-         dist = config.get(section, "group").strip()
-    else:
-         clara_exit("Suite '{0}' is missing key 'group' in the file repos.ini".format(section))
-
     # If the value is not in the override section, look in "repos" from the config.ini
     if config.has_option(section, value):
         return config.get(section, value).strip()
     else:
         try:
-            return get_from_config("repo", value, dist)
+            return get_from_config("repo", value)
         except:
             clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
 
@@ -200,7 +193,7 @@ def do_sync(selected_dist, input_suites=[]):
         if conf.ddebug:  # if extra debug for 3rd party software
             extra = ['--debug']
 
-        final_dir = get(repos, s, "mirror_root") + get(repos, s, "group") + "/" + s
+        final_dir = get(repos, s, "mirror_root") + "/" + s
         run(['debmirror'] + extra + ["--diff=none",
             "--nosource", "--ignore-release-gpg", "--ignore-missing-release",
             "--method={0}".format(get(repos, s, "method")),
