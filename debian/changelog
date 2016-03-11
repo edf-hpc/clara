@@ -1,7 +1,7 @@
 clara (0.20160311) UNRELEASED; urgency=medium
 
   * Remove parameter "group" from repos.ini.
-    Fix: #61, #62
+    Fix: #61. Fix #62.
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 26 Feb 2016 15:01:21 +0100
 
