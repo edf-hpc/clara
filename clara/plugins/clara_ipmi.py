@@ -88,10 +88,11 @@ from clara.utils import clara_exit, run, get_from_config, value_from_file
 
 def ipmi_run(cmd):
 
-    try:
-        output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        return "ERROR: " + e.output
+    ipmi_p = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    output = ipmi_p.communicate()[0].strip()
+    exit_code = ipmi_p.wait()
+    if exit_code:
+        return "ERROR: " + output
     else:
         return "OK: " + output
 
