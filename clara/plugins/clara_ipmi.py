@@ -205,7 +205,7 @@ def do_connect(host, j=False, f=False):
             cmd = cmd + ["-d", conmand, host]
             run(cmd)
         except socket.error as e:
-            logging.debug("Conman not running. Message on connect: {0}" % e)
+            logging.debug("Conman not running. Message on connect: {0}".format(e))
             do_connect_ipmi(host)
 
         s.close()
