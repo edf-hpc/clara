@@ -185,8 +185,14 @@ def system_install():
         run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
 
     # Install packages from package_file if this file has been set in config.ini
-    package_file = get_from_config("images", "package_file", dist)
-    if not os.path.isfile(package_file):
+    try:
+        package_file = get_from_config("images", "package_file", dist)
+    except:
+        package_file = None
+
+    if not package_file:
+        logging.warning("package_file is not specified in config.ini".format(package_file))
+    elif not os.path.isfile(package_file):
         logging.warning("package_file contains '{0}' and it is not a file.".format(package_file))
     else:
         shutil.copy(package_file, work_dir + "/tmp/packages.file")
