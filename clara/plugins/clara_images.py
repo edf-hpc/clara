@@ -319,6 +319,9 @@ def geninitrd(path):
         os.makedirs(trg_dir)
 
     squashfs_file = get_from_config("images", "trg_img", dist)
+    if not os.path.isfile(squashfs_file):
+        clara_exit("The image {0} does not exist!".format(squashfs_file))
+
     if conf.ddebug:
         run(["unsquashfs", "-li", "-f", "-d", work_dir, squashfs_file])
     else:
