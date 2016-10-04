@@ -1,3 +1,15 @@
+clara (0.20161004) calibre9; urgency=medium
+
+  * Allow to configure the prefix for the BMC interfaces. Fix #70
+  * Update string to show errno and strerr. Fix #71
+  * repos.ini: some naming fixes
+  * Show an error when the squashfs file doesn't exist. Fix #72
+  * Do not fail if package_file' is not in config.ini Fix #74
+  * Check if the config file provided in the command line exists. Fix #73
+  * Check if /etc/clara/repos.ini is there before opening it.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 04 Oct 2016 09:58:17 +0200
+
 clara (0.20160405) calibre9; urgency=medium
 
   * 'clara ipmi': fix ipmi_run() on python <=2.6
