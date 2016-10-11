@@ -34,7 +34,7 @@ import os.path
 from jinja2 import Template
 import hashlib
 
-class VirPilotVM():
+class VM():
 
     """VirPilot Reporter application which generates usage report based on
        database content.
@@ -103,7 +103,7 @@ class VirPilotVM():
         """
         return self.group.vm_undefine(self.name, host)
 
-    def wipe(self, host=None):
+    def wipe(self):
         """Wipe the virtual machine.
 
            Only works if the machine is 'SHUTOFF' or 'MISSING'
@@ -121,7 +121,7 @@ class VirPilotVM():
         """Migrate the virtual machine to dest_host
         """
         self.group.vm_migrate(self.name, dest_host, host)
-    
+
     def create_volumes(self, template_name, template_dir):
         vol_roles = self.conf.get_template_vol_roles(template_name)
         pool = self.group.get_pool()
@@ -133,8 +133,8 @@ class VirPilotVM():
                 vol_exists = False
 
             if vol_exists:
-                logger.info("Volume %s for VM %s already exists." % (
-                    volume.get_name(), self.name))
+                logger.info("Volume %s for VM %s already exists.",
+                            volume.get_name(), self.name)
                 return
 
             vol_name = pool.get_volume_name(self.name, vol_role)

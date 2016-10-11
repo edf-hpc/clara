@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2011-2015 EDF SA
+# Copyright (C) 2011-2016 EDF SA
 # Contact:
 #       CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #       1, Avenue du General de Gaulle
@@ -9,9 +9,9 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara.
 #
-# VirPilot is free software: you can redistribute in and/or
+# Virt is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
 # version 2, as published by the Free Software Foundation.
 #
@@ -21,29 +21,28 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public
-# License along with VirPilot. If not, see
+# License along with Virt. If not, see
 # <http://www.gnu.org/licenses/>.
 #
 # On Calibre systems, the complete text of the GNU General
 # Public License can be found in `/usr/share/common-licenses/GPL'.
 
 """
-Set of Exceptions for VirPilot application.
+Set of Exceptions for Virt application.
 """
 
-__all__ = ["VirPilotException",
-           "VirPilotRuntimeError",
-           "VirPilotArgumentException",
-           "VirPilotConfigurationException"]
+__all__ = ["VirtException",
+           "VirtRuntimeError",
+           "VirtConfigurationException"]
 
 
-class VirPilotException(Exception):
+class VirtException(Exception):
 
-    """Base class for exceptions in VirPilot"""
+    """Base class for exceptions in Virt"""
 
     def __init__(self, msg):
 
-        super(VirPilotException, self).__init__(msg)
+        super(VirtException, self).__init__(msg)
         self.msg = msg
 
     def __str__(self):
@@ -51,28 +50,19 @@ class VirPilotException(Exception):
         return self.msg
 
 
-class VirPilotRuntimeError(VirPilotException):
+class VirtRuntimeError(VirtException):
 
-    """Class for runtime errors exceptions in VirPilot"""
-
-    def __init__(self, msg):
-
-        super(VirPilotRuntimeError, self).__init__(msg)
-
-
-class VirPilotArgumentException(VirPilotException):
-
-    """Class for argument parsing exceptions in VirPilot"""
+    """Class for runtime errors exceptions in Virt"""
 
     def __init__(self, msg):
 
-        super(VirPilotArgumentException, self).__init__(msg)
+        super(VirtRuntimeError, self).__init__(msg)
 
 
-class VirPilotConfigurationException(VirPilotException):
+class VirtConfigurationException(VirtException):
 
-    """Class for configuration file exceptions in VirPilot"""
+    """Class for configuration file exceptions in Virt"""
 
     def __init__(self, msg):
 
-        super(VirPilotConfigurationException, self).__init__(msg)
+        super(VirtConfigurationException, self).__init__(msg)

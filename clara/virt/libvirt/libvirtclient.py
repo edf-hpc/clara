@@ -9,7 +9,7 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara.
 #
 # VirPilot is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
@@ -34,7 +34,7 @@ import libvirt
 from libvirt import libvirtError
 
 
-class VirPilotLibVirtClient():
+class LibVirtClient():
     state_name = {
         libvirt.VIR_DOMAIN_RUNNING:     'RUNNING',
         libvirt.VIR_DOMAIN_BLOCKED:     'BLOCKED',
@@ -45,7 +45,7 @@ class VirPilotLibVirtClient():
         libvirt.VIR_DOMAIN_PMSUSPENDED: 'PMSUSPENDED'
     }
 
-    """VirPilot Libvirt client to a particular host.
+    """Libvirt client to a particular host.
     """
     def __init__(self, conf, hostname):
         self.conf = conf
@@ -126,7 +126,7 @@ class VirPilotLibVirtClient():
     def get_vm_state(self, vm_name):
         domain = self._get_domain(vm_name)
         state, reason = domain.state()
-        return VirPilotLibVirtClient.state_name[state]
+        return LibVirtClient.state_name[state]
 
     def vm_stop(self, vm_name, hard=False):
         domain = self._get_domain(vm_name)

@@ -9,7 +9,7 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara.
 #
 # VirPilot is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
@@ -32,14 +32,12 @@ logger = logging.getLogger(__name__)
 
 import re
 
-from VirPilot.Exceptions import VirPilotRuntimeError
+from clara.virt.exceptions import VirtRuntimeError
+from clara.virt.libvirt.volume import Volume
 
-from VirPilot.LibVirt.VirPilotVolume import VirPilotVolume
 
-
-class VirPilotPool():
-
-    """VirPilot Storage Pool
+class Pool():
+    """Virt Storage Pool
     """
     def __init__(self, conf, group, pool_name=None):
         self.conf = conf
@@ -53,30 +51,29 @@ class VirPilotPool():
             vm_name='(?P<vm_name>[a-zA-Z0-9_]+)',
             vol_role='(?P<vol_role>[a-zA-Z0-9_]+)'
         )
-        logger.debug("Volume Regexp: '%s'" % re_pattern)
+        logger.debug("Volume Regexp: '%s'", re_pattern)
         self.vol_re = re.compile(re_pattern)
         self.client = None
 
     def refresh(self):
         clients = self.group.get_clients().values()
         if len(clients) == 0:
-            raise VirPilotRuntimeError(
+            raise VirtRuntimeError(
                 "Pool discovery needs at least one client in the node group.")
         self.client = clients[0]
         pool_list = self.client.get_pool_list()
         if self.name not in pool_list:
-            raise VirPilotRuntimeError(
+            raise VirtRuntimeError(
                 "Can't find pool %s in pool list (%s)" % (self.name, pool_list))
         vol_list = self.client.get_vol_list(self.name)
         for vol_name in vol_list:
             vol_info = self.parse_volume_name(vol_name)
             if vol_info is None:
-                logger.debug("%s does not match rules for pool %s" % (
-                    vol_name, self.name
-                ))
+                logger.debug("%s does not match rules for pool %s",
+                             vol_name, self.name)
                 continue
             if vol_name not in self.volumes.keys():
-                self.volumes[vol_name] = VirPilotVolume(
+                self.volumes[vol_name] = Volume(
                     self.conf, vol_name, self.group, self)
         for volume in self.volumes.values():
             volume.refresh()

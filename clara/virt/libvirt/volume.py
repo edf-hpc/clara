@@ -9,7 +9,7 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara
 #
 # VirPilot is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
@@ -30,10 +30,10 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from VirPilot.Exceptions import VirPilotRuntimeError
+from clara.virt.exceptions import VirtRuntimeError
 
 
-class VirPilotVolume():
+class Volume():
 
     """VirPilot Storage Volume
     """
@@ -44,9 +44,9 @@ class VirPilotVolume():
         self.pool = pool
         data = self.pool.parse_volume_name(self.name)
         if data is None:
-            raise VirPilotRuntimeError(
-                    "Failed to parse the name of the volume " +
-                    "'%s' with the pool %s" % (self.name, self.pool.get_name())
+            raise VirtRuntimeError(
+                "Failed to parse the name of the volume " +
+                "'%s' with the pool %s", (self.name, self.pool.get_name())
             )
         self.vm_name = data['vm_name']
         self.role = data['vol_role']
@@ -58,7 +58,7 @@ class VirPilotVolume():
     def refresh(self):
         clients = self.group.get_clients().values()
         if len(clients) == 0:
-            raise VirPilotRuntimeError(
+            raise VirtRuntimeError(
                 "Volume discovery needs at least one client in the node group.")
         self.client = clients[0]
         pool_name = self.pool.get_name()

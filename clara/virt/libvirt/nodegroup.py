@@ -9,7 +9,7 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara.
 #
 # VirPilot is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
@@ -30,15 +30,15 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from VirPilot.LibVirt.VirPilotLibVirtClient import VirPilotLibVirtClient
-from VirPilot.LibVirt.VirPilotVM import VirPilotVM
-from VirPilot.LibVirt.VirPilotPool import VirPilotPool
+from clara.virt.libvirt.libvirtclient import LibVirtClient
+from clara.virt.libvirt.vm import VM
+from clara.virt.libvirt.pool import Pool
 
+class NodeGroup():
 
-class VirPilotNodeGroup():
-
-    """VirPilot Reporter application which generates usage report based on
-       database content.
+    """Group of nodes acting as physical hosts for VMs
+       
+        Hosts in the group are assumed to share storage pools.
     """
     def __init__(self, conf, group_name=None):
         self.conf = conf
@@ -49,7 +49,7 @@ class VirPilotNodeGroup():
         self.name = group_name
         hosts = self.conf.get_nodegroup_host_list(self.name)
         for host in hosts:
-            client = VirPilotLibVirtClient(self.conf, host)
+            client = LibVirtClient(self.conf, host)
             if client.test_connection():
                 self.clients[host] = client
         self.pools = {}
@@ -61,14 +61,12 @@ class VirPilotNodeGroup():
             vm_list = client.get_vm_list()
             for vm_name in vm_list:
                 if vm_name not in self.vms.keys():
-                    self.vms[vm_name] = VirPilotVM(
-                        self.conf, vm_name, self, [pool])
+                    self.vms[vm_name] = VM(self.conf, vm_name, self, [pool])
         # Get VMs with only a volume in the default pool
         for volume in pool.get_volumes().values():
             vm_name = volume.get_vm_name()
             if vm_name not in self.vms.keys():
-                self.vms[vm_name] = VirPilotVM(
-                    self.conf, vm_name, self, [pool])
+                self.vms[vm_name] = VM(self.conf, vm_name, self, [pool])
         for vm in self.vms.values():
             vm.refresh()
 
@@ -76,8 +74,7 @@ class VirPilotNodeGroup():
         if pool_name is None:
             pool_name = self.conf.get_pool_default()
         if pool_name not in self.pools.keys():
-            self.pools[pool_name] = VirPilotPool(
-                self.conf, pool_name=pool_name, group=self)
+            self.pools[pool_name] = Pool(self.conf, pool_name=pool_name, group=self)
             self.pools[pool_name].refresh()
         return self.pools[pool_name]
 
@@ -110,12 +107,14 @@ class VirPilotNodeGroup():
 
     def vm_migrate(self, vm_name, dest_host, host=None):
         if dest_host not in self.clients.keys():
-            logger.error("No active connection to destination host %s", dest_host)
+            logger.error("No active connection to destination host %s",
+                         dest_host)
             return False
         if host is None:
             host = self.get_vm_host(vm_name)
         if host is not None:
-            status = self.clients[host].vm_migrate(vm_name, self.clients[dest_host])
+            status = self.clients[host].vm_migrate(vm_name,
+                                                   self.clients[dest_host])
             self.refresh()
             return status
         else:
@@ -142,15 +141,14 @@ class VirPilotNodeGroup():
         hosts = self.get_vm_host_list(vm_name)
         if len(hosts) > 1:
             logger.error(
-                "VM '%s' found on multiple hosts (%s), can't choose" % (
-                    vm_name, hosts
-                )
+                "VM '%s' found on multiple hosts (%s), can't choose",
+                vm_name, hosts
             )
             return None
         elif len(hosts) == 1:
             return hosts[0]
         else:
-            logger.warn("VM '%s' not found" % vm_name)
+            logger.warn("VM '%s' not found", vm_name)
             return None
 
     def vm_define(self, host_name, xml_desc):
@@ -167,8 +165,7 @@ class VirPilotNodeGroup():
         """
         self.refresh()
         if create and vm_name not in self.vms.keys():
-            self.vms[vm_name] = VirPilotVM(
-                self.conf, vm_name, self, [self.get_pool()])
+            self.vms[vm_name] = VM(self.conf, vm_name, self, [self.get_pool()])
             self.vms[vm_name].refresh()
 
         return self.vms[vm_name]

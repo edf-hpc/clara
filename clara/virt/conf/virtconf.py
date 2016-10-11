@@ -9,7 +9,7 @@
 #
 # Authors: CCN - HPC <dsp-cspit-ccn-hpc@edf.fr>
 #
-# This file is part of VirPilot.
+# This file is part of clara
 #
 # VirPilot is free software: you can redistribute in and/or
 # modify it under the terms of the GNU General Public License,
@@ -31,16 +31,16 @@ import ConfigParser
 import os
 import collections
 
-from VirPilot.Exceptions import VirPilotConfigurationException
+from clara import utils
+from clara.virt.exceptions import VirtConfigurationException
 
 from ClusterShell.NodeSet import NodeSet
 
-
-class VirPilotConf(ConfigParser.ConfigParser, object):
+class VirtConf(ConfigParser.ConfigParser, object):
 
     def __init__(self, filename):
 
-        super(VirPilotConf, self).__init__()
+        super(VirtConf, self).__init__()
 
         self.filename = filename
 
@@ -50,10 +50,10 @@ class VirPilotConf(ConfigParser.ConfigParser, object):
         """
 
         if not os.path.exists(self.filename):
-            raise VirPilotConfigurationException(
+            raise VirtConfigurationException(
                 "file %s does not exist" % (self.filename))
 
-        super(VirPilotConf, self).read(self.filename)
+        super(VirtConf, self).read(self.filename)
 
     def get(self, section, option, option_type=str):
         """Try to get option value in section of configuration. Raise
@@ -61,16 +61,16 @@ class VirPilotConf(ConfigParser.ConfigParser, object):
         """
         try:
             if option_type is bool:
-                return super(VirPilotConf, self).getboolean(section, option)
+                return super(VirtConf, self).getboolean(section, option)
             if option_type is int:
-                return super(VirPilotConf, self).getint(section, option)
+                return super(VirtConf, self).getint(section, option)
             else:
-                return super(VirPilotConf, self).get(section, option)
+                return super(VirtConf, self).get(section, option)
         except ConfigParser.NoSectionError:
-            raise VirPilotConfigurationException(
+            raise VirtConfigurationException(
                 "section %s not found" % (section))
         except ConfigParser.NoOptionError:
-            raise VirPilotConfigurationException(
+            raise VirtConfigurationException(
                 "option %s not found in section %s" % (option, section))
 
     def get_default(self, section, option, default, option_type=str):
@@ -79,7 +79,7 @@ class VirPilotConf(ConfigParser.ConfigParser, object):
         """
         try:
             return self.get(section, option, option_type)
-        except VirPilotConfigurationException:
+        except VirtConfigurationException:
             return default
 
     def get_template_list(self):
