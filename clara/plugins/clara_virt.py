@@ -51,7 +51,7 @@ Options:
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
     --template=<template_name>  Use this template instead of the in config
-    --virt-config=<path>        Path of the virt config file [default: /etc/clara/virt.conf]
+    --virt-config=<path>        Path of the virt config file [default: /etc/clara/virt.ini]
 
 """
 
