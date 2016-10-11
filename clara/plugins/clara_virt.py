@@ -63,11 +63,26 @@ import sys
 import os.path
 
 from clara import utils
+
+# Version 10.2.9 is Debian Jessie
+# earlier versions might work but are not tested.
+# Debian Squeeze is not OK though
+try:
+    import libvirt
+except ImportError:
+    utils.clara_exit("LibVirt Missing, needs version >= 10.2.9.")
+libvirt_version = libvirt.getVersion()
+if libvirt_version < 1002009:
+    utils.clara_exit("LibVirt too old (%d.%d.%d), needs version >= 10.2.9." % (
+        libvirt_version / 1000000,
+        (libvirt_version % 1000000) / 1000,
+        libvirt_version % 1000 
+    ))
+
 from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
-
-
+ 
 def do_list(conf):
     vm_line = "VM:{0:16} State:{1:12}"
     host_line = "    Host:{0:16} HostState:{1:16}"
