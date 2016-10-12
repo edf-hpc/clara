@@ -44,6 +44,7 @@ Usage:
     clara repo list (all|<dist>)
     clara repo search <keyword>
     clara repo copy <dist> <package> <from-dist>
+    clara repo jenkins <dist> <job> [--reprepro-flags="list of flags"...]
     clara repo -h | --help | help
 
 Options:
@@ -252,6 +253,41 @@ def do_reprepro_cmd(action, flags=None):
     run(cmd)
 
 
+def copy_jenkins(job, flags=None):
+    repo_dir = get_from_config("repo", "repo_dir", dist)
+    reprepro_config = repo_dir + '/conf/distributions'
+
+    if not os.path.isfile(reprepro_config):
+        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
+
+    list_flags = ['--silent', '--ask-passphrase']
+    if conf.ddebug:
+        list_flags = ['-V', '--ask-passphrase']
+
+    if flags is not None:
+        list_flags.append(flags)
+
+    if not job.endswith("-binaries"):
+        job = job + "-binaries"
+
+    jenkins_dir = get_from_config("repo", "jenkins_dir")
+    path = os.path.join(jenkins_dir, job, "configurations/builds/lastSuccessfulBuild/archive/")
+
+    for f in os.listdir(path):
+        if f.endswith(".changes"):
+            changesfile = os.path.join(path+f)
+
+    if changesfile is None:
+        clara_exit("Not changes files was found in {0}".format(path))
+
+    cmd = ['reprepro'] + list_flags + \
+         ['--basedir', get_from_config("repo", "repo_dir", dist),
+         '--outdir', get_from_config("repo", "mirror_local", dist),
+         "include", dist, changesfile]
+
+    run(cmd)
+
+
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
@@ -297,6 +333,8 @@ def main():
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
         do_reprepro_cmd(['copy', dist, dargs['<from-dist>'], dargs['<package>']])
+    elif dargs['jenkins']:
+        copy_jenkins(dargs['<job>'], dargs['--reprepro-flags'])
 
 if __name__ == '__main__':
     main()
