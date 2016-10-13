@@ -1,0 +1,5 @@
+*.pyc
+*.swp
+*~
+doc/_build
+

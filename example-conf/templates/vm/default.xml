@@ -1,0 +1,138 @@
+<domain type='kvm'>
+  <name>{{ name }}</name>
+  <memory unit='KiB'>{{ memory_kib }}</memory>
+  <currentMemory unit='KiB'>{{ memory_kib }}</currentMemory>
+  <vcpu placement='static'>{{ core_count }}</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-2.1'>hvm</type>
+    <bootmenu enable='yes'/>
+    <boot dev='hd'/>
+    <boot dev='network'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <cpu mode='custom' match='exact'> </cpu>
+  <clock offset='utc'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+    <!-- CEPH RBD Disk
+    <disk type='network' device='disk'>
+      <source protocol='rbd' name='{{ volumes.system.path }}'>
+        <host name='mon1' />
+        <host name='mon2' />
+        <host name='mon2' />
+      </source>
+      <auth username='libvirt'>
+        <secret type='ceph' uuid='560cd513-f8ac-41f5-a581-0e2d00028e64'/>
+      </auth>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+    </disk>
+       -->
+    <disk type='block' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <backingStore/>
+      <target dev='hda' bus='ide'/>
+      <readonly/>
+      <alias name='ide0-0-0'/>
+    </disk>
+    <controller type='usb' index='0' model='ich9-ehci1'>
+      <alias name='usb0'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci1'>
+      <alias name='usb0'/>
+      <master startport='0'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci2'>
+      <alias name='usb0'/>
+      <master startport='2'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci3'>
+      <alias name='usb0'/>
+      <master startport='4'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'>
+      <alias name='pci.0'/>
+    </controller>
+    <controller type='ide' index='0'>
+      <alias name='ide0'/>
+    </controller>
+    <controller type='virtio-serial' index='0'>
+      <alias name='virtio-serial0'/>
+    </controller>
+    {% for network_name, network in networks.iteritems() %}
+    <interface type='network'>
+      <mac address='{{ network.mac_address }}'/>
+      <source network='{{ network_name }}'/>
+      <model type='virtio'/>
+    </interface>
+    {% endfor %}
+    <!-- TCP Serial
+    <serial type='tcp'>
+      <source mode='bind' host='{{ serial_tcp_host }}' service='{{ serial_tcp_port }}'/>
+      <protocol type='telnet'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+      -->
+    <serial type='pty'>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+    </channel>
+    <input type='tablet' bus='usb'>
+      <alias name='input0'/>
+    </input>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='spice' port='5901' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
+    </graphics>
+    <sound model='ich6'>
+      <alias name='sound0'/>
+    </sound>
+    <video>
+      <model type='qxl' ram='65536' vram='65536' heads='1'/>
+      <alias name='video0'/>
+    </video>
+    <redirdev bus='usb' type='spicevmc'>
+      <alias name='redir0'/>
+    </redirdev>
+    <redirdev bus='usb' type='spicevmc'>
+      <alias name='redir1'/>
+    </redirdev>
+    <redirdev bus='usb' type='spicevmc'>
+      <alias name='redir2'/>
+    </redirdev>
+    <redirdev bus='usb' type='spicevmc'>
+      <alias name='redir3'/>
+    </redirdev>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+    </memballoon>
+    <rng model='virtio'>
+      <backend model='random'>/dev/random</backend>
+      <alias name='rng0'/>
+    </rng>
+  </devices>
+</domain>
+

@@ -11,5 +11,6 @@ Clara provides the following plugins:
 * [p2p](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-p2p.md)      makes torrent images and seeds them via BitTorrent
 * [enc](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-enc.md)     interact with encrypted files using configurable methods
 * [build](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md)     builds Debian packages
+* [virt](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-virt.md)     manages virtual machines
 
 Read the full [user's guide](http://edf-hpc.github.io/clara/).
