@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-#-*- coding: utf-8 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014 EDF SA                                                 #
+#  Copyright (C) 2016 EDF SA                                                 #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -33,52 +33,42 @@
 #                                                                            #
 ##############################################################################
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+"""
+Set of Exceptions for Virt application.
+"""
 
-# Get version automatically from debian/changelog
-VERSION = ''
-with open("debian/changelog", 'r') as fcl:
-    fl = fcl.readline()
-VERSION = fl[fl.find("(")+1:fl.find(")")]
+__all__ = ["VirtException",
+           "VirtRuntimeError",
+           "VirtConfigurationException"]
 
-with open("clara/version.py", 'w') as fwv:
-    fwv.write("__version__ = '{0}'".format(VERSION))
 
-setup(name='Clara',
-      version=VERSION,
-      scripts=['bin/clara'],
-      packages=['clara',
-                'clara.plugins',
-		'clara.virt',
-		'clara.virt.conf',
-		'clara.virt.libvirt'],
-      install_requires=['docopt>=0.6.1',
-                        'importlib>=1.0.1',
-                        'clustershell>=1.6',
-                        'libvirt>=10.2.9'],
-      package_data={'': ['README.md']},
+class VirtException(Exception):
 
-      author='EDF CCN HPC',
-      author_email='dsp-cspit-ccn-hpc@edf.fr',
-      license='CeCILL-C (French equivalent to LGPLv2+)',
-      url='https://github.com/edf-hpc/clara',
-      platforms=['GNU/Linux', 'BSD'],
-      keywords='cluster administration',
-      description='Cluster Administration Tools',
-      classifiers=[
-          'Development Status :: 4 - Beta',
-          'Environment :: Console',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved',
-          'Operating System :: MacOS :: MacOS X',
-          'Operating System :: POSIX :: BSD',
-          'Operating System :: POSIX :: Linux',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-          'Topic :: System :: Clustering',
-          'Topic :: System :: Systems Administration']
-    )
+    """Base class for exceptions in Virt"""
+
+    def __init__(self, msg):
+
+        super(VirtException, self).__init__(msg)
+        self.msg = msg
+
+    def __str__(self):
+
+        return self.msg
+
+
+class VirtRuntimeError(VirtException):
+
+    """Class for runtime errors exceptions in Virt"""
+
+    def __init__(self, msg):
+
+        super(VirtRuntimeError, self).__init__(msg)
+
+
+class VirtConfigurationException(VirtException):
+
+    """Class for configuration file exceptions in Virt"""
+
+    def __init__(self, msg):
+
+        super(VirtConfigurationException, self).__init__(msg)

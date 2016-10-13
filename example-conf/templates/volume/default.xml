@@ -1,0 +1,6 @@
+<volume>
+  <name>{{ vol_name }}</name>
+  <capacity unit='bytes'>{{ vol_capacity_bytes }}</capacity>
+  <allocation unit='bytes'>0</allocation>
+</volume>
+

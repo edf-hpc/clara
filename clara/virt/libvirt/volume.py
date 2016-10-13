@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-#-*- coding: utf-8 -*-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014 EDF SA                                                 #
+#  Copyright (C) 2016 EDF SA                                                 #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -33,52 +33,80 @@
 #                                                                            #
 ##############################################################################
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import logging
+logger = logging.getLogger(__name__)
 
-# Get version automatically from debian/changelog
-VERSION = ''
-with open("debian/changelog", 'r') as fcl:
-    fl = fcl.readline()
-VERSION = fl[fl.find("(")+1:fl.find(")")]
+from clara.virt.exceptions import VirtRuntimeError
 
-with open("clara/version.py", 'w') as fwv:
-    fwv.write("__version__ = '{0}'".format(VERSION))
 
-setup(name='Clara',
-      version=VERSION,
-      scripts=['bin/clara'],
-      packages=['clara',
-                'clara.plugins',
-		'clara.virt',
-		'clara.virt.conf',
-		'clara.virt.libvirt'],
-      install_requires=['docopt>=0.6.1',
-                        'importlib>=1.0.1',
-                        'clustershell>=1.6',
-                        'libvirt>=10.2.9'],
-      package_data={'': ['README.md']},
+class Volume():
 
-      author='EDF CCN HPC',
-      author_email='dsp-cspit-ccn-hpc@edf.fr',
-      license='CeCILL-C (French equivalent to LGPLv2+)',
-      url='https://github.com/edf-hpc/clara',
-      platforms=['GNU/Linux', 'BSD'],
-      keywords='cluster administration',
-      description='Cluster Administration Tools',
-      classifiers=[
-          'Development Status :: 4 - Beta',
-          'Environment :: Console',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved',
-          'Operating System :: MacOS :: MacOS X',
-          'Operating System :: POSIX :: BSD',
-          'Operating System :: POSIX :: Linux',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-          'Topic :: System :: Clustering',
-          'Topic :: System :: Systems Administration']
-    )
+    """VirPilot Storage Volume
+    """
+    def __init__(self, conf, name, group, pool):
+        self.conf = conf
+        self.name = name
+        self.group = group
+        self.pool = pool
+        data = self.pool.parse_volume_name(self.name)
+        if data is None:
+            raise VirtRuntimeError(
+                "Failed to parse the name of the volume " +
+                "'%s' with the pool %s", (self.name, self.pool.get_name())
+            )
+        self.vm_name = data['vm_name']
+        self.role = data['vol_role']
+        self.client = None
+        self.capacity_bytes = 0L
+        self.allocation_bytes = 0L
+        self.path = ""
+
+    def refresh(self):
+        clients = self.group.get_clients().values()
+        if len(clients) == 0:
+            raise VirtRuntimeError(
+                "Volume discovery needs at least one client in the node group.")
+        self.client = clients[0]
+        pool_name = self.pool.get_name()
+        vol_list = self.client.get_vol_list(pool_name)
+        if self.name in vol_list:
+            self.state = "PRESENT"
+            self.capacity_bytes = self.client.get_vol_capacity_bytes(
+                pool_name, self.name)
+            self.allocation_bytes = self.client.get_vol_allocation_bytes(
+                pool_name, self.name)
+            self.path = self.client.get_vol_path(pool_name, self.name)
+        else:
+            self.state = "MISSING"
+            self.capacity_bytes = 0L
+            self.allocation_bytes = 0L
+            self.path = ""
+
+    def wipe(self):
+        result = self.client.vol_wipe(self.pool.get_name(), self.name)
+        self.refresh()
+        return result
+
+    def get_capacity(self):
+        return self.capacity_bytes
+
+    def get_allocation(self):
+        return self.allocation_bytes
+
+    def get_name(self):
+        return self.name
+
+    def get_vm_name(self):
+        return self.vm_name
+
+    def get_role(self):
+        return self.role
+
+    def get_state(self):
+        return self.state
+
+    def get_path(self):
+        return self.path
+
+    def get_pool(self):
+        return self.pool

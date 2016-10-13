@@ -24,7 +24,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
 # p2p
  mktorrent,
 # build
- cowbuilder
+ cowbuilder,
+# virt
+ python-libvirt, python-jinja2
 Description: cluster administration tools
  Clara is a set of tools to help administering and installing clusters.
  .
@@ -36,3 +38,4 @@ Description: cluster administration tools
   p2p      Makes torrent images and seeds them via BitTorrent.
   enc      Interact with encrypted files using configurable methods.
   build    Builds Debian packages
+  virt     Manages virtual machines
