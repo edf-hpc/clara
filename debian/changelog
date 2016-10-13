@@ -1,9 +1,12 @@
-clara (0.20161012) UNRELEASED; urgency=medium
+clara (0.20161013) calibre9; urgency=medium
 
   * Copy packages fron a jenkins job into the given repository. Fix #57.
     This feature might evolve in the future or even go to its own plugin.
 
- -- Ana Beatriz Guerrero Lopez <ana@debian.org>  Wed, 12 Oct 2016 18:24:50 +0200
+  [ Thomas Hamel ]
+  * Add plugin virt.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 13 Oct 2016 15:39:44 +0200
 
 clara (0.20161004) calibre9; urgency=medium
 
