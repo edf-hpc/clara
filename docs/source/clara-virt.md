@@ -27,7 +27,7 @@ Options:
 
 *clara virt* provides a simplified interface to manage virtual machines on a group of
 physical hosts using libivirt. It does not support local storage, storage must be shared
-between the hosts (with ceph RBD for example).
+between the hosts (with Ceph RBD for example).
 
 This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
 
@@ -62,10 +62,6 @@ use the *--hard* flag to force the shutdown.
 
 Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
 bringing down the VM. This command is synchronous and only returns when the migration ends.
-
-    clara virt -h | --help | help
-
-Display usage.
 
 # SEE ALSO
 
