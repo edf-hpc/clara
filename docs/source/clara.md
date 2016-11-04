@@ -30,10 +30,11 @@ Clara provides the following plugins:
     ipmi     Manages and get the status from the nodes of a cluster.
     slurm    Performs tasks using SLURM's controller.
     images   Creates and updates the images of installation of a cluster.
+    chroot   Creates and updates a chroot. 
     p2p      Makes torrent images and seeds them via BitTorrent.
     enc      Interact with encrypted files using configurable methods.
     build    Builds Debian packages.
 
 # SEE ALSO
 
-clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1)
+clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1), clara-chroot(1)
