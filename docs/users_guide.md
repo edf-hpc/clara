@@ -84,6 +84,7 @@ example.
        ipmi     Manages and get the status from the nodes of a cluster.
        slurm    Performs tasks using SLURM's controller.
        images   Creates and updates the images of installation of a cluster.
+       chroot   Creates and updates a chroot.
        p2p      Makes torrent images and seeds them via BitTorrent.
        enc      Interact with encrypted files using configurable methods.
        build    Builds Debian packages.
@@ -495,6 +496,55 @@ To edit the default distribution image
 To create a initrd for the default distribution image:
 
      # clara images initrd calibre8
+
+## Plugin 'chroot'
+
+*clara chroot* makes easy to create and update a chroot directory.
+
+# Sypnosis
+
+    clara chroot create <dist> [<chroot_dir>] [--keep-chroot-dir]
+    clara chroot edit <dist> [<chroot_dir>]
+    clara chroot install <dist> [<packages>]
+    clara chroot remove <dist> [<packages>]
+    clara chroot -h | --help | help
+
+### Options
+
+    clara chroot create <dist> [<chroot_dir>] [--keep-chroot-dir]
+
+Create a new directory with a chroot system.
+By default, it will use the directory indicated as 'trg_dir'
+in the configuration file.
+
+    clara chroot edit <dist> [<chroot_dir>]
+
+Spawn a bash into the chroot directory to make the changes.
+By default, it will use the directory indicated as 'trg_dir'
+in the configuration file.
+
+    clara chroot install <dist> [<packages>]
+
+Install the packages indicated into chroot directory. Packages names
+must be separated by ','.
+
+    clara chroot remove <dist> [<packages>]
+
+Remove the packages indicated from chroot directory. Packages names
+must be separated by ','.
+
+
+This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
+
+### Examples
+
+To create a image for calibre8
+
+    clara chroot create calibre8
+
+To edit the chroot
+
+    clara chroot edit calibre8
 
 ## Plugin 'p2p'
 
