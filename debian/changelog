@@ -1,3 +1,9 @@
+clara (0.20161108) calibre9; urgency=medium
+
+  * Add plugin chroot.
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 08 Nov 2016 10:14:19 +0100
+
 clara (0.20161013) calibre9; urgency=medium
 
   * Copy packages fron a jenkins job into the given repository. Fix #57.

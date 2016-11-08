@@ -19,7 +19,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  reprepro, gnupg, debmirror,
 # impi
  fping, ipmitool, sshpass,
-# images
+# images, chroot
  debootstrap, squashfs-tools,
 # p2p
  mktorrent,
@@ -35,6 +35,7 @@ Description: cluster administration tools
   impi     Manages and get the status from the nodes of a cluster.
   slurm    Performs tasks using SLURM's controller.
   images   Creates and updates the images of installation of a cluster.
+  chroot   Creates and updates a chroot.
   p2p      Makes torrent images and seeds them via BitTorrent.
   enc      Interact with encrypted files using configurable methods.
   build    Builds Debian packages
