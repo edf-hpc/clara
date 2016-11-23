@@ -273,6 +273,9 @@ def copy_jenkins(job, flags=None):
     jenkins_dir = get_from_config("repo", "jenkins_dir")
     path = os.path.join(jenkins_dir, job, "configurations/builds/lastSuccessfulBuild/archive/")
 
+    if not os.path.isdir(path):
+        clara_exit("The job {} doesn't exists or needs to be build.".format(job))
+
     for f in os.listdir(path):
         if f.endswith(".changes"):
             changesfile = os.path.join(path+f)
