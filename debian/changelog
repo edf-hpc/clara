@@ -1,3 +1,10 @@
+clara (0.20161130) calibre9; urgency=medium
+
+  * 'clara virt': Use nodeset for vm_names.
+  * 'clara virt': More compact list output by default add --details
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 29 Nov 2016 12:06:58 +0100
+
 clara (0.20161129) calibre9; urgency=medium
 
   * 'clara repo jenkins': check if the job exists before looking for changes file.
