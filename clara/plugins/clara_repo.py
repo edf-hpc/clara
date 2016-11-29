@@ -185,7 +185,7 @@ def do_sync(selected_dist, input_suites=[]):
     logging.debug("The suites to sync are: {0}.".format(" ".join(suites)))
 
     # Read /etc/clara/repos.ini
-    if os.path.isfile('/etc/clara/repos.ini'):
+    if not os.path.isfile('/etc/clara/repos.ini'):
         clara_exit("File /etc/clara/repos.ini not found.")
     repos = ConfigParser.ConfigParser()
     repos.read("/etc/clara/repos.ini")

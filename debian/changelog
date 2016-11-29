@@ -2,6 +2,7 @@ clara (0.20161123) UNRELEASED; urgency=medium
 
   * 'clara repo jenkins': check if the job exists before looking for changes file.
   * Update copyright years in headers.
+  * 'clara repo sync': fix check for repos.ini
 
  -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Wed, 23 Nov 2016 09:21:28 +0100
 
