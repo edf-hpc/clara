@@ -45,7 +45,7 @@ Usage:
     clara virt -h | --help | help
 
 Options:
-    vm_names                    List of VM names
+    <vm_names>                  List of VM names (ClusterShell nodeset)
     <host>                      Physical host where the action should be applied
     --details                   Display details (hosts and volumes)
     --wipe                      Wipe the content of the storage volume before starting
@@ -62,6 +62,8 @@ logger = logging.getLogger(__name__)
 import docopt
 import sys
 import os.path
+import ClusterShell
+
 
 from clara import utils
 
@@ -113,7 +115,6 @@ def do_list(conf, show_hosts = False, show_volumes = False):
 
 def do_action(conf, params, action):
     group = NodeGroup(conf)
-    vm_names = params['vm_names']
     if 'wipe' in params.keys():
         wipe = params['wipe']
     else:
@@ -127,7 +128,9 @@ def do_action(conf, params, action):
     else:
         dest_host = None
     host = params['host']
-    for vm_name in vm_names:
+
+    for vm_name in params['vm_names']:
+        logging.info("Action: %s on %s.", action, vm_name)
         machine = group.get_vm(vm_name)
         if action == 'start':
             if wipe:
@@ -145,6 +148,9 @@ def do_action(conf, params, action):
                 logger.error('Migration needs a destination host.')
                 continue
             machine.migrate(host=host, dest_host=dest_host)
+        else:
+            logging.error("Action %s not supported.", action)
+            exit(1)
 
 def do_define(conf, params):
     group = NodeGroup(conf)
@@ -191,7 +197,7 @@ def main():
         show_volumes = dargs['--details']
         do_list(virt_conf, show_hosts, show_volumes)
     else:
-        params['vm_names'] = dargs['<vm_names>'].split(',')
+        params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
 
         if '--host' in dargs.keys():
             params['host'] = dargs['--host']
