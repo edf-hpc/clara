@@ -681,7 +681,7 @@ This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
 
 ### Synopsis
 
-    clara virt list [--virt-config=<path>]
+    clara virt list [--details] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -690,8 +690,9 @@ This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
     clara virt -h | --help | help
 
 Options:
-    vm_names                    List of VM names
+    <vm_names>                  List of VM names (ClusterShell nodeset)
     <host>                      Physical host where the action should be applied
+    --details                   Display details (hosts and volumes)
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -700,9 +701,10 @@ Options:
 
 ## Options
 
-    clara virt list [--virt-config=<path>]
+    clara virt list [--details] [--virt-config=<path>]
 
-List the machines, where instances are running and storages volumes associated.
+List the machines. If *--details* is provided: where instances are running and storages
+volumes associated.
 
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
 

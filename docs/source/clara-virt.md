@@ -36,7 +36,7 @@ This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
 
     clara virt list [--details] [--virt-config=<path>]
 
-List the machines. If *--details* is provided: where instances are running and storages 
+List the machines. If *--details* is provided: where instances are running and storages
 volumes associated.
 
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
