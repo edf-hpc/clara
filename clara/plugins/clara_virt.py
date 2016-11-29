@@ -36,7 +36,7 @@
 Manages VMs used in a cluster.
 
 Usage:
-    clara virt list [--virt-config=<path>]
+    clara virt list [--details] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -47,6 +47,7 @@ Usage:
 Options:
     vm_names                    List of VM names
     <host>                      Physical host where the action should be applied
+    --details                   Display details (hosts and volumes)
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -83,25 +84,32 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
-def do_list(conf):
-    vm_line = "VM:{0:16} State:{1:12}"
+def do_list(conf, show_hosts = False, show_volumes = False):
+    vm_line = "VM:{0:16} State:{1:12} Host:{2:16}"
     host_line = "    Host:{0:16} HostState:{1:16}"
     vol_line = "    Volume:{0:32} Pool:{1:16} Capacity:{2:12}"
     group = NodeGroup(conf)
     vms = group.get_vms()
     for vm in vms.values():
+        host_states = vm.get_host_state()
+        if len(host_states) == 1:
+            host = host_states.keys()[0]
+        else:
+            host = ''
         vm_name = vm.get_name()
-        print vm_line.format(vm_name, vm.get_state())
-        print "  Hosts:"
-        for host, state in vm.get_host_state().items():
-            print host_line.format(host, state)
-            print "  Volumes:"
-        for vol in vm.get_volumes():
-            print vol_line.format(
-                vol.get_name(),
-                vol.get_pool().get_name(),
-                vol.get_capacity()
-            )
+        print vm_line.format(vm_name, vm.get_state(), host)
+        if show_hosts:
+            print "  Hosts:"
+            for host, state in host_states.items():
+                print host_line.format(host, state)
+                print "  Volumes:"
+        if show_volumes:
+            for vol in vm.get_volumes():
+                print vol_line.format(
+                    vol.get_name(),
+                    vol.get_pool().get_name(),
+                    vol.get_capacity()
+                )
 
 def do_action(conf, params, action):
     group = NodeGroup(conf)
@@ -179,7 +187,9 @@ def main():
     }
 
     if dargs['list']:
-        do_list(virt_conf)
+        show_hosts = dargs['--details']
+        show_volumes = dargs['--details']
+        do_list(virt_conf, show_hosts, show_volumes)
     else:
         params['vm_names'] = dargs['<vm_names>'].split(',')
 
