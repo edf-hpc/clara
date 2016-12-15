@@ -298,9 +298,9 @@ def install_https_apt():
         if not os.path.isdir(path_dest):
             os.makedirs(path_dest)
         shutil.copy(apt_ssl_key_source, work_dir+apt_ssl_key)
-        os.chmod(apt_ssl_key, 0600)
+        os.chmod(work_dir+apt_ssl_key, 0600)
         shutil.copy(apt_ssl_crt_source, work_dir+apt_ssl_crt)
-        os.chmod(apt_ssl_crt, 0644)
+        os.chmod(work_dir+apt_ssl_crt, 0644)
         # Add apt config for ssl key
         with open(work_dir+"/etc/apt/apt.conf.d/52ssl", 'w') as apt_conf_ssl:
             apt_conf_ssl.write("""#
