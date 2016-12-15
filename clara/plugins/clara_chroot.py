@@ -175,8 +175,10 @@ def umount_chroot():
     else:
         for mounts_params in extra_bind_mounts:
             mountpoint = work_dir+mounts_params.split(" ")[1]
-            if os.path.ismount(mountpoint):
-                run(["umount", mountpoint])
+            with open("/proc/mounts", "r") as file_to_read:
+                for line in file_to_read:
+                    if mountpoint in line:
+                        run(["umount", mountpoint])
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
