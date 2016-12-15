@@ -36,7 +36,7 @@
 Creates and updates a chroot.
 
 Usage:
-    clara chroot create <dist> [<chroot_dir>] [--keep-chroot-dir]
+    clara chroot create <dist> [<chroot_dir>]
     clara chroot edit <dist> [<chroot_dir>]
     clara chroot install <dist> [<packages>]
     clara chroot remove <dist> [<packages>]
@@ -70,8 +70,6 @@ def run_chroot(cmd):
 
     if retcode != 0:
         umount_chroot()
-        if not keep_chroot_dir:
-            shutil.rmtree(work_dir)
         clara_exit(' '.join(cmd))
 
 
@@ -351,19 +349,12 @@ def edit(chroot):
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara chroot> \e[0m'".format(dist))
     pty.spawn(["chroot", "."])
 
-    save = raw_input('Save changes made in the chroot ? (N/y)')
-    logging.debug("Input from the user: '{0}'".format(save))
-    if save not in ('Y', 'y'):
-        clara_exit("Changes ignored. The chroot {0} hasn't been modified.".format(chroot_dir))
-
-    os.chmod(chroot_dir, 0o755)
+    clara_exit("Exiting the chroot {0}.".format(chroot_dir))
 
 
 def clean_and_exit():
     if os.path.exists(work_dir):
         umount_chroot()
-        if not keep_chroot_dir:
-            shutil.rmtree(work_dir)
 
 
 def install_packages(packages):
@@ -388,16 +379,18 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global work_dir, keep_chroot_dir, src_list, dist
+    global work_dir, src_list, dist
     dist = get_from_config("common", "default_distribution")
     if dargs['<dist>'] is not None:
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
-    work_dir = get_from_config("chroot", "trg_dir", dist)
+    if dargs['<chroot_dir>'] is not None:
+        work_dir = dargs['<chroot_dir>']
+    else:
+        work_dir = get_from_config("chroot", "trg_dir", dist)
 
     src_list = work_dir + "/etc/apt/sources.list"
-    keep_chroot_dir = True
     # Not executed in the following cases
     # - the program dies because of a signal
     # - os._exit() is invoked directly
