@@ -365,6 +365,7 @@ def install_packages(packages):
     else:
         pkgs = packages.split(',')
         mount_chroot
+        run_chroot(["chroot", work_dir, "apt-get", "update"])
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
 
