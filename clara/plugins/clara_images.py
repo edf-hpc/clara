@@ -101,7 +101,13 @@ def base_install():
     os.chmod(work_dir + "/usr/sbin/policy-rc.d", 0o755)
 
     # Mirror setup
-    list_repos = get_from_config("images", "list_repos", dist).split(",")
+    list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
+    if ';' in list_repos_nonsplitted:
+        separator = ';'
+    else:
+        separator = ','
+    list_repos = list_repos_nonsplitted.split(separator)
+
     with open(src_list, 'w') as fsources:
         for line in list_repos:
             fsources.write(line + '\n')
@@ -170,6 +176,20 @@ def umount_chroot():
 
 def system_install():
     mount_chroot()
+
+    # Configure foreign architecture if this has been set in config.ini
+    try:
+        foreign_archs = get_from_config("images", "foreign_archs", dist).split(",")
+    except:
+        foreign_archs = None
+
+    if not foreign_archs:
+        logging.warning("foreign_archs is not specified in config.ini".format(foreign_archs))
+    else:
+        for arch in foreign_archs:
+            logging.warning("Configure foreign_arch {0}".format(arch))
+            run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch])
+
     run_chroot(["chroot", work_dir, "apt-get", "update"])
 
     # Set presseding if the file has been set in config.ini
