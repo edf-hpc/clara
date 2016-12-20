@@ -1,3 +1,15 @@
+clara (0.20161220) calibre9; urgency=medium
+
+  * 'clara chroot':
+    - remove -keep-chroot-dir, always keep modifications when editing chroot
+    - better detection of mounted filesystems
+    - fix path for ssl key and crt
+    - always update dpkg database before installing packages
+    - add possibility to use foreign dpkg archs
+  * 'clara images': add possibility to use foreign dpkg archs when creating images
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Tue, 29 Nov 2016 12:06:58 +0100
+
 clara (0.20161130) calibre9; urgency=medium
 
   * 'clara virt': Use nodeset for vm_names.
