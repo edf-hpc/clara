@@ -1,3 +1,10 @@
+clara (0.20161223) calibre9; urgency=medium
+
+  * 'clara repo jenkins': force command to look for _amd64.sources unlessç
+    another option is given with --source=<arch>. Fix #80
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Fri, 23 Dec 2016 16:40:23 +0100
+
 clara (0.20161220) calibre9; urgency=medium
 
   * 'clara chroot':
