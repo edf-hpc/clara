@@ -44,7 +44,7 @@ Usage:
     clara repo list (all|<dist>)
     clara repo search <keyword>
     clara repo copy <dist> <package> <from-dist>
-    clara repo jenkins <dist> <job> [--reprepro-flags="list of flags"...]
+    clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...]
     clara repo -h | --help | help
 
 Options:
@@ -253,7 +253,7 @@ def do_reprepro_cmd(action, flags=None):
     run(cmd)
 
 
-def copy_jenkins(job, flags=None):
+def copy_jenkins(job, arch, flags=None):
     repo_dir = get_from_config("repo", "repo_dir", dist)
     reprepro_config = repo_dir + '/conf/distributions'
 
@@ -277,7 +277,7 @@ def copy_jenkins(job, flags=None):
         clara_exit("The job {} doesn't exists or needs to be build.".format(job))
 
     for f in os.listdir(path):
-        if f.endswith(".changes"):
+        if f.endswith("_{0}.changes".format(arch)):
             changesfile = os.path.join(path+f)
 
     if changesfile is None:
@@ -337,7 +337,10 @@ def main():
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
         do_reprepro_cmd(['copy', dist, dargs['<from-dist>'], dargs['<package>']])
     elif dargs['jenkins']:
-        copy_jenkins(dargs['<job>'], dargs['--reprepro-flags'])
+        arch = dargs['--source']
+        if arch is None:
+            arch = "amd64"
+        copy_jenkins(dargs['<job>'], arch, dargs['--reprepro-flags'])
 
 if __name__ == '__main__':
     main()
