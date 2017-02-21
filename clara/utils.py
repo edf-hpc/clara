@@ -125,7 +125,7 @@ def value_from_file(myfile, key):
         for line in hand:
             if key in line:
                 texto = line.rstrip().split("=")
-                password = texto[1].strip('"').strip("'")
+                password = '='.join(texto[1:]).strip('"').strip("'")
     if password == "":
         clara_exit("{0} not found in the file {1}".format(key, myfile))
     return password
