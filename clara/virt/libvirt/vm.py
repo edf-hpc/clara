@@ -226,3 +226,24 @@ class VM():
             for vol in pool_volumes.values():
                 result.append(vol)
         return result
+
+    def get_macs(self, template_name):
+        """Returns a dict of network/mac pairs for the VM."""
+
+        macs = {}  # return result dict
+
+        # merge templtate/vm params into params dict
+        template_params = self.conf.get_template_vm_params(template_name)
+        vm_params = self.conf.get_vm_params(self.name)
+        params = template_params.copy()
+        params.update(vm_params)
+        networks = self.conf.get_vm_networks(self.name, params['network_list'])
+
+        # iterate over the networks
+        for net_name in networks:
+            mac_address = networks[net_name]['mac_address']
+            if mac_address == '':
+                mac_address = self.generate_mac(net_name)
+            macs[net_name] = mac_address
+
+        return macs
