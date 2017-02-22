@@ -42,6 +42,7 @@ Usage:
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
     clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
 Options:
@@ -174,6 +175,24 @@ def do_define(conf, params):
         machine.create_volumes(template_name, template_dir)
         machine.define(template_name, template_dir, host)
 
+def do_getmacs(conf, params):
+    group = NodeGroup(conf)
+    vm_names = params['vm_names']
+    template_name = params['template']
+    for vm_name in vm_names:
+        config_template = conf.get_template_for_vm(vm_name)
+        if template_name is None:
+            if config_template is not None:
+                template_name = config_template
+            else:
+                template_name = conf.get_template_default()
+
+        machine = group.get_vm(vm_name, create=True)
+        print("%s:" % (vm_name))
+        for net, mac in machine.get_macs(template_name).iteritems():
+            print("  %s: %s" % (net, mac))
+
+
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
@@ -218,6 +237,9 @@ def main():
         elif dargs['migrate']:
             params['dest_host'] = dargs['--dest-host']
             do_action(virt_conf, params, 'migrate')
+        elif dargs['getmacs']:
+            params['template'] = dargs['--template']
+            do_getmacs(virt_conf, params)
 
 if __name__ == '__main__':
     main()

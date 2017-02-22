@@ -12,6 +12,7 @@ clara-virt - manages virtual machines
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
     clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
 Options:
@@ -64,6 +65,11 @@ use the *--hard* flag to force the shutdown.
 
 Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
 bringing down the VM. This command is synchronous and only returns when the migration ends.
+
+    clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
+
+Print the MAC addresses of all network interfaces of the VM that Clara set in the VM definition
+file.
 
 # SEE ALSO
 
