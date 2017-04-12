@@ -241,18 +241,6 @@ def do_reprepro(action, package=None, flags=None, extra=None):
 
 
 def copy_jenkins(job, arch, flags=None):
-    repo_dir = get_from_config("repo", "repo_dir", dist)
-    reprepro_config = repo_dir + '/conf/distributions'
-
-    if not os.path.isfile(reprepro_config):
-        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
-
-    list_flags = ['--silent', '--ask-passphrase']
-    if conf.ddebug:
-        list_flags = ['-V', '--ask-passphrase']
-
-    if flags is not None:
-        list_flags.append(flags)
 
     if not job.endswith("-binaries"):
         job = job + "-binaries"
@@ -270,12 +258,8 @@ def copy_jenkins(job, arch, flags=None):
     if changesfile is None:
         clara_exit("Not changes files was found in {0}".format(path))
 
-    cmd = ['reprepro'] + list_flags + \
-         ['--basedir', get_from_config("repo", "repo_dir", dist),
-         '--outdir', get_from_config("repo", "mirror_local", dist),
-         "include", dist, changesfile]
+    do_reprepro('include', package=changesfile, flags=flags)
 
-    run(cmd)
 
 
 def main():
