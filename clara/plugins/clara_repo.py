@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2016 EDF SA                                            #
+#  Copyright (C) 2014-2017 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -208,7 +208,7 @@ def do_sync(selected_dist, input_suites=[]):
             final_dir])
 
 
-def do_reprepro(action, package=None, flags=None):
+def do_reprepro(action, package=None, flags=None, extra=None):
     repo_dir = get_from_config("repo", "repo_dir", dist)
     reprepro_config = repo_dir + '/conf/distributions'
 
@@ -225,30 +225,17 @@ def do_reprepro(action, package=None, flags=None):
     cmd = ['reprepro'] + list_flags + \
          ['--basedir', get_from_config("repo", "repo_dir", dist),
          '--outdir', get_from_config("repo", "mirror_local", dist),
-         action, dist]
+         action]
 
-    if package is not None:
-        cmd.append(package)
+    if extra is not None:
+        for e in extra:
+            cmd.append(e)
+    else:
+        if action in ['includedeb', 'include', 'includedsc', 'remove', 'removesrc', 'list']:
+            cmd.append(dist)
 
-    run(cmd)
-
-
-def do_reprepro_cmd(action, flags=None):
-    repo_dir = get_from_config("repo", "repo_dir", dist)
-    reprepro_config = repo_dir + '/conf/distributions'
-
-    if not os.path.isfile(reprepro_config):
-        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
-
-    list_flags = ['--silent', '--ask-passphrase']
-    if conf.ddebug:
-        list_flags = ['-V', '--ask-passphrase']
-
-    if flags is not None:
-        list_flags.append(flags)
-
-    cmd = ['reprepro'] + list_flags + \
-         ['--basedir', get_from_config("repo", "repo_dir", dist)] + action
+        if package is not None:
+            cmd.append(package)
 
     run(cmd)
 
@@ -327,20 +314,21 @@ def main():
             do_reprepro('removesrc', elem)
     elif dargs['list']:
         if dargs['all']:
-            do_reprepro_cmd(['dumpreferences'])
+            do_reprepro('dumpreferences')
         else:
             do_reprepro('list')
     elif dargs['search']:
-        do_reprepro_cmd(['ls', dargs['<keyword>']])
+        do_reprepro('ls', extra=[dargs['<keyword>']])
     elif dargs['copy']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
-        do_reprepro_cmd(['copy', dist, dargs['<from-dist>'], dargs['<package>']])
+        do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
     elif dargs['jenkins']:
         arch = dargs['--source']
         if arch is None:
             arch = "amd64"
         copy_jenkins(dargs['<job>'], arch, dargs['--reprepro-flags'])
+
 
 if __name__ == '__main__':
     main()
