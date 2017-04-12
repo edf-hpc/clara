@@ -136,6 +136,10 @@ def initialize_logger(debug):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
+    # Create logs directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     # Create console handler and set level to info or debug, when it's enabled
     handler = logging.StreamHandler()
     if debug:
