@@ -14,6 +14,7 @@ clara-repo - creates, updates and synchronizes local Debian repositories
     clara repo list (all|<dist>)
     clara repo search <keyword>
     clara repo copy <dist> <package> <from-dist>
+    clara repo move <dist> <package> <from-dist>
     clara repo -h | --help | help
 
 Options:
@@ -70,6 +71,12 @@ of remote Debian repositories locally.
     clara repo copy <dist> <package> <from-dist>
 
         Copy to the given distribution a package from another distribution.
+        Note that both repositories must be handled by clara.
+
+    clara repo move <dist> <package> <from-dist>
+
+        Copy to the given distribution a package from another distribution
+        and remove the package from the origin repository.
         Note that both repositories must be handled by clara.
 
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].

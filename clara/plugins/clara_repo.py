@@ -44,6 +44,7 @@ Usage:
     clara repo list (all|<dist>)
     clara repo search <keyword>
     clara repo copy <dist> <package> <from-dist>
+    clara repo move <dist> <package> <from-dist>
     clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...]
     clara repo -h | --help | help
 
@@ -307,6 +308,12 @@ def main():
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
         do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
+    elif dargs['move']:
+        if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
+            clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
+        do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
+        do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
+        do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
     elif dargs['jenkins']:
         arch = dargs['--source']
         if arch is None:
