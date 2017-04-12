@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2016 EDF SA                                            #
+#  Copyright (C) 2014-2017 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -232,6 +232,10 @@ def system_install():
     else:
         pkgs = extra_packages_image.split(",")
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
+
+    # Finally, make sure the base image is updated with all the new versions
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "-yes", "--force-yes"])
 
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
     umount_chroot()
