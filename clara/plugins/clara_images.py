@@ -235,7 +235,7 @@ def system_install():
 
     # Finally, make sure the base image is updated with all the new versions
     run_chroot(["chroot", work_dir, "apt-get", "update"])
-    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "-yes", "--force-yes"])
+    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"])
 
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
     umount_chroot()
