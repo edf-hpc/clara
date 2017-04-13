@@ -1,3 +1,20 @@
+clara (0.20170413) calibre9; urgency=medium
+
+  * utils:
+    - fix error parsing value from file with equals. Fix #100
+    - create logging directory if it doesn't exist. Fix #95
+  * virt:
+    - introduce getmacs action. Fix #88
+  * repo:
+    - some code refactoring that also fixes #98
+    - add clara repo move. Fix #99
+  * images:
+    - make sure the created image is fully up-to-date. Fix #83
+  * impi:
+    - add clara impi soft. Fix #82
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 13 Apr 2017 11:41:55 +0200
+
 clara (0.20161223) calibre9; urgency=medium
 
   * 'clara repo jenkins': force command to look for _amd64.sources unlessç
