@@ -1,3 +1,9 @@
+clara (0.20170413.1) calibre9; urgency=medium
+
+  * images: add missing dash
+
+ -- Ana Guerrero <ana-externe.guerrero@edf.fr>  Thu, 13 Apr 2017 11:41:55 +0200
+
 clara (0.20170413) calibre9; urgency=medium
 
   * utils:
