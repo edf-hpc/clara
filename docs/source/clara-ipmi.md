@@ -9,7 +9,7 @@ clara-ipmi - manages and get the status from the nodes of a cluster
     clara ipmi connect [-jf] <host>
     clara ipmi getmac <hostlist>
     clara ipmi [--p=<level>] deconnect <hostlist>
-    clara ipmi [--p=<level>] (on|off|reboot) <hostlist>
+    clara ipmi [--p=<level>] (on|off|reboot|soft) <hostlist>
     clara ipmi [--p=<level>] status <hostlist>
     clara ipmi [--p=<level>] setpwd <hostlist>
     clara ipmi [--p=<level>] pxe <hostlist>
@@ -27,7 +27,7 @@ Alternative:
     clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> getmac
     clara ipmi [--p=<level>] <hostlist> deconnect
-    clara ipmi [--p=<level>] <hostlist> (on|off|reboot)
+    clara ipmi [--p=<level>] <hostlist> (on|off|reboot|soft)
     clara ipmi [--p=<level>] <hostlist> status
     clara ipmi [--p=<level>] <hostlist> setpwd
     clara ipmi [--p=<level>] <hostlist> pxe
@@ -69,6 +69,10 @@ automatically.
     clara ipmi reboot <hostlist>
 
         This command will perform a hard reset
+
+    clara ipmi soft <hostlist>
+
+        This command will perform a soft shutdown.
 
     clara ipmi status <hostlist>
 

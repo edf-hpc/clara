@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2016 EDF SA                                            #
+#  Copyright (C) 2014-2017 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -39,7 +39,7 @@ Usage:
     clara ipmi connect [-jf] <host>
     clara ipmi getmac <hostlist>
     clara ipmi [--p=<level>] deconnect <hostlist>
-    clara ipmi [--p=<level>] (on|off|reboot) <hostlist>
+    clara ipmi [--p=<level>] (on|off|reboot|soft) <hostlist>
     clara ipmi [--p=<level>] status <hostlist>
     clara ipmi [--p=<level>] setpwd <hostlist>
     clara ipmi [--p=<level>] pxe <hostlist>
@@ -57,7 +57,7 @@ Alternative:
     clara ipmi <host> connect [-jf]
     clara ipmi <hostlist> getmac
     clara ipmi [--p=<level>] <hostlist> deconnect
-    clara ipmi [--p=<level>] <hostlist> (on|off|reboot)
+    clara ipmi [--p=<level>] <hostlist> (on|off|reboot|soft)
     clara ipmi [--p=<level>] <hostlist> status
     clara ipmi [--p=<level>] <hostlist> setpwd
     clara ipmi [--p=<level>] <hostlist> pxe
@@ -276,6 +276,8 @@ def main():
         ipmi_do(dargs['<hostlist>'], "power", "on")
     elif dargs['off']:
         ipmi_do(dargs['<hostlist>'], "power", "off")
+    elif dargs['soft']:
+        ipmi_do(dargs['<hostlist>'], "power", "soft")
     elif dargs['reboot']:
         ipmi_do(dargs['<hostlist>'], "chassis", "power", "reset")
     elif dargs['blink']:
