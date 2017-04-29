@@ -36,11 +36,11 @@
 Creates and updates the images of installation of a cluster.
 
 Usage:
-    clara images create <dist> [<image>] [--keep-chroot-dir]
+    clara images create [--no-sync] <dist> [<image>] [--keep-chroot-dir]
     clara images unpack ( <dist> | --image=<path> )
     clara images repack <directory> ( <dist> | --image=<path> )
     clara images edit <dist> [<image>]
-    clara images initrd <dist> [--output=<dirpath>]
+    clara images initrd [--no-sync] <dist> [--output=<dirpath>]
     clara images -h | --help | help
 
 """
@@ -57,8 +57,8 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, conf
-
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf
+from clara import sftp
 
 def run_chroot(cmd):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
@@ -318,6 +318,16 @@ def genimg(image):
 
     os.chmod(squashfs_file, 0o755)
 
+    sftp_mode = has_config_value("images", "hosts", dist)
+    dargs = docopt.docopt(__doc__)
+    if sftp_mode and not dargs['--no-sync']:
+        sftp_user = get_from_config("images", "sftp_user", dist)
+        sftp_private_key = get_from_config("images", "sftp_private_key", dist)
+        sftp_passphrase = get_from_config_or("images", "sftp_passphrase", dist, None)
+        sftp_hosts = get_from_config("images", "hosts", dist).split(',')
+        sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
+        sftp_client.upload([squashfs_file], os.path.dirname(squashfs_file), 0o755)
+
 
 def extract_image(image):
     if (image is None):
@@ -380,13 +390,27 @@ def geninitrd(path):
     umount_chroot()
 
     # Copy the initrd out of the chroot
-    shutil.copy(work_dir + "/tmp/initrd-" + kver, trg_dir + "/initrd-" + kver)
-    os.chmod(trg_dir + "/initrd-" + kver, 0o644)
-    logging.info("Initrd available at " + trg_dir + "/initrd-" + kver)
+    initrd_file = trg_dir + "/initrd-" + kver
+    shutil.copy(work_dir + "/tmp/initrd-" + kver, initrd_file)
+    os.chmod(initrd_file, 0o644)
+    logging.info("Initrd available at " + initrd_file)
 
     # Copy vmlinuz out of the chroot
-    shutil.copy(work_dir + "/boot/vmlinuz-" + kver, trg_dir + "/vmlinuz-" + kver)
-    logging.info("vmlinuz available at " + trg_dir + "/vmlinuz-" + kver)
+    vmlinuz_file = trg_dir + "/vmlinuz-" + kver
+    shutil.copy(work_dir + "/boot/vmlinuz-" + kver, vmlinuz_file)
+    os.chmod(vmlinuz_file, 0o644)
+    logging.info("vmlinuz available at " + vmlinuz_file)
+
+    # Send files where they will be used
+    sftp_mode = has_config_value("images", "hosts", dist)
+    dargs = docopt.docopt(__doc__)
+    if sftp_mode and not dargs['--no-sync']:
+        sftp_user = get_from_config("images", "sftp_user", dist)
+        sftp_private_key = get_from_config("images", "sftp_private_key", dist)
+        sftp_passphrase = get_from_config_or("images", "sftp_passphrase", dist, None)
+        sftp_hosts = get_from_config("images", "hosts", dist).split(',')
+        sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
+        sftp_client.upload([initrd_file, vmlinuz_file], trg_dir, 0o644)
 
 
 def edit(image):

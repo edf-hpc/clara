@@ -6,11 +6,11 @@ clara-images - creates and updates the images of installation of a cluster
 
 # SYNOPSIS
 
-    clara images create <dist> [<image>] [--keep-chroot-dir]
+    clara images create [--no-sync] <dist> [<image>] [--keep-chroot-dir]
     clara images unpack ( <dist> | --image=<path> )
     clara images repack <directory> ( <dist> | --image=<path> )
     clara images edit <dist> [<image>]
-    clara images initrd <dist> [--output=<dirpath>]
+    clara images initrd [--no-sync] <dist> [--output=<dirpath>]
     clara images -h | --help | help
 
 Options:
@@ -23,13 +23,14 @@ Options:
 
 # OPTIONS
 
-    clara images create <dist> [<image>] [--keep-chroot-dir]
+    clara images create [--no-sync] <dist> [<image>] [--keep-chroot-dir]
 
         Create a new squashfs image to use as operating system on the cluster nodes.
         By default it unpacks the default image but the user can provide the path to a
         different file.
         The option --keep-chroot-dir allows to create the chroot used to generate
         the image. By default, this chroot directory is deleted.
+        The user can choose to not sync files over the network with --no-sync.
 
     clara images unpack ( <dist> | --image=<path> )
 
@@ -48,11 +49,12 @@ Options:
         the image again after. By default it edits the default image but the user can
         provide the path to a different image.
 
-    clara images initrd <dist> [--output=<dirpath>]
+    clara images initrd [--no-sync] <dist> [--output=<dirpath>]
 
         Create a new initrd image to boot the cluster nodes.
         The user can use the --output option to select a directory different to the default
         one to save the generated initrd.
+        The user can choose to not sync files over the network with --no-sync.
 
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
 
