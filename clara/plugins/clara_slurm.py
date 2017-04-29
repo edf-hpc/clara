@@ -39,6 +39,8 @@ Usage:
     clara slurm health <nodeset>
     clara slurm resume <nodeset>
     clara slurm drain [<nodeset>] [<reason>...]
+    clara slurm undrain <nodeset>
+    clara slurm fail [<nodeset>] [<reason>...]
     clara slurm down [<nodeset>]
     clara slurm power <state> <nodeset>
     clara slurm <cmd> <subject> [<op>] [<spec>...]
@@ -98,6 +100,18 @@ def main():
             else:
                 run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
                      "State=DRAIN", 'Reason="' + " ".join(dargs['<reason>']) + '"'])
+    elif dargs['undrain']:
+        run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
+             "State=UNDRAIN"])
+    elif dargs['fail']:
+        if dargs['<nodeset>'] is None:
+            show_nodes("fail")
+        else:
+            if len(dargs['<reason>']) == 0:
+                clara_exit("You must specify a reason when FAILING a node")
+            else:
+                run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
+                     "State=FAIL", 'Reason="' + " ".join(dargs['<reason>']) + '"'])
     elif dargs['down']:
         if dargs['<nodeset>'] is None:
             show_nodes("down")
