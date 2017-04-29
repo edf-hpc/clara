@@ -54,8 +54,8 @@ import time
 import docopt
 import ClusterShell.NodeSet
 
-from clara.utils import clara_exit, clush, run, get_from_config
-
+from clara.utils import clara_exit, clush, run, get_from_config, get_from_config_or, has_config_value
+from clara import sftp
 
 def mktorrent(image):
     if (image is None):
@@ -91,11 +91,20 @@ def mktorrent(image):
 
     clush(seeders, init_stop.format(seeding_service))
 
+    sftp_mode = has_config_value("p2p", "sftp_user", dist)
+    if sftp_mode:
+        sftp_user = get_from_config("p2p", "sftp_user", dist)
+        sftp_private_key = get_from_config("p2p", "sftp_private_key", dist)
+        sftp_passphrase = get_from_config_or("p2p", "sftp_passphrase", dist, None)
+        sftp_client = sftp.Sftp(seeders.split(','), sftp_user, sftp_private_key, sftp_passphrase)
+
     for e in trackers.keys():
         announce = []
         for t in list(ClusterShell.NodeSet.NodeSet(e)):
             announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
         run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trackers[e], squashfs_file])
+        if sftp_mode:
+            sftp_client.upload([trackers[e]], os.path.dirname(trackers[e]))
 
     clush(seeders, init_start.format(seeding_service))
 
