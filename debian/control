@@ -13,6 +13,8 @@ Architecture: all
 Recommends: gnupg-agent
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  python-docopt, clustershell (>= 1.7),
+# sftp
+ python-paramiko,
 # slurm
  slurm-client,
 # repo
