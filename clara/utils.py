@@ -104,6 +104,28 @@ def get_from_config(section, value, dist=''):
     else:
         clara_exit("{0} is not a known distribution".format(dist))
 
+def get_from_config_or(section, value, dist='', default=''):
+    """ Read a value from config.ini and return it"""
+    try:
+        if dist == '':
+            return getconfig().get(section, value).strip()
+
+        elif dist in getconfig().get("common", "allowed_distributions"):
+            or_section = section + "-" + dist
+
+            # If the value is not in the override section, return the base value
+            if getconfig().has_option(or_section, value):
+                return getconfig().get(or_section, value).strip()
+            else:
+                return getconfig().get(section, value).strip()
+    except:
+        return default
+
+
+def has_config_value(section, value, dist=''):
+    """Return True if value is found in config.ini"""
+    return (get_from_config_or(section, value, dist, None) is not None)
+
 
 def getconfig():
     files = ['/etc/clara/config.ini']
