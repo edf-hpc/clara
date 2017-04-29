@@ -40,10 +40,12 @@ Usage:
     clara slurm resume <nodeset>
     clara slurm drain [<nodeset>] [<reason>...]
     clara slurm down [<nodeset>]
+    clara slurm power <state> <nodeset>
     clara slurm <cmd> <subject> [<op>] [<spec>...]
     clara slurm -h | --help
 
 Options:
+    <state> must be either 'up' or 'down'
     <op> is one of the following ones: show, create, update and delete.
     <cmd> is one of the following ones: job, node, steps, frontend,
     partition, reservation, block and submp.
@@ -102,6 +104,15 @@ def main():
         else:
             run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
                  "State=DOWN"])
+    elif dargs['power']:
+        if dargs['<state>'] == 'up':
+            run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
+                 "State=POWER_UP"])
+        elif dargs['<state>'] == 'down':
+            run(["scontrol"] + debug + ["update", "NodeName=" + dargs['<nodeset>'],
+                 "State=POWER_DOWN"])
+        else:
+            clara_exit("Only 'up' and 'down' are valid states")
     elif dargs['health']:
         script_slurm_health = get_from_config("slurm", "script_slurm_health")
         if (len(script_slurm_health) > 0):
