@@ -39,12 +39,13 @@ Usage:
     clara repo key
     clara repo init <dist>
     clara repo sync (all|<dist> [<suites>...])
-    clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
-    clara repo del <dist> <name>...
+    clara repo push [<dist>]
+    clara repo add <dist> <file>... [--reprepro-flags="list of flags"...] [--no-push]
+    clara repo del <dist> <name>... [--no-push]
     clara repo list (all|<dist>)
     clara repo search <keyword>
-    clara repo copy <dist> <package> <from-dist>
-    clara repo move <dist> <package> <from-dist>
+    clara repo copy <dist> <package> <from-dist> [--no-push]
+    clara repo move <dist> <package> <from-dist> [--no-push]
     clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...]
     clara repo -h | --help | help
 
@@ -63,7 +64,7 @@ import tempfile
 import ConfigParser
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, value_from_file, conf
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf
 
 
 def do_key():
@@ -209,6 +210,17 @@ def do_sync(selected_dist, input_suites=[]):
             final_dir])
 
 
+def do_push(dist=''):
+    push_cmd = get_from_config_or("repo", "push", dist, None)
+    if push_cmd:
+        push_hosts = get_from_config_or("repo", "hosts", dist, '').split(',')
+        if push_hosts and push_hosts[0] is not '':
+            for host in push_hosts:
+                run(push_cmd.format(host).split(' '))
+        else:
+            run(push_cmd.split(' '))
+
+
 def do_reprepro(action, package=None, flags=None, extra=None):
     repo_dir = get_from_config("repo", "repo_dir", dist)
     reprepro_config = repo_dir + '/conf/distributions'
@@ -283,6 +295,12 @@ def main():
             do_sync('all')
         else:
             do_sync(dargs['<dist>'], dargs['<suites>'])
+    elif dargs['push']:
+        get_from_config("repo", "push", dist)
+        if dargs['<dist>']:
+            do_push(dist)
+        else:
+            do_push()
     elif dargs['add']:
         for elem in dargs['<file>']:
             if elem.endswith(".deb"):
@@ -293,10 +311,14 @@ def main():
                 do_reprepro('includedsc', elem, dargs['--reprepro-flags'])
             else:
                 clara_exit("File is not a *.deb *.dsc or *.changes")
+        if dargs['<file>'] and not dargs['--no-push']:
+            do_push(dist)
     elif dargs['del']:
         for elem in dargs['<name>']:
             do_reprepro('remove', elem)
             do_reprepro('removesrc', elem)
+        if dargs['<name>'] and not dargs['--no-push']:
+            do_push(dist)
     elif dargs['list']:
         if dargs['all']:
             do_reprepro('dumpreferences')
@@ -308,12 +330,17 @@ def main():
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
         do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
+        if not dargs['--no-push']:
+            do_push(dist)
     elif dargs['move']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
         do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
+        if not dargs['--no-push']:
+            do_push(dargs['<from-dist>'])
+            do_push(dist)
     elif dargs['jenkins']:
         arch = dargs['--source']
         if arch is None:
