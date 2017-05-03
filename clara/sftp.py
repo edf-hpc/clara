@@ -52,7 +52,7 @@ class Sftp:
     def _is_dir(sftp_client, path):
         try:
             is_dir = stat.S_ISDIR(sftp_client.stat(path).st_mode)
-        except FileNotFoundError:
+        except IOError:
             is_dir = False
         return is_dir
 
@@ -62,7 +62,7 @@ class Sftp:
             return
         else:
             parent = os.path.dirname(path[:-1])
-            _mkdir(sftp_client, parent)
+            Sftp._mkdir(sftp_client, parent)
         sftp_client.mkdir(path)
 
     def _upload(self, source_paths, sftp_client, remote_host, destination_path, mode=None):
