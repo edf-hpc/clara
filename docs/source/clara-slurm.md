@@ -12,6 +12,7 @@ clara-slurm - performs tasks using SLURM's controller
     clara slurm undrain <nodeset>
     clara slurm fail [<nodeset>] [<reason>...]
     clara slurm down [<nodeset>]
+    clara slurm power <state> <nodeset>
     clara slurm <cmd> <subject> [<op>] [<spec>...]
     clara slurm -h | --help
 
