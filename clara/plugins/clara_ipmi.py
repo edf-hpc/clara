@@ -83,7 +83,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, has_config_value
 
 
 def full_hostname(host):
@@ -253,14 +253,14 @@ def main():
 
     global parallel
     # Read the value from the config file and use 1 if it hasn't been set
-    try:
+    if has_config_value("ipmi", "parallel"):
         parallel = int(get_from_config("ipmi", "parallel"))
-    except:
-        logging.warning("parallel hasn't been set in config.ini, using 1 as value")
-        parallel = 1
-    # Use the value provided by the user in the command line
-    if dargs['--p'] is not None and dargs['--p'].isdigit():
+    elif dargs['--p'] is not None and dargs['--p'].isdigit():
+        # Use the value provided by the user in the command line
         parallel = int(dargs['--p'])
+    else:
+        logging.debug("parallel hasn't been set in config.ini, using 1 as default")
+        parallel = 1
 
     if dargs['connect']:
         do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])
