@@ -83,7 +83,13 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, run, get_from_config, value_from_file
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file
+
+
+def full_hostname(host):
+    prefix = get_from_config("ipmi", "prefix")
+    suffix = get_from_config_or("ipmi", "suffix", "")
+    return (prefix + host + suffix)
 
 
 def ipmi_run(cmd):
@@ -110,8 +116,7 @@ def ipmi_do(hosts, *cmd):
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
         if not pat.match(host):
-            prefix = get_from_config("ipmi", "prefix")
-            host = prefix + host
+            host = full_hostname(host)
 
         ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!"]
         ipmitool.extend(cmd)
@@ -133,8 +138,7 @@ def getmac(hosts):
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
         if not pat.match(host):
-            prefix = get_from_config("ipmi", "prefix")
-            host = prefix + host
+            host = full_hostname(host)
 
         logging.info("{0}: ".format(host))
         cmd = ["ipmitool", "-I", "lanplus", "-H", host,
@@ -173,8 +177,7 @@ def do_connect_ipmi(host):
 
     pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
     if not pat.match(host):
-        prefix = get_from_config("ipmi", "prefix")
-        host = prefix + host
+        host = full_hostname(host)
 
     ipmitool = ["ipmitool", "-I", "lanplus", "-H", host, "-U", imm_user, "-E", "-e!", "sol", "activate"]
     logging.debug("ipmi/ipmi_do: {0}".format(" ".join(ipmitool)))
@@ -221,9 +224,9 @@ def do_ping(hosts):
 
 
 def do_ssh(hosts, command):
-
-    prefix = get_from_config("ipmi", "prefix")
-    hosts = prefix + hosts
+    hosts_l = [ full_hostname(host) for host in ClusterShell.NodeSet.NodeSet(hosts) ]
+    hosts = ClusterShell.NodeSet.NodeSet('')
+    hosts.updaten(hosts_l)
 
     os.environ["SSHPASS"] = \
         value_from_file(get_from_config("common", "master_passwd_file"),
@@ -236,7 +239,7 @@ def do_ssh(hosts, command):
     task.set_info("ssh_user", imm_user)
     task.set_info("ssh_path", "/usr/bin/sshpass -e /usr/bin/ssh")
     task.set_info("ssh_options", "-oBatchMode=no")
-    task.shell(command, nodes=hosts)
+    task.shell(command, nodes=hosts.__str__())
     task.resume()
 
     for buf, nodes in task.iter_buffers():
