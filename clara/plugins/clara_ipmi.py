@@ -294,7 +294,9 @@ def main():
     elif dargs['disk']:
         ipmi_do(dargs['<hostlist>'], "chassis", "bootdev", "disk")
     elif dargs['reset']:
-        ipmi_do(dargs['<hostlist>'], "mc", "reset", "cold")
+        response = raw_input('Do you really want to restart BMC interface? (N/y) ')
+        if response in ('Y', 'y'):
+            ipmi_do(dargs['<hostlist>'], "mc", "reset", "cold")
     elif dargs['sellist']:
         ipmi_do(dargs['<hostlist>'], "sel", "list")
     elif dargs['selclear']:
