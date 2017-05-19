@@ -36,6 +36,8 @@
 import logging
 logger = logging.getLogger(__name__)
 
+import humanize
+
 from clara.virt.exceptions import VirtRuntimeError
 
 
@@ -88,10 +90,10 @@ class Volume():
         return result
 
     def get_capacity(self):
-        return self.capacity_bytes
+        return humanize.naturalsize(self.capacity_bytes)
 
     def get_allocation(self):
-        return self.allocation_bytes
+        return humanize.naturalsize(self.allocation_bytes)
 
     def get_name(self):
         return self.name

@@ -28,7 +28,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
 # build
  cowbuilder,
 # virt
- python-libvirt, python-jinja2
+ python-libvirt, python-jinja2, python-humanize
 Description: cluster administration tools
  Clara is a set of tools to help administering and installing clusters.
  .
