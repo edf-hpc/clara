@@ -1,3 +1,20 @@
+clara (0.20170617.1) calibre9; urgency=medium
+
+  * Add 'clara slurm power' sub-command
+  * Add 'clara slurm undrain' and 'clara slurm fail' sub-commands
+  * Add Sftp module
+  * Add two helpers in clara.utils to check configuration items and
+    handle default values
+  * repo: Add a 'push' post-command to publish modifications
+  * p2p: Add ability to sync generated .torrent files over SFTP
+  * images: add ability to sync produced files over SFTP
+  * ipmi: add support for suffix parameter (closes: #96)
+  * ipmi: ask for confirmation before doing reset, closes #90
+  * ipmi: Do not emit a warning when parallel parameter is not set, closes #60
+  * virt: display human readable capacity, closes #87
+
+ -- Mehdi Dogguy <mehdi@debian.org>  Sat, 17 Jun 2017 09:23:58 +0200
+
 clara (0.20170413.1) calibre9; urgency=medium
 
   * images: add missing dash
