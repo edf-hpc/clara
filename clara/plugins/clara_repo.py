@@ -259,7 +259,7 @@ def copy_jenkins(job, arch, flags=None):
         job = job + "-binaries"
 
     jenkins_dir = get_from_config("repo", "jenkins_dir")
-    path = os.path.join(jenkins_dir, job, "configurations/builds/lastSuccessfulBuild/archive/")
+    path = os.path.join(jenkins_dir, job, "builds/lastSuccessfulBuild/archive/")
 
     if not os.path.isdir(path):
         clara_exit("The job {} doesn't exists or needs to be build.".format(job))
