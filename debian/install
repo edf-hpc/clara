@@ -1,6 +1,0 @@
-example-conf/config.ini etc/clara
-example-conf/repos.ini etc/clara
-example-conf/virt.ini etc/clara
-example-conf/templates etc/clara
-example-conf/templates/vm/default.xml etc/clara/templates/vm
-example-conf/templates/volume/default.xml etc/clara/templates/volume

@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Changed
 - core: move bash-completion file out of debian/ tree
 
+### Removed
+- core: remove debian/ packaging code, clara is now managed as a pure upstream
+  code base with nothing nothing related to distro packaging.
+
 ## [0.20171114] - 2017-11-14
 
 ### Changed

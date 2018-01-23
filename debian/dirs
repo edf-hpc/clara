@@ -1,5 +1,0 @@
-etc/clara
-etc/clara/templates
-etc/clara/templates/vm
-etc/clara/templates/volume
-var/log/clara
