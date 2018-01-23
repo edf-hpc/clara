@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
   debian/changelog anymore as the debian directory has been removed.
 - images: use variable path to refer to policy-rc directory for chmod
 
+### Fixed
+- images: ensure mode of base install created files instead of relying on umask
+  (fix #108)
+
 ### Removed
 - core: remove debian/ packaging code, clara is now managed as a pure upstream
   code base with nothing nothing related to distro packaging.
