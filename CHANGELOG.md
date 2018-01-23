@@ -1,0 +1,569 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+
+### Changed
+- core: move bash-completion file out of debian/ tree
+
+## [0.20171114] - 2017-11-14
+
+### Changed
+- repo: update jenkins path.
+
+## [0.20170617] - 2017-06-17
+
+### Added
+- Add 'clara slurm power' sub-command
+- Add 'clara slurm undrain' and 'clara slurm fail' sub-commands
+- Add Sftp module
+- Add two helpers in clara.utils to check configuration items and
+  handle default values
+- repo: Add a 'push' post-command to publish modifications
+- p2p: Add ability to sync generated .torrent files over SFTP
+- images: add ability to sync produced files over SFTP
+- ipmi: add support for suffix parameter (fix #96)
+- virt: display human readable capacity (fix #87)
+
+### Changed
+- ipmi: ask for confirmation before doing reset (fix #90)
+- ipmi: Do not emit a warning when parallel parameter is not set (fix #60)
+
+## [0.20170413.1] - 2017-04-13
+
+### Fixed
+- images: add missing dash
+
+## [0.20170413] - 2017-04-13
+
+### Fixed
+- images: make sure the created image is fully up-to-date (fix #83)
+- repo: some code refactoring (fix #98)
+- utils: create logging directory if it doesn't exist (fix #95)
+- utils: fix error parsing value from file with equals (fix #100)
+
+### Added
+- virt: introduce getmacs action (fix #88)
+- impi: add clara impi soft (fix #82)
+- repo: add clara repo move (fix #99)
+
+## [0.20161223] - 2016-12-23
+
+### Changed
+- repo: force command to look for _amd64.sources unless another option is given
+  with --source=<arch> (fix #80)
+
+## [0.20161220] - 2016-12-20
+
+### Changed
+- chroot: remove -keep-chroot-dir, always keep modifications when editing chroot
+- chroot: better detection of mounted filesystems
+- chroot: always update dpkg database before installing packages
+
+### Fixed
+- chroot: fix path for ssl key and crt
+
+### Added
+- chroot: add possibility to use foreign dpkg archs
+- images: add possibility to use foreign dpkg archs when creating images
+
+## [0.20161130] - 2016-11-30
+
+### Changed
+- virt: use nodeset for vm_names.
+- virt: more compact list output by default add --details
+
+## [0.20161129] - 2016-11-29
+
+### Changed
+- repo: check if the job exists in jenkins before looking for changes file.
+- code: update copyright years in headers.
+
+### Fixed
+- repo: fix check for repos.ini when syncing
+
+## [0.20161108] - 2016-11-08
+
+### Added
+- chroot: Add plugin chroot.
+
+## [0.20161013] - 2016-10-13
+
+### Changed
+- repo: copy packages fron a jenkins job into the given repository. This
+  feature might evolve in the future or even go to its own plugin (fix #57).
+
+### Added
+- virt: new plugin introduced
+
+## [0.20161004] - 2016-10-04
+
+### Added
+- ipmi: allow to configure the prefix for the BMC interfaces (fix #70)
+
+### Changed
+- ipmi: update string to show errno and strerr (fix #71)
+- images: show an error when the squashfs file doesn't exist (fix #72)
+
+### Fixed
+- repo: some naming fixes in repos.ini
+- images: do not fail if package_file is not in config.ini (fix #74)
+- core: check if the config file provided in the command line exists (fix #73)
+- repos: check if /etc/clara/repos.ini is there before opening it.
+
+## [0.20160405] - 2016-04-05
+
+### Fixed
+- ipmi: fix ipmi_run() on python <=2.6
+
+## [0.20160311] - 2016-03-14
+
+### Changed
+- repos: temove parameter "group" from repos.ini (fix #61, #62).
+
+## [0.20160226] - 2016-02-26
+
+### Added
+- repo: add option to list the packages in all the repositories.
+- repo: new option to search a package in all the repositories.
+- repo: add option to copy packages from a distribution to another.
+
+### Changed
+- repo: reimplentation of sync action, code is now less dependent of the calibre
+  infra and all the repositories information is now in a new configuration file
+  named repos.ini.
+- repo: configuration parameter info_suites has been replaced by suites and it
+  is only a list of suites now.
+- repo: new file repos.ini with the configuration for every suite. Global values
+  can still be set in config.ini and an override can be added in a specific
+  section of repos.ini when needed.
+
+## [0.20160219] - 2016-02-19
+
+### Added
+- ipmi: add a SSH option, this allows to run a command through the SSH interface
+  of the IMM.
+
+### Changed
+- core: update the dependency on clustershell to version >= 1.7.
+- ipmi: add new dependency on sshpass.
+- doc: update user guide.
+
+## [0.20151117] - 2015-11-17
+
+### Added
+- repo: add a configuration parameter to choose the method that debmirror
+  should use to download files.
+
+### Changed
+- impmi: make do_ipmi fully parallel and allow to choose the level of
+  parallelism with --p=<level>.
+
+## [0.20150929] - 2015-09-29
+
+### Added
+- ipmi: add the option -p to run the ipmi commands in parallel.
+
+### Changed
+- doc: various updates.
+
+## [0.20150915] - 2015-09-15
+
+### Fixed
+- core: fix compatibility with Python2.6
+
+# [0.20150911] - 2015-09-11
+
+### Changed
+- p2p: use the same format in the configuration file for 'seeders'
+  that the one used for 'trackers'.
+
+## [0.20150903] - 2015-09-03
+
+### Fixed
+- p2p: trackers needed to be update somewhere else after the configuration
+  updates to include torrent files. Fixed now.
+
+## [0.20150825] - 2015-08-25
+
+### Added
+- ipmi: add commands sellist and selclear.
+
+### Fixed
+- add build-depends on texlive-fonts-recommended.
+
+## [0.20150612] - 2015-06-12
+
+### Added
+- core: write the version number as a string from setup.py in debian/version,
+  thanks to P. LAMARE.
+- p2p: add configuration parameters for the tracking and seeding services.
+
+### Changed
+- p2p: the configuration parameter 'trackers' contains now pairs of tracker
+  servers and the torrent files they should serve.
+
+### Fixed
+- ipmi: fix mac address parsing for getmac action
+
+## [0.20150310] - 2015-03-10
+
+### Added
+- p2p:  allow to configure in config.ini the string format to check the status,
+  stop and start the service. This allows to use systemctl (systemd) or service
+  (system V).
+
+### Changed
+- repo: rework syntax for sync (fix #53)
+
+### Fixed
+- core: Re-add and update bash-completion (fix #37).
+
+## [0.20150212] - 2015-02-12
+
+### Fixed
+- enc: do not log passwords.
+- build: fix handling of native versions.
+
+## [0.20150204] - 2015-02-04
+
+### Fixed
+- ipmi: convert port string in an integer.
+- build: set the proper directory when looking for a library source in the
+  reprepro pool.
+
+## [0.20150128] - 2015-01-28
+
+### Added
+- build: plugin introduction (fix #51).
+- ipmi: add conmand port in the config.ini
+
+## [0.20150127] - 2015-01-27
+
+### Changed
+- ipmi: check for remote conman server instead of assuming that's running
+  locally (fix #52).
+
+## [0.20150126] - 2015-01-26
+
+### Added
+- ipmi: re-add setpwd (fix #49).
+- ipmi: implements the raw cold reset (fix #50).
+
+## [0.20141216] - 2014-12-16
+
+### Added
+- core: add debugging output with "-dd" for all the third party software
+  (continues #48)
+
+## [0.20141215] - 2014-12-15
+
+### Added
+- repo: add archs and sections as configuration parameters for sync.
+- core: Add the flag -dd to  display the debug output from third party
+  applications in addition to the debug output from clara (-d). Currently, this
+  only works with debmirror. Remaining third party applications needs to be
+  added after evaluating when it's useful (fix #48).
+
+### Removed
+- core: disable the bash_completion for clara. After all the last syntax
+  changes it is not useful anymore.
+
+## [0.20141211] - 2014-12-11
+
+### Changed
+- p2p: replace completely mldonkey with opentracker.
+- p2p: the 'dist' parameter is now mandatory for mktorrent.
+
+## [0.20141205] - 2014-12-05
+
+### Added
+- ipmi: add also flags in alternative connect commands (fix #43)
+
+### Changed
+- repo: also sync debian-installer section (fix #47)
+- core: update build-depends to build the new documentation in pdf.
+- images: edit asks now the user how to proceed instead of looking for
+  /IGNORE (fix #46).
+- images: the 'dist' parameter is now mandatory (fix #45)
+- repo: the 'dist' parameter is now mandatory (fix #44)
+- doc: various updates
+
+## [0.20141118] - 2014-11-18
+
+### Added
+- doc: add Clara's user guide.
+
+### Changed
+- core: update minimal Python version to 2.7 (Jessie's default)
+- core: move the creation of the documents to the build step.
+
+## [0.20141110] - 2014-11-10
+
+### Added
+- slurm: make health check program configurable (fix #42).
+- ipmi: add the possibility to pass -j and -f cli flags to conman (fix #41).
+
+## [0.20141106] - 2014-11-06
+
+### Changed
+- images: make 'package_file' and 'preseed_file' optional (fix #40).
+- images: remove mkinitrfs and initramfsc. We'll use the system's mkinitramfs
+  and the configuration is installed by a package.
+
+### Fixed
+- images: several bugfixes.
+
+## [0.20141105] - 2014-11-05
+
+### Changed
+- doc: update manpages
+- core: update depends on slurm-llnl to slurm-client.
+
+## [0.20141031] - 2014-10-31
+
+### Added
+- core: Add initial bash_completion file (fix #37).
+
+### Changed
+- ipmi: fallback to ipmtool directly for connect when the host is provided
+  using an IP address (fix #39).
+
+## [0.20141021] - 2014-10-21
+
+### Added
+- ipmi: add deconnect command
+
+### Changed
+- images: always set the root password to 'clara', this is a temporary password
+  anyway (fix #38).
+
+### Fixed
+- core:A bunch of bugfixes.
+
+## [0.20141014] - 2014-10-14
+
+### Added
+- core: add to all the temp files and dirs the prefix 'tmpClara'
+
+### Changed
+- p2p: prevent services from starting automatically when creating an image.
+- images: add option --keep-chroot-dir to not remove temp chroot (fix #36)
+
+## [0.20141013] - 2014-10-13
+
+### Added
+- core: add logging to clara (fix #26)
+- core: run sudo if you launch clara as a normal user
+
+### Changed
+- impi do not append 'imm' when host is an IP address (fix #35)
+- images: only stop puppet and dbus daemons if they're installed.
+
+## [0.20141010] - 2014-10-10
+
+### Added
+- images: add a way to not regenerate the image if we want to dismiss our
+  changes (fix #30)
+
+### Changed
+- images: Rename important_packages as extra_packages_image (fix #31)
+- images: make sure puppet and dbus are stopped before unmounting the chroot.
+
+### Fixed
+- repo: bugfix.
+
+## [0.20141009] - 2014-10-09
+
+### Added
+- images: allow to specify the path of the generated files (fix #33)
+- repo: add option to pass reprepro flags (fix #27)
+
+### Changed
+- ipmi: getmac() show an error when the host doesn't exist
+- images: use ":" to separate ip/hostnames instead of "," (fix #34)
+- images: do not assume that the mirror has the format server+"/debian"
+
+### Removed
+- doc: remove the file FEATURES, this information is now in the manpages.
+
+## [0.20141008] - 2014-10-08
+
+### Added
+- core: add debug mode with option "-d" in bin/clara that shows all the command
+  run by the plugins, with a new class Conf for runtime configuration
+  parameters based in initial patch by @rezib (fix #8)
+- core: now we can provide a config.ini file from the command line (fix #32)
+
+### Removed
+- core: remove the possibility to have a user config file in ~/config/clara/.
+  It's better to prevent confusion to provide a file explicitily in the command
+  line when the user doesn't want to use the default one.
+
+## [0.2014100702] - 2014-10-07
+
+### Added
+- images: add the option to install an extra list of packages when creating the
+  initrd. The list is provided in config.ini with the parameter 'packages_initrd'
+- imates: modify prompt to add the distribution (fix #29)
+
+### Changed
+- repo: remove hard-coded parameters, they're now in info_suites in config.ini
+  (fix #25)
+
+## [0.20141007] - 2014-10-07
+
+### Added
+- enc: add command clara enc edit.
+- enc: now we can declare the plugin done (fix #6)
+
+### Changed
+- doc: update manpage with commands and examples
+- doc: update the manpages for 'clara images' and 'clara repo'
+- core: in config.ini file, rename some parameters: 'distribution' to
+  'default_distribution' and 'distributions' to 'allowed_distributions'
+
+## [0.20141006-2] - 2014-10-06
+
+### Added
+- repo: add clara repo list.
+- enc: initial plugin release
+
+### Fixed
+- core: Several bugfixes.
+
+## [0.20141006-1] - 2014-10-06
+
+### Added
+- repo: add 'clara repo sync all' that will sync all suites.
+- repo: allow to sync any suite no matter what's the default distribution set.
+- images: allow to change the name of the output image. Now 'clara images
+  create', 'clara images repack' and 'clara images unpack' will take an
+  argument with the name of the image if we want to use something different to
+  the name by default.
+- images: add the possibility to run a script after the image creation. The
+  path to the script must be added in the config.ini
+
+### Changed
+- doc: some updates in the manpages.
+- core: update the Depends line. And add a Recommends on gnupg-agent.
+- core: refresh the long description.
+- images: remove work_dir upon exit using atexit.
+- images: do not install recommended packages
+- images: missing files are treated as Warnings and not Errors
+- images: run mkinitramfs inside the target image.
+
+## [0.20141003] - 2014-10-03
+
+### Changed
+- ipmi: rename plugin nodes as ipmi.
+- core: create docs/man directory at build time.
+- images:'editimg' is now 'edit' and 'genimg' is now 'create'.
+
+## [0.20140924] - 2014-09-24
+
+### Added
+- repo: allow selecting which suites the user want to mirror locally.
+  Alternativaly, just add --dist=distribution to mirror all the suites used by
+  the default distribution. This feature contains hardcodes variables and it
+  needs to be fixed once we update serveurs.c.e.f (fix #24)
+
+### Changed
+- images: check if partitions are mounted before unmounting them.
+- images: make sure /proc/sys/fs/binfmt_misc is unmounted (fix #22)
+
+### Removed
+- core: Remove from config.ini remote_modules and local_modules. They are now
+  obsolete.
+
+## [0.20140922] - 2014-09-22
+
+### Added
+- doc: add manpages
+
+### Changed
+- core: update packaging to build manpages in build time with a b-d on pandoc.
+- core: Make "clara help <plugin>" show the manpage of the plugin and "clara
+  help", the generic manpage of clara.
+
+## [0.20140917] - 2014-09-17
+
+### Added
+- ipmi: add alternative order of options in the plugin nodes (fix #21)
+- core: add clara/version.py. This file is updated automatically by setup.py
+  and it's used by bin/clara to show the versin (fix #11)
+
+### Changed
+- core: update debian/rules to always remove the *.egg directory.
+
+### Removed
+- images: Remove obsolete option "images apply_config2img", it has been
+- core: delete unnecesary code. The file decoding is done by Puppet (fix #15).
+
+## [0.20140916] - 2014-09-16
+
+### Changed
+- ipmi: rename PASSWD to IMMPASSWORD to avoid confusion (fix #12)
+- core: dosmetic changes (fix #13)
+- ipmi: supress output from "service conman status" (fix #18)
+- core: change behavior when a value is not in the config file (fix #10)
+
+### Fixed
+- ipmi: fix ipmitool calls (fix #14, #20)
+- ipmi: connect can only use one host/node (fix #16)
+- ipmi: conman returns 3 when is not running if we use systemd (fix #19)
+
+### Removed
+- core: remove obsolete option, now it's in a separate plugin (fix #17)
+
+## [0.201400818] - 2014-08-18
+
+### Added
+- repo: add support for multi-distribution, read in the FEATURES file how this
+  works (fix #7).
+
+## [0.201400814] - 2014-08-14
+
+### Added
+- repo: add command now handles multiple *.dsc *.changes and *.deb in the same
+  command. clara repo del has been updated accordingly (fix #2).
+
+## [0.201400812] - 2014-08-12
+
+### Added
+- images: Add command "editimg" to the plugin (fix #5)
+- core: Add a [common] section in configuration file
+- doc: document configuration parameters
+
+### Changed
+- slurm: update the commands in the plugin slurm (fix #4)
+
+## [0.201400807] - 2014-08-07
+
+### Changed
+- images: remove the temporary files in case of failure while building the image.
+- core: add some checks to make sure the files and the directories from the config
+  file really exist (fix #1)
+
+## [0.201400806] - 2014-08-06
+
+### Changed
+- p2p: split commands in a different plugin p2p.
+
+## [0.201400805] - 2014-08-05
+
+### Changed
+-slurm: split slurm as a separate plugin.
+
+## [0.201400804] - 2014-08-04
+
+### Changed
+- images: date package dabatase before dpkg --set-selections. See #703092
+
+## [0.201400606] - 2014-06-06
+
+### Added
+core: initial Release.
