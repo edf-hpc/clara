@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- doc: add documentation about the release process in README.md
+
 ### Changed
 - core: move bash-completion file out of debian/ tree
 - core: reference version number is now in clara/version.py, not in

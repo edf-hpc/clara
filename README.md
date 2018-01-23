@@ -1,6 +1,8 @@
 Clara, a set of Cluster Administration Tools
 ============================================
 
+## Overview
+
 [clara](https://github.com/edf-hpc/clara/blob/master/docs/source/clara.md) is a set of cluster administration tools.  The different tools are written as plugins that can be added or removed independently.
 
 Clara provides the following plugins:
@@ -14,3 +16,27 @@ Clara provides the following plugins:
 * [virt](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-virt.md)     manages virtual machines
 
 Read the full [user's guide](http://edf-hpc.github.io/clara/).
+
+## Release
+
+Steps to produce release `$VERSION` (ex: `0.19700101`):
+
+1. Update `CHANGELOG.md` to move entries under the `[Unrelease]` into a new
+   release section.
+2. Bump version number in `clara/version.py`
+3. Then run:
+
+```
+git add CHANGELOG.md
+git commit -m "Release $VERSION"
+git tag -a v$VERSION -m "Release $VERSION"
+```
+
+4. Finally push all the branches and tags.
+
+To generate a tarball, run:
+
+```
+git archive --format=tar.gz --prefix=clara-$VERSION/ \
+    v$VERSION > ../clara-$VERSION.tar.gz
+```
