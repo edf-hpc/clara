@@ -38,17 +38,11 @@ try:
 except ImportError:
     from distutils.core import setup
 
-# Get version automatically from debian/changelog
-VERSION = ''
-with open("debian/changelog", 'r') as fcl:
-    fl = fcl.readline()
-VERSION = fl[fl.find("(")+1:fl.find(")")]
-
-with open("clara/version.py", 'w') as fwv:
-    fwv.write("__version__ = '{0}'".format(VERSION))
+# get __version__
+exec(open('clara/version.py').read())
 
 setup(name='Clara',
-      version=VERSION,
+      version=__version__,
       scripts=['bin/clara'],
       packages=['clara',
                 'clara.plugins',
