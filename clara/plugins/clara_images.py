@@ -98,7 +98,7 @@ def base_install():
     with open(policy_rc, 'w') as p_rcd:
         p_rcd.write("exit 101")
     p_rcd.close()
-    os.chmod(work_dir + "/usr/sbin/policy-rc.d", 0o755)
+    os.chmod(policy_rc, 0o755)
 
     # Mirror setup
     list_repos_nonsplitted = get_from_config("images", "list_repos", dist)

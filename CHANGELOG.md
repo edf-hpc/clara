@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - core: move bash-completion file out of debian/ tree
 - core: reference version number is now in clara/version.py, not in
   debian/changelog anymore as the debian directory has been removed.
+- images: use variable path to refer to policy-rc directory for chmod
 
 ### Removed
 - core: remove debian/ packaging code, clara is now managed as a pure upstream
