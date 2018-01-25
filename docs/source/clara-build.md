@@ -13,7 +13,7 @@ clara-build - builds Debian packages
 
 # DESCRIPTION
 
-*clara build* allows to build packages for any of the custom distributions
+*clara build* allows one to build packages for any of the custom distributions
 and also rebuild a package that's already in the local repository of another
 custom distribution.
 This plugin requires *cowbuilder* installed and configured.
