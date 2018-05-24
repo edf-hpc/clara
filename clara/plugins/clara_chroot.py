@@ -309,41 +309,65 @@ def install_https_apt():
         list_https_repos = None
     if not list_https_repos:
         logging.warning("list_https_repos is not specified in config.ini")
-    else:
-        # Install https transport for apt
-        run_chroot(["chroot", work_dir, "apt-get", "update"])
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "apt-transport-https", "openssl"])
-        # Add https sources in apt config
-        with open(src_list, 'a') as fsources:
-            for line in list_https_repos:
-                fsources.write(line + '\n')
-        # Add ssl keys
-        apt_ssl_key_source = get_from_config("chroot", "apt_ssl_key", dist)
-        apt_ssl_crt_source = get_from_config("chroot", "apt_ssl_crt", dist)
-        path_dest = "/etc/ssl/"
-        apt_ssl_key = path_dest+"private/"+os.path.basename(apt_ssl_key_source)
-        apt_ssl_crt = path_dest+"certs/"+os.path.basename(apt_ssl_crt_source)
-        if not os.path.isfile(apt_ssl_key_source):
-            logging.warning("{0} is not a file!".format(apt_ssl_key_source))
-        if not os.path.isfile(apt_ssl_crt_source):
-            logging.warning("{0} is not a file!".format(apt_ssl_crt_source))
-        if not os.path.isdir(path_dest):
-            os.makedirs(path_dest)
-        shutil.copy(apt_ssl_key_source, work_dir+apt_ssl_key)
-        os.chmod(work_dir+apt_ssl_key, 0600)
-        shutil.copy(apt_ssl_crt_source, work_dir+apt_ssl_crt)
-        os.chmod(work_dir+apt_ssl_crt, 0644)
-        # Add apt config for ssl key
-        with open(work_dir+"/etc/apt/apt.conf.d/52ssl", 'w') as apt_conf_ssl:
-            apt_conf_ssl.write("""#
+        return
+
+    # Install https transport for apt
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "apt-transport-https", "openssl"])
+    # Add https sources in apt config
+    with open(src_list, 'a') as fsources:
+        for line in list_https_repos:
+            fsources.write(line + '\n')
+    # Add ssl keys
+    apt_ssl_key_source = get_from_config("chroot", "apt_ssl_key", dist)
+    apt_ssl_crt_source = get_from_config("chroot", "apt_ssl_crt", dist)
+    if not os.path.isfile(apt_ssl_key_source):
+        logging.warning("{0} is not a file!".format(apt_ssl_key_source))
+    if not os.path.isfile(apt_ssl_crt_source):
+        logging.warning("{0} is not a file!".format(apt_ssl_crt_source))
+
+    # Find the owner of the apt cache, that's the user that should own
+    # the ssl certs. On Jessie it's root, on Stretch it's _apt
+    chroot_apt_dir = os.path.join(
+        work_dir, "var/cache/apt/archives/partial"
+    )
+    owner_uid = os.stat(chroot_apt_dir).st_uid
+
+    # Determine destination paths
+    path_dest = "/etc/local-pki/"
+    apt_ssl_key = path_dest + "private/" + os.path.basename(apt_ssl_key_source)
+    apt_ssl_crt = path_dest + "certs/" + os.path.basename(apt_ssl_crt_source)
+
+    # Create directory structure
+    for dir_path in [path_dest, path_dest + "private/", path_dest + "certs/"]:
+        full_dir_path = work_dir + dir_path
+        if not os.path.isdir(full_dir_path):
+            os.makedirs(full_dir_path)
+    os.chmod(work_dir + path_dest, 0755)
+    os.chmod(work_dir + path_dest + "certs/", 0755)
+    os.chown(work_dir + path_dest + "certs/", owner_uid, 0)
+    os.chmod(work_dir + path_dest + "private/", 0700)
+    os.chown(work_dir + path_dest + "private/", owner_uid, 0)
+
+    # Copy crt/key files
+    shutil.copy(apt_ssl_key_source, work_dir+apt_ssl_key)
+    os.chmod(work_dir+apt_ssl_key, 0600)
+    os.chown(work_dir+apt_ssl_key, owner_uid, -1)
+    shutil.copy(apt_ssl_crt_source, work_dir+apt_ssl_crt)
+    os.chmod(work_dir+apt_ssl_crt, 0644)
+    os.chown(work_dir+apt_ssl_crt, owner_uid, -1)
+
+    # Add apt config for ssl key
+    with open(work_dir+"/etc/apt/apt.conf.d/52ssl", 'w') as apt_conf_ssl:
+        apt_conf_ssl.write("""#
 # Configuration for apt over https, for secured repository
 #
 Acquire::https::SslCert "{0}";
 Acquire::https::SslKey  "{1}";
 Acquire::https::Verify-Peer "false";
 """.format(apt_ssl_crt, apt_ssl_key))
-        # Finally update packages database
-        run_chroot(["chroot", work_dir, "apt-get", "update"])
+    # Finally update packages database
+    run_chroot(["chroot", work_dir, "apt-get", "update"])
 
 
 def remove_files():
