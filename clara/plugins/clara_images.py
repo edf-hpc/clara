@@ -57,7 +57,7 @@ import tempfile
 import time
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
 
 def run_chroot(cmd):
@@ -88,10 +88,22 @@ def base_install():
     debiandist = get_from_config("images", "debiandist", dist)
     debmirror = get_from_config("images", "debmirror", dist)
 
-    if conf.ddebug:
-        run(["debootstrap", "--verbose", debiandist, work_dir, debmirror])
+    # Get GPG options
+    gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
+    gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
+
+    cmd = ["debootstrap", debiandist, work_dir, debmirror]
+
+    if gpg_check:
+        if gpg_keyring is not None:
+            cmd.insert(1, "--keyring=%s" % gpg_keyring)
     else:
-        run(["debootstrap", debiandist, work_dir, debmirror])
+        cmd.insert(1, "--no-check-gpg")
+
+    if conf.ddebug:
+        cmd.insert(1, "--verbose")
+
+    run(cmd)
 
     # Prevent services from starting automatically
     policy_rc = work_dir + "/usr/sbin/policy-rc.d"
