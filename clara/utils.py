@@ -43,6 +43,8 @@ import sys
 import ClusterShell.NodeSet
 import ClusterShell.Task
 
+import distutils
+from distutils import util
 
 class Conf:
     """Class which contains runtime variables"""
@@ -121,6 +123,12 @@ def get_from_config_or(section, value, dist='', default=''):
     except:
         return default
 
+def get_bool_from_config_or(section, value, dist='', default=False):
+    """ Read a boolean value from config.ini and return it"""
+    string_value = get_from_config_or(section, value, dist, None)
+    if string_value is None:
+        return default
+    return distutils.util.strtobool(string_value) == 1
 
 def has_config_value(section, value, dist=''):
     """Return True if value is found in config.ini"""
