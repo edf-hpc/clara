@@ -53,9 +53,10 @@ import atexit
 import subprocess
 import sys
 import time
+import pwd
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, conf
+from clara.utils import clara_exit, run, get_from_config, conf, get_from_config_or, get_bool_from_config_or
 
 
 def run_chroot(cmd):
@@ -83,10 +84,22 @@ def base_install():
     debiandist = get_from_config("chroot", "debiandist", dist)
     debmirror = get_from_config("chroot", "debmirror", dist)
 
-    if conf.ddebug:
-        run(["debootstrap", "--verbose", debiandist, work_dir, debmirror])
+    # Get GPG options
+    gpg_check = get_bool_from_config_or("chroot", "gpg_check", dist, True)
+    gpg_keyring = get_from_config_or("chroot", "gpg_keyring", dist, None)
+
+    cmd = ["debootstrap", debiandist, work_dir, debmirror]
+
+    if gpg_check:
+        if gpg_keyring is not None:
+            cmd.insert(1, "--keyring=%s" % gpg_keyring)
     else:
-        run(["debootstrap", debiandist, work_dir, debmirror])
+        cmd.insert(1, "--no-check-gpg")
+
+    if conf.ddebug:
+        cmd.insert(1, "--verbose")
+
+    run(cmd)
 
     # Prevent services from starting automatically
     policy_rc = work_dir + "/usr/sbin/policy-rc.d"
