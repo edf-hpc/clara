@@ -150,7 +150,7 @@ def getmac(hosts):
         # The data we want is in line 15
         lines = proc.stdout.readlines()
         if (len(lines) < 14):
-            clara_exit("The host {0} can't be reached".format(host))
+            clara_exit("Host {0} can't be reached".format(host))
         full_mac = lines[14].split(":")[1].strip().upper()
         mac_address1 = "{0}:{1}:{2}:{3}:{4}:{5}".format(full_mac[0:2],
                                                         full_mac[2:4],
@@ -197,7 +197,7 @@ def do_connect(host, j=False, f=False):
         conmand = get_from_config("ipmi", "conmand")
         port = int(get_from_config("ipmi", "port"))
         if (len(conmand) == 0):
-            clara_exit("You must set the paramenter 'conmand' in the configuration file")
+            clara_exit("You must set the configuration paramenter 'conmand'")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((conmand, port))

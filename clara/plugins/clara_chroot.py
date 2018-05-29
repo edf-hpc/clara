@@ -443,7 +443,7 @@ def main():
     if dargs['<dist>'] is not None:
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
-        clara_exit("{0} is not a know distribution".format(dist))
+        clara_exit("{0} is not a known distribution".format(dist))
     if dargs['<chroot_dir>'] is not None:
         work_dir = dargs['<chroot_dir>']
     else:

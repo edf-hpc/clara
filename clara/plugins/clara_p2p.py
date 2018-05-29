@@ -82,7 +82,7 @@ def mktorrent(image):
     seeders = ",".join(seeders_dict.keys())
 
     if not os.path.isfile(squashfs_file):
-        clara_exit("The file {0} doesn't exist".format(squashfs_file))
+        clara_exit("{0} doesn't exist".format(squashfs_file))
 
     # Remove old torrent files
     for f in trackers.values():
@@ -117,7 +117,7 @@ def main():
     if dargs["<dist>"] is not None:
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
-        clara_exit("{0} is not a know distribution".format(dist))
+        clara_exit("{0} is not a known distribution".format(dist))
 
     trackers_dict = {}
     for e in get_from_config("p2p", "trackers", dist).split(";"):

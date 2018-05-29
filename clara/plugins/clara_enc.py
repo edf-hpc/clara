@@ -66,7 +66,7 @@ def get_encryption_key():
         if len(password) > 20:
             return password
         else:
-            clara_exit("There was some problem reading the value of ASUPASSWD")
+            clara_exit("There was some problem while reading ASUPASSWD's value")
     else:
         clara_exit("Unable to read: {0}".format(master_passwd_file))
 
@@ -112,12 +112,12 @@ def main():
 
     if dargs['show'] or dargs['edit'] or dargs['decode']:
         if not dargs['<file>'].endswith(".enc"):
-            clara_exit("The filename {0} doesn't end with '.enc'.\n"
+            clara_exit("{0} doesn't end with '.enc'.\n"
                        "All encrypted files must have the suffix '.enc'".format(dargs['<file>']))
 
     if dargs['encode']:
         if dargs['<file>'].endswith(".enc"):
-            clara_exit("The filename {0} ends with '.enc'.\n"
+            clara_exit("{0} ends with '.enc'.\n"
                        "This file is probably already encrypted.".format(dargs['<file>']))
 
     if dargs['show']:

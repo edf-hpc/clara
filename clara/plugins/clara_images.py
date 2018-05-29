@@ -353,7 +353,7 @@ def extract_image(image):
         squashfs_file = image
 
     if not os.path.isfile(squashfs_file):
-        clara_exit("The image {0} does not exist!".format(squashfs_file))
+        clara_exit("{0} does not exist!".format(squashfs_file))
 
     extract_dir = tempfile.mkdtemp(prefix="tmpClara")
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, extract_dir))
@@ -377,7 +377,7 @@ def geninitrd(path):
 
     squashfs_file = get_from_config("images", "trg_img", dist)
     if not os.path.isfile(squashfs_file):
-        clara_exit("The image {0} does not exist!".format(squashfs_file))
+        clara_exit("{0} does not exist!".format(squashfs_file))
 
     if conf.ddebug:
         run(["unsquashfs", "-li", "-f", "-d", work_dir, squashfs_file])
@@ -437,7 +437,7 @@ def edit(image):
         squashfs_file = image
 
     if not os.path.isfile(squashfs_file):
-        clara_exit("The image file {0} doesn't exist.".format(squashfs_file))
+        clara_exit("{0} doesn't exist.".format(squashfs_file))
 
     # Extract the image.
     logging.info("Extracting {0} to {1} ...".format(squashfs_file, work_dir))

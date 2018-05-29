@@ -87,7 +87,7 @@ if __name__ == '__main__':
         if os.path.isfile(args['--config']):
             conf.config = os.path.abspath(args['--config'])
         else:
-            clara_exit("Configuration file '{0}' is not a file!".format(args['--config']))
+            clara_exit("'{0}' is not a file!".format(args['--config']))
 
     # If we just type 'clara' we get the short help
     if args['<plugin>'] is None:

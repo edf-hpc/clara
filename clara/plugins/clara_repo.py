@@ -105,7 +105,7 @@ def do_key():
                               "from {0} is the same you have in your configuration: {1}".format(file_stored_key, key))
 
             else:
-                clara_exit('There was some problem reading the value of ASUPASSWD')
+                clara_exit("There was some problem while reading ASUPASSWD's value")
         else:
             clara_exit('Unable to read:  {0}'.format(file_stored_key))
     else:
@@ -262,14 +262,14 @@ def copy_jenkins(job, arch, flags=None):
     path = os.path.join(jenkins_dir, job, "builds/lastSuccessfulBuild/archive/")
 
     if not os.path.isdir(path):
-        clara_exit("The job {} doesn't exists or needs to be build.".format(job))
+        clara_exit("The job {} doesn't exist or needs to be built.".format(job))
 
     for f in os.listdir(path):
         if f.endswith("_{0}.changes".format(arch)):
             changesfile = os.path.join(path+f)
 
     if changesfile is None:
-        clara_exit("Not changes files was found in {0}".format(path))
+        clara_exit("Not changes file was found in {0}".format(path))
 
     do_reprepro('include', package=changesfile, flags=flags)
 
@@ -284,7 +284,7 @@ def main():
     if dargs["<dist>"] is not None:
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
-        clara_exit("{0} is not a know distribution".format(dist))
+        clara_exit("{0} is not a known distribution".format(dist))
 
     if dargs['key']:
         do_key()
@@ -328,13 +328,13 @@ def main():
         do_reprepro('ls', extra=[dargs['<keyword>']])
     elif dargs['copy']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
-            clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
+            clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
         do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
         if not dargs['--no-push']:
             do_push(dist)
     elif dargs['move']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
-            clara_exit("{0} is not a know distribution".format(dargs['<from-dist>']))
+            clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
         do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
