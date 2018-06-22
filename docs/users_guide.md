@@ -101,7 +101,6 @@ options of *repo*:
     Usage:
         clara repo key
         clara repo init <dist>
-        clara repo push <dist>
         clara repo sync (all|<dist> [<suites>...])
         clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
         clara repo del <dist> <name>...
@@ -170,7 +169,6 @@ possibility of making mirror of remote Debian repositories locally.
 
     clara repo key
     clara repo init <dist>
-    clara repo push <dist>
     clara repo sync (all|<dist> [<suites>...])
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...]
     clara repo del <dist> <name>...
@@ -194,10 +192,6 @@ Install the secret GPG key to use in the repository.
 
 Create the initial configuration for reprepro for our local repository and makes
 the first export.
-
-    clara repo push <dist>
-
-Push a copy of repository to remote server
 
     clara repo sync (all|<dist> [<suites>...])
 
