@@ -14,6 +14,9 @@ _clara()
         build)
             _clara_build
             ;;
+        chroot)
+            _clara_chroot
+            ;;
         enc)
             _clara_enc
             ;;
@@ -345,4 +348,3 @@ _clara_slurm()
 ###############################################################################
 
 complete -F _clara clara
-
