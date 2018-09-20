@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2016 EDF SA                                                 #
+#  Copyright (C) 2016-2018 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -458,8 +458,8 @@ def main():
 
     if dargs['create']:
         base_install()
-        system_install()
         install_files()
+        system_install()
         install_https_apt()
         remove_files()
         run_script_post_creation()
