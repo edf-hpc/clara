@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2017 EDF SA                                            #
+#  Copyright (C) 2014-2018 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -504,8 +504,8 @@ def main():
         if dargs["--keep-chroot-dir"]:
             keep_chroot_dir = True
         base_install()
-        system_install()
         install_files()
+        system_install()
         remove_files()
         run_script_post_creation()
         genimg(dargs['<image>'])

@@ -194,10 +194,12 @@ def do_connect(host, j=False, f=False):
         logging.debug("The host is an IP adddres: {0}. Using ipmitool without conman.".format(host))
         do_connect_ipmi(host)
     else:
-        conmand = get_from_config("ipmi", "conmand")
+        conmand = get_from_config_or("ipmi", "conmand", '')
         port = int(get_from_config("ipmi", "port"))
         if (len(conmand) == 0):
-            clara_exit("You must set the configuration paramenter 'conmand'")
+            do_connect_ipmi(host)
+            return
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((conmand, port))
