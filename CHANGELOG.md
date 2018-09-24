@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - ipmi: fallback to ipmitool if conman client fails (fix #78)
+- images: apt clean before renaming previous image file (fix #77)
 
 ## [0.20180123] - 2018-01-23
 
