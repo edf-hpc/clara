@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- chroot: add gpg\_check and gpg\_keyring parameters
+- images: add gpg\_check and gpg\_keyring parameters
+- utils: Add get\_bool\_from\_config\_or function
+
+### Changed
+- chroot: Install files before installing packages
+- images: Setup files before installing packages
+- chroot: Set owner of apt keys to support \_apt (scibian9)
+
 ## [0.20180123] - 2018-01-23
 
 ### Added
