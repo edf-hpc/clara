@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - chroot: add gpg\_check and gpg\_keyring parameters
 - images: add gpg\_check and gpg\_keyring parameters
 - utils: Add get\_bool\_from\_config\_or function
+- utils: add exit\_on\_error optional argument to run() function for raising
+  RuntimeError in case of cmd non-zero exit code.
 
 ### Changed
 - chroot: Install files before installing packages
