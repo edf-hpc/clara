@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - images: Setup files before installing packages
 - chroot: Set owner of apt keys to support \_apt (scibian9)
 
+### Fixed
+- ipmi: fallback to ipmitool if conman client fails (fix #78)
+
 ## [0.20180123] - 2018-01-23
 
 ### Added

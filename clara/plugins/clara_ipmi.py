@@ -211,9 +211,12 @@ def do_connect(host, j=False, f=False):
             if f:
                 cmd = cmd + ["-f"]
             cmd = cmd + ["-d", conmand, host]
-            run(cmd)
+            run(cmd, exit_on_error=False)
         except socket.error as e:
             logging.debug("Conman not running. Message on connect: Errno {0} - {1}".format(e.errno, e.strerror))
+            do_connect_ipmi(host)
+        except RuntimeError as e:
+            logging.warning("Conman failed, fallback to ipmitool")
             do_connect_ipmi(host)
 
         s.close()
