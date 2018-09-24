@@ -482,12 +482,7 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global work_dir, keep_chroot_dir
-    if dargs['repack']:
-        work_dir = dargs['<directory>']
-    else:
-        work_dir = tempfile.mkdtemp(prefix="tmpClara")
-
+    global keep_chroot_dir
     keep_chroot_dir = False
     # Not executed in the following cases
     # - the program dies because of a signal
@@ -501,6 +496,13 @@ def main():
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
+
+    global work_dir
+    if dargs['repack']:
+        work_dir = dargs['<directory>']
+    else:
+        tmpdir = get_from_config_or("images", "tmp_dir", dist, "/tmp")
+        work_dir = tempfile.mkdtemp(prefix="tmpClara", dir=tmpdir)
 
     if dargs['create']:
         if dargs["--keep-chroot-dir"]:

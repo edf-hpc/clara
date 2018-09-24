@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - utils: Add get\_bool\_from\_config\_or function
 - utils: add exit\_on\_error optional argument to run() function for raising
   RuntimeError in case of cmd non-zero exit code.
+- images: add tmp\_dir option to control tmp build directory (fix #92)
 
 ### Changed
 - chroot: Install files before installing packages
