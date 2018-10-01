@@ -52,6 +52,7 @@ Usage:
     clara ipmi [--p=<level>] sellist <hostlist>
     clara ipmi [--p=<level>] selclear <hostlist>
     clara ipmi ssh <hostlist> <command>
+    clara ipmi [--p=<level>] command <hostlist> <command>...
     clara ipmi -h | --help
 Alternative:
     clara ipmi <host> connect [-jf]
@@ -70,6 +71,7 @@ Alternative:
     clara ipmi [--p=<level>] <hostlist> sellist
     clara ipmi [--p=<level>] <hostlist> selclear
     clara ipmi <hostlist> ssh <command>
+    clara ipmi [--p=<level>] <hostlist> command <command>...
 """
 
 import errno
@@ -310,6 +312,8 @@ def main():
         do_ping(dargs['<hostlist>'])
     elif dargs['ssh']:
         do_ssh(dargs['<hostlist>'], dargs['<command>'])
+    elif dargs['command']:
+        ipmi_do(dargs['<hostlist>'], *dargs['<command>'])
 
 if __name__ == '__main__':
     main()
