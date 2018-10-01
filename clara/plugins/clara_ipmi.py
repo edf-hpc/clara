@@ -259,12 +259,12 @@ def main():
     dargs = docopt.docopt(__doc__)
 
     global parallel
-    # Read the value from the config file and use 1 if it hasn't been set
-    if has_config_value("ipmi", "parallel"):
-        parallel = int(get_from_config("ipmi", "parallel"))
-    elif dargs['--p'] is not None and dargs['--p'].isdigit():
-        # Use the value provided by the user in the command line
+    # Use the value provided by the user in the command line
+    if dargs['--p'] is not None and dargs['--p'].isdigit():
         parallel = int(dargs['--p'])
+    # Read the value from the config file and use 1 if it hasn't been set
+    elif has_config_value("ipmi", "parallel"):
+        parallel = int(get_from_config("ipmi", "parallel"))
     else:
         logging.debug("parallel hasn't been set in config.ini, using 1 as default")
         parallel = 1
