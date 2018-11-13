@@ -264,6 +264,8 @@ def copy_jenkins(job, arch, flags=None):
     if not os.path.isdir(path):
         clara_exit("The job {} doesn't exist or needs to be built.".format(job))
 
+    changesfile = None
+
     for f in os.listdir(path):
         if f.endswith("_{0}.changes".format(arch)):
             changesfile = os.path.join(path+f)
