@@ -316,6 +316,12 @@ def run_script_post_creation():
 def genimg(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
+            if os.path.isfile(squashfs_file):
+                os.rename(squashfs_file, squashfs_file + ".old")
+                logging.info("Previous image renamed to {0}.".format(squashfs_file + ".old"))
+
     else:
         path_to_image = os.path.dirname(image)
         if not os.path.isdir(path_to_image) and len(path_to_image) != 0:
@@ -351,6 +357,8 @@ def genimg(image):
 def extract_image(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
     else:
         squashfs_file = image
 
@@ -371,13 +379,18 @@ def extract_image(image):
 def geninitrd(path):
     if (path is None):
         trg_dir = get_from_config("images", "trg_dir", dist)
+
+        if (trg_dir=="" or trg_dir==None):
+            trg_dir = "/var/lib/clara/"
     else:
         trg_dir = path
 
+
     if not os.path.isdir(trg_dir):
         os.makedirs(trg_dir)
-
     squashfs_file = get_from_config("images", "trg_img", dist)
+    if (squashfs_file=="" or squashfs_file==None):
+        squashfs_file = "/var/lib/clara/image.squashfs"
     if not os.path.isfile(squashfs_file):
         clara_exit("{0} does not exist!".format(squashfs_file))
 
@@ -435,6 +448,9 @@ def geninitrd(path):
 def edit(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
+
     else:
         squashfs_file = image
 
