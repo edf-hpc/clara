@@ -115,8 +115,8 @@ def get_from_config(section, value, dist=''):
             if getconfig().has_option(section, value):
                 return getconfig().get(section, value).strip()
             else:
-                #If the value is a trg_dir or trg_img, return None else raise an error
-                if (value=="trg_dir" or value=="trg_img"):
+                # we specify a certain values that can accept a None as a value
+                if (value=="trg_dir" or value=="trg_img" or value=="mirror_local"):
                     return None
                 else:
                     clara_exit("Value '{0}' not found in section '{1}'".format(value, section))
