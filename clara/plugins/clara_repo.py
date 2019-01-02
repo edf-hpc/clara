@@ -113,46 +113,55 @@ def do_key():
 
 
 def do_init():
+    import shutil
     repo_dir = get_from_config("repo", "repo_dir", dist)
     reprepro_config = repo_dir + '/conf/distributions'
     mirror_local = get_from_config("repo", "mirror_local", dist)
     if (mirror_local=="" or mirror_local==None):
         mirror_local = repo_dir +'/mirror'
 
-    if not os.path.isfile(reprepro_config):
-        if not os.path.isdir(repo_dir + '/conf'):
-            os.makedirs(repo_dir + '/conf')
+    if os.path.isdir(repo_dir):
+        clara_exit("The repository '{0}' already exists !".format(repo_dir))
+    else :
+        if not os.path.isfile(reprepro_config):
 
-        freprepro = open(reprepro_config, 'w')
-        freprepro.write("""Origin: {0}
-Label: {1}
-Suite: {1}
-Codename: {1}
-Version: {2}
-Architectures: amd64 source
-Components: main contrib non-free
-UDebComponents: main
-SignWith: {3}
-Description: Depot Local {4}
-DebIndices: Packages Release . .gz .bz2
-DscIndices: Sources Release . .gz .bz2
-""".format(get_from_config("common", "origin", dist),
-            dist,
-            get_from_config("repo", "version", dist),
-            get_from_config("repo", "gpg_key", dist),
-            get_from_config("repo", "clustername", dist)))
-        freprepro.close()
+            try :
+                if not os.path.isdir(repo_dir + '/conf'):
+                    os.makedirs(repo_dir + '/conf')
 
-        os.chdir(repo_dir)
+                freprepro = open(reprepro_config, 'w')
+                freprepro.write("""Origin: {0}
+        Label: {1}
+        Suite: {1}
+        Codename: {1}
+        Version: {2}
+        Architectures: amd64 source
+        Components: main contrib non-free
+        UDebComponents: main
+        SignWith: {3}
+        Description: Depot Local {4}
+        DebIndices: Packages Release . .gz .bz2
+        DscIndices: Sources Release . .gz .bz2
+        """.format(get_from_config("common", "origin", dist),
+                    dist,
+                    get_from_config("repo", "version", dist),
+                    get_from_config("repo", "gpg_key", dist),
+                    get_from_config("repo", "clustername", dist)))
+                freprepro.close()
 
-        list_flags = ['--ask-passphrase']
-        if conf.ddebug:
-            list_flags.append("-V")
+                os.chdir(repo_dir)
 
-        run(['reprepro'] + list_flags +
-            ['--basedir', repo_dir,
-             '--outdir', mirror_local,
-             'export', dist])
+                list_flags = ['--ask-passphrase']
+                if conf.ddebug:
+                    list_flags.append("-V")
+
+                run(['reprepro'] + list_flags +
+                    ['--basedir', repo_dir,
+                     '--outdir', mirror_local,
+                     'export', dist])
+            except:
+                shutil.rmtree(repo_dir)
+                clara_exit("The repository '{0}' has not been initialized properly, it will be deleted  !".format(repo_dir))
 
 
 def get(config, section, value):
