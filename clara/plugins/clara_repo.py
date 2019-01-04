@@ -195,7 +195,7 @@ def do_sync(selected_dist, input_suites=[]):
                         "Valid suites are: {2}".format(
                          s, selected_dist, get_from_config("repo", "suites", selected_dist)))
             suites = input_suites
-
+    suites = [suite for suite in suites if suite]
     logging.debug("The suites to sync are: {0}.".format(" ".join(suites)))
 
     # Read /etc/clara/repos.ini
