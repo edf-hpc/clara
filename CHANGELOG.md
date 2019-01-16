@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20190116] - 2019-01-16
+
 ### Added
 - chroot: add gpg\_check and gpg\_keyring parameters
 - images: add gpg\_check and gpg\_keyring parameters
