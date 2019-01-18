@@ -11,6 +11,7 @@ clara-images - creates and updates the images of installation of a cluster
     clara images repack <directory> ( <dist> | --image=<path> )
     clara images edit <dist> [<image>]
     clara images initrd [--no-sync] <dist> [--output=<dirpath>]
+    clara images push <dist> [<image>]
     clara images -h | --help | help
 
 Options:
@@ -56,6 +57,11 @@ Options:
         one to save the generated initrd.
         The user can choose to not sync files over the network with --no-sync.
 
+    clara images push <dist> [<image>]
+
+        Force an existed image which was edited or created with --no-sync to sync
+        over the network.
+           
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
 
 # EXAMPLES
