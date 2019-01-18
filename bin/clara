@@ -53,6 +53,7 @@ Clara provides the following plugins:
    enc      Interact with encrypted files using configurable methods.
    build    Builds Debian packages.
    virt     Manages virtual machines.
+   show     Show configuration dump.
 
 See 'clara help <plugin>' for detailed help on a plugin
 and 'clara <plugin> --help' for a quick list of options of a plugin.
