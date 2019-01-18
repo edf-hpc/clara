@@ -41,8 +41,8 @@ Usage:
     clara images repack <directory> ( <dist> | --image=<path> )
     clara images edit <dist> [<image>]
     clara images initrd [--no-sync] <dist> [--output=<dirpath>]
+    clara images push <dist> [<image>]
     clara images -h | --help | help
-
 """
 
 import errno
@@ -447,6 +447,30 @@ def geninitrd(path):
         sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
         sftp_client.upload([initrd_file, vmlinuz_file], trg_dir, 0o644)
 
+def push(image):
+    if (image is None):
+        squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
+    else:
+        squashfs_file = image
+
+    if not os.path.isfile(squashfs_file):
+        clara_exit("{0} doesn't exist.".format(squashfs_file))
+
+    # Send files where they will be used
+    sftp_mode = has_config_value("images", "hosts", dist)
+    dargs = docopt.docopt(__doc__)
+    if sftp_mode:
+        sftp_user = get_from_config("images", "sftp_user", dist)
+        sftp_private_key = get_from_config("images", "sftp_private_key", dist)
+        sftp_passphrase = get_from_config_or("images", "sftp_passphrase", dist, None)
+        sftp_hosts = get_from_config("images", "hosts", dist).split(',')
+        sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
+        sftp_client.upload([squashfs_file], os.path.dirname(squashfs_file), 0o755)
+    else:
+        clara_exit("Hosts not found for the image {0}".format(squashfs_file))
+
 
 def edit(image):
     if (image is None):
@@ -540,7 +564,8 @@ def main():
         geninitrd(dargs['--output'])
     elif dargs['edit']:
         edit(dargs['<image>'])
-
+    elif dargs['push']:
+        push(dargs['<image>'])
 
 if __name__ == '__main__':
     main()
