@@ -40,6 +40,7 @@ Usage:
     clara chroot edit <dist> [<chroot_dir>]
     clara chroot install <dist> [<packages>]
     clara chroot remove <dist> [<packages>]
+    clara chroot reconfig <dist>
     clara chroot -h | --help | help
 
 """
@@ -470,6 +471,8 @@ def main():
         edit(dargs['<chroot_dir>'])
     elif dargs['install']:
         install_packages(dargs['<packages>'])
+    elif dargs['reconfig']:
+        install_files()    
     elif dargs['remove']:
         remove_packages(dargs['<packages>'])
 
