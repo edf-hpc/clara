@@ -239,7 +239,7 @@ def do_reprepro(action, package=None, flags=None, extra=None):
     mirror_local = get_from_config("repo", "mirror_local", dist)
     if (mirror_local=="" or mirror_local==None):
         mirror_local = repo_dir +'/mirror'
-
+    oldMask = os.umask(0022)
     if not os.path.isfile(reprepro_config):
         clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
 
@@ -264,8 +264,8 @@ def do_reprepro(action, package=None, flags=None, extra=None):
 
         if package is not None:
             cmd.append(package)
-
     run(cmd)
+    os.umask(oldMask)
 
 
 def copy_jenkins(job, arch, flags=None):
