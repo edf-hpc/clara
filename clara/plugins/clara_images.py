@@ -183,7 +183,7 @@ def umount_chroot():
         run(["chroot", work_dir, "umount", "/sys"])
 
     if os.path.ismount(work_dir + "/proc"):
-        run(["chroot", work_dir, "umount", "/proc"])
+        run(["chroot", work_dir, "umount","-lf", "/proc"])
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
@@ -408,7 +408,6 @@ def geninitrd(path):
     else:
         run_chroot(["chroot", work_dir, "apt-get", "update"])
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
-
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
     if len(packages_initrd) == 0:
@@ -419,6 +418,8 @@ def geninitrd(path):
 
     # Generate the initrd in the image
     run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver])
+
+
     umount_chroot()
 
     # Copy the initrd out of the chroot
