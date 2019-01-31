@@ -2,8 +2,8 @@
 _clara()
 {
     local cur=${COMP_WORDS[COMP_CWORD]}
-    SUBCOMMANDS="build enc images ipmi p2p repo slurm"
-    DISTRIBUTIONS="calibre7 calibre8 calibre9"
+    SUBCOMMANDS="build enc images ipmi chroot p2p repo slurm"
+    DISTRIBUTIONS="calibre7 calibre8 calibre9 scibian9"
 
     if [[ $COMP_CWORD -eq 1 ]]; then
         COMPREPLY=( $(compgen -W "$SUBCOMMANDS help --help --version" -- $cur) )
@@ -22,6 +22,9 @@ _clara()
             ;;
         ipmi)
             _clara_ipmi
+            ;;
+        chroot)
+            _clara_chroot
             ;;
         p2p)
             _clara_p2p
@@ -106,6 +109,35 @@ _clara_enc()
         _filedir
     fi
 }
+###############################################################################
+_clara_chroot()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    SC_CHROOT="create edit install remove reconfig"
+
+    if [[ $COMP_CWORD -eq 2 ]]; then
+        COMPREPLY=( $(compgen -W "$SC_CHROOT" -- $cur) )
+    else
+        case ${COMP_WORDS[2]} in
+            create)
+                COMPREPLY=( $(compgen -W "$DISTRIBUTIONS" -- $cur) )
+                ;;
+            edit)
+                COMPREPLY=( $(compgen -W "$DISTRIBUTIONS" -- $cur) )
+                ;;
+            install)
+                COMPREPLY=( $(compgen -W "$DISTRIBUTIONS" -- $cur) )
+                ;;
+            remove)
+                COMPREPLY=( $(compgen -W "$DISTRIBUTIONS" -- $cur) )
+                ;;
+            reconfig)
+                COMPREPLY=( $(compgen -W "$DISTRIBUTIONS" -- $cur) )
+                ;;
+        esac
+    fi
+}
+
 
 ###############################################################################
 _clara_images()
@@ -345,4 +377,3 @@ _clara_slurm()
 ###############################################################################
 
 complete -F _clara clara
-
