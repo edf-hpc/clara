@@ -153,7 +153,10 @@ def has_config_value(section, value, dist=''):
 
 
 def getconfig():
-    files = ['/etc/clara/config.ini']
+    # Set a default configuration file in /usr as a backup conf file where it loads ONLY
+    # the configuration params that are missing in the provided conf file /etc/clara/config.ini
+
+    files = ['/usr/share/clara/config.ini','/etc/clara/config.ini']
     if conf.config:
         files.append(conf.config)
 
