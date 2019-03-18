@@ -41,8 +41,8 @@ Usage:
     clara images repack <directory> ( <dist> | --image=<path> )
     clara images edit <dist> [<image>]
     clara images initrd [--no-sync] <dist> [--output=<dirpath>]
+    clara images push <dist> [<image>]
     clara images -h | --help | help
-
 """
 
 import errno
@@ -183,7 +183,7 @@ def umount_chroot():
         run(["chroot", work_dir, "umount", "/sys"])
 
     if os.path.ismount(work_dir + "/proc"):
-        run(["chroot", work_dir, "umount", "/proc"])
+        run(["chroot", work_dir, "umount","-lf", "/proc"])
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
@@ -316,6 +316,13 @@ def run_script_post_creation():
 def genimg(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            image_name=dist+"_image.squashfs"
+            squashfs_file = "/var/lib/clara/"+image_name
+            if os.path.isfile(squashfs_file):
+                os.rename(squashfs_file, squashfs_file + ".old")
+                logging.info("Previous image renamed to {0}.".format(squashfs_file + ".old"))
+
     else:
         path_to_image = os.path.dirname(image)
         if not os.path.isdir(path_to_image) and len(path_to_image) != 0:
@@ -351,6 +358,9 @@ def genimg(image):
 def extract_image(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            image_name=dist+"_image.squashfs"
+            squashfs_file = "/var/lib/clara/"+image_name
     else:
         squashfs_file = image
 
@@ -371,13 +381,19 @@ def extract_image(image):
 def geninitrd(path):
     if (path is None):
         trg_dir = get_from_config("images", "trg_dir", dist)
+
+        if (trg_dir=="" or trg_dir==None):
+            trg_dir = "/var/lib/clara/"
     else:
         trg_dir = path
 
+
     if not os.path.isdir(trg_dir):
         os.makedirs(trg_dir)
-
     squashfs_file = get_from_config("images", "trg_img", dist)
+    if (squashfs_file=="" or squashfs_file==None):
+        image_name=dist+"_image.squashfs"
+        squashfs_file = "/var/lib/clara/"+image_name
     if not os.path.isfile(squashfs_file):
         clara_exit("{0} does not exist!".format(squashfs_file))
 
@@ -395,7 +411,6 @@ def geninitrd(path):
     else:
         run_chroot(["chroot", work_dir, "apt-get", "update"])
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
-
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
     if len(packages_initrd) == 0:
@@ -406,6 +421,8 @@ def geninitrd(path):
 
     # Generate the initrd in the image
     run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver])
+
+
     umount_chroot()
 
     # Copy the initrd out of the chroot
@@ -431,10 +448,37 @@ def geninitrd(path):
         sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
         sftp_client.upload([initrd_file, vmlinuz_file], trg_dir, 0o644)
 
+def push(image):
+    if (image is None):
+        squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
+    else:
+        squashfs_file = image
+
+    if not os.path.isfile(squashfs_file):
+        clara_exit("{0} doesn't exist.".format(squashfs_file))
+
+    # Send files where they will be used
+    sftp_mode = has_config_value("images", "hosts", dist)
+    dargs = docopt.docopt(__doc__)
+    if sftp_mode:
+        sftp_user = get_from_config("images", "sftp_user", dist)
+        sftp_private_key = get_from_config("images", "sftp_private_key", dist)
+        sftp_passphrase = get_from_config_or("images", "sftp_passphrase", dist, None)
+        sftp_hosts = get_from_config("images", "hosts", dist).split(',')
+        sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
+        sftp_client.upload([squashfs_file], os.path.dirname(squashfs_file), 0o755)
+    else:
+        clara_exit("Hosts not found for the image {0}".format(squashfs_file))
+
 
 def edit(image):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
+        if (squashfs_file=="" or squashfs_file==None):
+            squashfs_file = "/var/lib/clara/image.squashfs"
+
     else:
         squashfs_file = image
 
@@ -521,7 +565,8 @@ def main():
         geninitrd(dargs['--output'])
     elif dargs['edit']:
         edit(dargs['<image>'])
-
+    elif dargs['push']:
+        push(dargs['<image>'])
 
 if __name__ == '__main__':
     main()

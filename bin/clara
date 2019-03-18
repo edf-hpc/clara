@@ -53,6 +53,7 @@ Clara provides the following plugins:
    enc      Interact with encrypted files using configurable methods.
    build    Builds Debian packages.
    virt     Manages virtual machines.
+   show     Show configuration dump.
 
 See 'clara help <plugin>' for detailed help on a plugin
 and 'clara <plugin> --help' for a quick list of options of a plugin.
@@ -69,54 +70,63 @@ from clara.utils import clara_exit, conf, initialize_logger
 
 if __name__ == '__main__':
 
-    args = docopt.docopt(__doc__, version=__version__, options_first=True)
-
-    # if you are not root, launch the script with sudo
-    if os.geteuid() != 0:
-        os.execvp("sudo", ["sudo"] + sys.argv)
-
-    if args['-d'] > 0:
-        conf.debug = True
-
-    if args['-d'] == 2:
-        conf.ddebug = True
-
-    initialize_logger(conf.debug)
-
-    if args['--config']:
-        if os.path.isfile(args['--config']):
-            conf.config = os.path.abspath(args['--config'])
-        else:
-            clara_exit("'{0}' is not a file!".format(args['--config']))
-
-    # If we just type 'clara' we get the short help
-    if args['<plugin>'] is None:
-        sys.exit(__doc__)
-
-    # When we type 'clara help' docopt thinks it's a plugin
-    if args['<plugin>'] == 'help':
-        if len(args['<args>']) == 0:
-            subprocess.call(['man', 'clara'])
-        else:
-            page = "clara-{0}".format(args['<args>'][0])
-            subprocess.call(['man', page])
-
-        sys.exit()
-
-   # Finally we check if it's a clara plugin or show an error message
     try:
-        m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
-    except ImportError:
-        clara_exit("Sorry, the plugin {0} doesn't exist. "
-                 "See 'clara --help'.".format(args['<plugin>']))
+        args = docopt.docopt(__doc__, version=__version__, options_first=True)
 
-    # We remove all the "[options]" since the plugins won't know them
-    rarg = []
-    rarg.append(sys.argv[0])
-    for e in range(1, len(sys.argv)):
-        if sys.argv[e] == args['<plugin>']:
-            break
-    rarg = rarg + sys.argv[e:]
-    sys.argv = rarg
+        # if you are not root, launch the script with sudo
+        if os.geteuid() != 0:
+            os.execvp("sudo", ["sudo"] + sys.argv)
 
-    m.main()
+        if args['-d'] > 0:
+            conf.debug = True
+
+        if args['-d'] == 2:
+            conf.ddebug = True
+
+        initialize_logger(conf.debug)
+
+        if args['--config']:
+            if os.path.isfile(args['--config']):
+                conf.config = os.path.abspath(args['--config'])
+            else:
+                clara_exit("'{0}' is not a file!".format(args['--config']))
+
+        # If we just type 'clara' we get the short help
+        if args['<plugin>'] is None:
+            sys.exit(__doc__)
+
+        # When we type 'clara help' docopt thinks it's a plugin
+        if args['<plugin>'] == 'help':
+            if len(args['<args>']) == 0:
+                subprocess.call(['man', 'clara'])
+            else:
+                page = "clara-{0}".format(args['<args>'][0])
+                subprocess.call(['man', page])
+
+            sys.exit()
+
+       # Finally we check if it's a clara plugin or show an error message
+        try:
+            m = importlib.import_module('clara.plugins.clara_' + args['<plugin>'])
+        except ImportError:
+            clara_exit("Sorry, the plugin {0} doesn't exist. "
+                     "See 'clara --help'.".format(args['<plugin>']))
+
+        # We remove all the "[options]" since the plugins won't know them
+        rarg = []
+        rarg.append(sys.argv[0])
+        for e in range(1, len(sys.argv)):
+            if sys.argv[e] == args['<plugin>']:
+                break
+        rarg = rarg + sys.argv[e:]
+        sys.argv = rarg
+        m.main()
+    except KeyboardInterrupt:
+        try:
+            nb= raw_input("Clara was interrupted, would you like to exit ? Y(yes)/N(no)  ")
+            if nb=='N' or nb=='no':
+                m.main()
+            else:
+                sys.exit(0)
+        except KeyboardInterrupt:
+            print("Clara will exit now !")

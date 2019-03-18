@@ -40,6 +40,7 @@ Usage:
     clara chroot edit <dist> [<chroot_dir>]
     clara chroot install <dist> [<packages>]
     clara chroot remove <dist> [<packages>]
+    clara chroot reconfig <dist>
     clara chroot -h | --help | help
 
 """
@@ -164,8 +165,10 @@ def mount_chroot():
         extra_bind_mounts = get_from_config("chroot", "extra_bind_mounts", dist).split(",")
     except:
         extra_bind_mounts = None
+
     if not extra_bind_mounts:
-        logging.warning("extra_bind_mounts is not specified in config.ini")
+        if conf.ddebug:
+            logging.warning("extra_bind_mounts is not specified in config.ini")
     else:
         for mounts_params in extra_bind_mounts:
             dirtomount = mounts_params.split(" ")[0]
@@ -189,7 +192,8 @@ def umount_chroot():
     except:
         extra_bind_mounts = None
     if not extra_bind_mounts:
-        logging.warning("extra_bind_mounts is not specified in config.ini")
+        if conf.ddebug:
+            logging.warning("extra_bind_mounts is not specified in config.ini")
     else:
         for mounts_params in extra_bind_mounts:
             mountpoint = work_dir+mounts_params.split(" ")[1]
@@ -467,6 +471,8 @@ def main():
         edit(dargs['<chroot_dir>'])
     elif dargs['install']:
         install_packages(dargs['<packages>'])
+    elif dargs['reconfig']:
+        install_files()    
     elif dargs['remove']:
         remove_packages(dargs['<packages>'])
 

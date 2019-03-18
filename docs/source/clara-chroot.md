@@ -10,6 +10,7 @@ clara-chroot - creates and updates a chroot
     clara chroot edit <dist> [<chroot_dir>]
     clara chroot install <dist> [<packages>]
     clara chroot remove <dist> [<packages>]
+    clara chroot reconfig <dist>
     clara chroot -h | --help | help
 
 # DESCRIPTION
@@ -39,6 +40,11 @@ clara-chroot - creates and updates a chroot
 
         Remove the packages indicated from chroot directory. Packages names
         must be separated by ','.
+
+    clara chroot reconfig <dist>
+
+        Reinstall configuration file on an existing chroot, it would update
+        apt configuration as an example of use
 
 
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
