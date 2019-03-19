@@ -6,18 +6,18 @@ clara-show - show the set of configuration used in config.ini
 
 # SYNOPSIS
 
-    clara show All|<section> [<dist>]
+    clara show all|<section> [<dist>]
     clara enc -h | --help | help
 
 # DESCRIPTION
 
-*clara show* displays the sections in a config.ini file, it can show all the parameters with 'All' or with a specific section like images, repos, etc..
+*clara show* displays the sections in a config.ini file, it can show all the parameters with 'all' or with a specific section like images, repos, etc..
 
 # OPTIONS
 
-    clara show All|<section> [<dist>
+    clara show all|<section> [<dist>
 
-        Shows All sections of an distribution or a specific one
+        Shows all sections of an distribution or a specific one
 
 # SEE ALSO
 
