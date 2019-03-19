@@ -36,7 +36,7 @@
 Show the set of configuration used in config.ini
 
 Usage:
-    clara show <section> [<dist>]
+    clara show all | <section> [<dist>]
 
 """
 
@@ -52,7 +52,7 @@ import docopt
 from clara.utils import clara_exit, conf, initialize_logger,getconfig
 
 def show(section=None,dist=None):
-    if section == "All":
+    if section == "all":
         for sec in getconfig().sections():
             for item in list(getconfig().items(sec)):
                 print item[0], ":", item[1]
