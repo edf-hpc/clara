@@ -36,7 +36,7 @@
 Show the set of configuration used in config.ini
 
 Usage:
-    clara show all | <section> [<dist>]
+    clara show <section> [<dist>]
 
 """
 
