@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20190321] - 2019-03-21
+
+### Added
+- virt: add parameter host
+- images: add push to force push of images
+- clara: add pluging show
+- clara: add default conf file in /usr/share/clara
+- chroot: add reconfig to reinstall files
+### Fix
+- images: fix initrd fail because /proc is busy
+- repo: Set the correct umask in repository modifications
+- repo: fix the failure of clara repo sync all
+- repo: fix the case where init fails but creates the repository anyway
+- images: fix default path for trg_dir and trg_img in the case where they are empty or NONE
+- clara: hide warn about unset extra_bind_mount
+
 ## [0.20190116] - 2019-01-16
 
 ### Added
