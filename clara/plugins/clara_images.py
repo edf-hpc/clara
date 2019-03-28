@@ -337,6 +337,11 @@ def genimg(image):
         logging.info("Previous image renamed to {0}.".format(squashfs_file + ".old"))
 
     logging.info("Creating image at {0}".format(squashfs_file))
+
+    if not os.path.exists(os.path.dirname(squashfs_file)):
+        logging.info("Creating local directory path", os.path.dirname(squashfs_file))
+        os.makedirs(os.path.dirname(squashfs_file))
+ 
     if conf.ddebug:
         run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend", "-info"])
     else:

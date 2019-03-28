@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Fixed
+- images: create local squash directory if it doesn't exist before making squash file
 
 ## [0.20190321] - 2019-03-21
 
