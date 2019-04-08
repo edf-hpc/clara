@@ -125,40 +125,40 @@ def do_init():
     else :
         if not os.path.isfile(reprepro_config):
 
-            try :
-                if not os.path.isdir(repo_dir + '/conf'):
-                    os.makedirs(repo_dir + '/conf')
+            if not os.path.isdir(repo_dir + '/conf'):
+                os.makedirs(repo_dir + '/conf')
 
-                freprepro = open(reprepro_config, 'w')
-                freprepro.write("""Origin: {0}
-        Label: {1}
-        Suite: {1}
-        Codename: {1}
-        Version: {2}
-        Architectures: amd64 source
-        Components: main contrib non-free
-        UDebComponents: main
-        SignWith: {3}
-        Description: Depot Local {4}
-        DebIndices: Packages Release . .gz .bz2
-        DscIndices: Sources Release . .gz .bz2
-        """.format(get_from_config("common", "origin", dist),
+            freprepro = open(reprepro_config, 'w')
+            freprepro.write("""Origin: {0}
+Label: {1}
+Suite: {1}
+Codename: {1}
+Version: {2}
+Architectures: amd64 source
+Components: main contrib non-free
+UDebComponents: main
+SignWith: {3}
+Description: Depot Local {4}
+DebIndices: Packages Release . .gz .bz2
+DscIndices: Sources Release . .gz .bz2
+""".format(get_from_config("common", "origin", dist),
                     dist,
                     get_from_config("repo", "version", dist),
                     get_from_config("repo", "gpg_key", dist),
                     get_from_config("repo", "clustername", dist)))
-                freprepro.close()
+            freprepro.close()
 
-                os.chdir(repo_dir)
+            os.chdir(repo_dir)
 
-                list_flags = ['--ask-passphrase']
-                if conf.ddebug:
-                    list_flags.append("-V")
+            list_flags = ['--ask-passphrase']
+            if conf.ddebug:
+                list_flags.append("-V")
+            try:
 
                 run(['reprepro'] + list_flags +
                     ['--basedir', repo_dir,
-                     '--outdir', mirror_local,
-                     'export', dist])
+                    '--outdir', mirror_local,
+                    'export', dist])
             except:
                 shutil.rmtree(repo_dir)
                 clara_exit("The repository '{0}' has not been initialized properly, it will be deleted  !".format(repo_dir))
