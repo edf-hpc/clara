@@ -62,6 +62,7 @@ def mktorrent(image):
         squashfs_file = get_from_config("images", "trg_img", dist)
     else:
         squashfs_file = image
+    torrent_repo = get_from_config("images", "trg_dir", dist)
     trackers_port = get_from_config("p2p", "trackers_port", dist)
     trackers_schema = get_from_config("p2p", "trackers_schema", dist)
     seeding_service = get_from_config("p2p", "seeding_service", dist)
@@ -71,14 +72,14 @@ def mktorrent(image):
     # trackers is a dictionary with pairs nodeset and torrent file
     trackers = {}
     for e in get_from_config("p2p", "trackers", dist).split(";"):
-        k, v = e.split(":")
-        trackers[k] = v
+        k, v_trackers = e.split(":")
+        trackers[k] = v_trackers
 
     # seeders in the config file is a dictionary with pairs nodeset and torrent file
     seeders_dict = {}
     for e in get_from_config("p2p", "seeders", dist).split(";"):
-        k, v = e.split(":")
-        seeders_dict[k] = v
+        k, v_seeders = e.split(":")
+        seeders_dict[k] = v_seeders
     seeders = ",".join(seeders_dict.keys())
 
     if not os.path.isfile(squashfs_file):
@@ -103,6 +104,9 @@ def mktorrent(image):
         for t in list(ClusterShell.NodeSet.NodeSet(e)):
             announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
         run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trackers[e], squashfs_file])
+        os.chmod(v_trackers,0644)
+        os.chmod(v_seeders,0644)
+        os.chmod(torrent_repo,0755)
         if sftp_mode:
             sftp_client.upload([trackers[e]], os.path.dirname(trackers[e]))
 
