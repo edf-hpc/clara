@@ -78,20 +78,22 @@ def get_digest_type():
     if digest == "":
         logging.warning("Digest type not defined")
         logging.info("Using default digest type: sha256")
+    	digest = "sha256"
     elif digest not in ['md2', 'md5', 'mdc2', 'rmd160', 'sha', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512']:
         logging.warning("Invalid digest type : {0}".format(digest))
         logging.info("Using default digest type: sha256 ")
-    digest = "sha256"
+    	digest = "sha256"
     return digest
 
 def do(op, origfile):
     password = get_encryption_key()
+    digest = get_digest_type()
     f = tempfile.NamedTemporaryFile(prefix="tmpClara")
 
     if op == "decrypt":
-        cmd = ['openssl', 'aes-256-cbc', '-d', '-in', origfile, '-out', f.name, '-k', password]
+        cmd = ['openssl', 'aes-256-cbc', '-md', digest, '-d', '-in', origfile, '-out', f.name, '-k', password]
     elif op == "encrypt":
-        cmd = ['openssl', 'aes-256-cbc', '-in', origfile, '-out', f.name, '-k', password]
+        cmd = ['openssl', 'aes-256-cbc', '-md', digest, '-in', origfile, '-out', f.name, '-k', password]
 
     cmd_log = cmd[:-1] + ["Password"]
     logging.debug("enc/do: {0}".format(" ".join(cmd_log)))
