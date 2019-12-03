@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.20191203] - 2019-12-03
+
+### Added
+- clara: add digest type to be used for the calculation of the encryption key in config.ini
+  Default digest type is sha256 
+
 ## [0.20190424] - 2019-04-24
+
 ### Fixed
 - p2p: fix restricted rights on torrent files and their directories
 - images: create local squash directory if it doesn't exist before making squash file
