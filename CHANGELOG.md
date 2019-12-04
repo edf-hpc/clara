@@ -6,9 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [0.20191203] - 2019-12-03
 
-### Added
-- clara: add digest type to be used for the calculation of the encryption key in config.ini
-  Default digest type is sha256 
+### Fixed
+- enc: fix digest type used for the calculation of the encryption key.
+  Define digest type in config.ini instead of using the default digest of the operating system,
+  and use sha256 in case of invalid or undefined digest type (fix #118)
 
 ## [0.20190424] - 2019-04-24
 
