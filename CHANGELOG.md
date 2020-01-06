@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.20200106] - 2020-01-06
+
+### Fixed
+- clara: fix exception in case of undefined digest type
+### Removed
+- clara: remove digest_type parameter from config.ini
+### Added
+- clara: add digest_type parameter in config_default.ini
+
 ## [0.20191210] - 2019-12-10
 
 ### Fixed
