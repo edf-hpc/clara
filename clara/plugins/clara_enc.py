@@ -52,7 +52,7 @@ import tempfile
 
 import docopt
 
-from clara.utils import clara_exit, get_from_config, value_from_file
+from clara.utils import clara_exit, get_from_config, get_from_config_or, value_from_file
 
 
 # In the future, this function will get the key using several method,
@@ -74,7 +74,7 @@ def get_encryption_key():
 # Default digest type is sha256 in case of undefined or invalid type
 def get_digest_type():
 
-    digest = get_from_config("common", "digest_type")
+    digest = get_from_config_or("common", "digest_type")
     if digest == "":
         logging.warning("Digest type not defined")
         logging.info("Using default digest type: sha256")
