@@ -54,13 +54,6 @@ import docopt
 
 from clara.utils import clara_exit, get_from_config
 
-# this dict both defines the allowed dists in parameter of this script and the
-# associated tag appended to the debian version of the rebuilt package
-target_dists = {}
-for elem in get_from_config("build", "target_dists").split(","):
-    key, value = elem.split(":")
-    target_dists[key] = value
-
 
 def copy_files_to_workdir(orig, dest):
     for f in glob.glob(orig):
@@ -78,6 +71,13 @@ def print_info(name, full_version, upstream_version, debian_version):
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__, options_first=True)
+
+    # this dict both defines the allowed dists in parameter of this script and the
+    # associated tag appended to the debian version of the rebuilt package
+    target_dists = {}
+    for elem in get_from_config("build", "target_dists").split(","):
+        key, value = elem.split(":")
+        target_dists[key] = value
 
     target_dist = dargs['<dist>']
     if target_dist not in target_dists.keys():
