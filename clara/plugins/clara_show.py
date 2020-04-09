@@ -49,28 +49,32 @@ import tempfile
 
 import docopt
 
-from clara.utils import clara_exit, conf, initialize_logger,getconfig
+from clara.utils import clara_exit, conf, initialize_logger, getconfig
 
-def show(section=None,dist=None):
-    if section == "all":
+
+def print_section(list_items):
+    for key, value in list_items:
+        print("{}:{}".format(key, value))
+    print('\n')
+
+
+def show(section='all',dist=None):
+    if section == 'all':
         for sec in getconfig().sections():
-            for item in list(getconfig().items(sec)):
-                print item[0], ":", item[1]
+            print_section(getconfig().items(sec))
+
     elif section in getconfig().sections():
-            if (dist == '') or (dist ==None):
-                for item in list(getconfig().items(section)):
-                    print item[0], ":", item[1]
-            elif dist in getconfig().get("common", "allowed_distributions"):
-                or_section = section + "-" + dist
-                print "\nSection - ", section,"\n"
-                for item in list(getconfig().items(section)):
-                    print item[0], ":", item[1]
-                print "\nSection - ", or_section,"\n"
-                if or_section in getconfig().sections():
-                    for item in list(getconfig().items(or_section)):
-                        print item[0], ":", item[1]
-                else:
-                    clara_exit("'{0}' is not section in config.ini".format(or_section))
+        if dist is None:
+            print_section(getconfig().items(section))
+        elif dist in getconfig().get("common", "allowed_distributions"):
+            s_section = "{}-{}".format(section, dist)
+            print("Section - {}".format(section))
+            print_section(getconfig().items(section))
+            print("Section - {}".format(s_section))
+            if s_section in getconfig().sections():
+                print_section(getconfig().items(section))
+            else:
+                clara_exit("'{0}' is not section in config.ini".format(s_section))
     else:
         clara_exit("'{0}' is not a section in config.ini".format(section))
 
