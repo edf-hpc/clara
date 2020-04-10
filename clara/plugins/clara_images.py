@@ -60,24 +60,24 @@ import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
 
-def run_chroot(cmd):
+def run_chroot(cmd, work_dir):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
 
     try:
         retcode = subprocess.call(cmd)
-    except OSError, e:
+    except OSError as e:
         if (e.errno == errno.ENOENT):
             clara_exit("Binary not found, check your path and/or retry as root. \
                       You were trying to run:\n {0}".format(" ".join(cmd)))
 
     if retcode != 0:
-        umount_chroot()
+        umount_chroot(work_dir)
         if not keep_chroot_dir:
             shutil.rmtree(work_dir)
         clara_exit(' '.join(cmd))
 
 
-def base_install():
+def base_install(work_dir, dist):
     # Debootstrap
     src_list = work_dir + "/etc/apt/sources.list"
     apt_pref = work_dir + "/etc/apt/preferences.d/00custompreferences"
@@ -110,8 +110,8 @@ def base_install():
     with open(policy_rc, 'w') as p_rcd:
         p_rcd.write("exit 101")
     p_rcd.close()
-    os.chmod(policy_rc, 0o755)
 
+    os.chmod(policy_rc, 0o755)
     # Mirror setup
     list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
     if ';' in list_repos_nonsplitted:
@@ -170,12 +170,12 @@ path-include=/usr/share/locale/locale.alias
     #output = part2.communicate()[0]
 
 
-def mount_chroot():
+def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
 
 
-def umount_chroot():
+def umount_chroot(work_dir):
     if os.path.ismount(work_dir + "/proc/sys/fs/binfmt_misc"):
         run(["chroot", work_dir, "umount", "/proc/sys/fs/binfmt_misc"])
 
@@ -191,8 +191,8 @@ def umount_chroot():
                 clara_exit("Something went wrong when umounting in the chroot")
 
 
-def system_install():
-    mount_chroot()
+def system_install(work_dir, dist):
+    mount_chroot(work_dir)
 
     # Configure foreign architecture if this has been set in config.ini
     try:
@@ -205,9 +205,9 @@ def system_install():
     else:
         for arch in foreign_archs:
             logging.warning("Configure foreign_arch {0}".format(arch))
-            run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch])
+            run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
 
-    run_chroot(["chroot", work_dir, "apt-get", "update"])
+    run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
 
     # Set presseding if the file has been set in config.ini
     preseed_file = get_from_config("images", "preseed_file", dist)
@@ -216,10 +216,11 @@ def system_install():
     else:
         shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
         # we need to install debconf-utils
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"])
-        run_chroot(["chroot", work_dir, "apt-get", "update"])
-        run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"])
-        run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"])
+        run_chroot(["chroot", work_dir, "apt-get", "install",
+                    "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"], work_dir)
+        run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
+        run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"], work_dir)
+        run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"], work_dir)
 
     # Install packages from package_file if this file has been set in config.ini
     try:
@@ -240,7 +241,8 @@ def system_install():
                                      stdin=part1.stdout, stdout=subprocess.PIPE)
             part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
             output = part2.communicate()[0]
-            run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])
+            run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"],
+                       work_dir)
 
     # Install extra packages if extra_packages_image has been set in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
@@ -248,17 +250,18 @@ def system_install():
         logging.warning("extra_packages_image hasn't be set in the config.ini")
     else:
         pkgs = extra_packages_image.split(",")
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs,
+                   work_dir)
 
     # Finally, make sure the base image is updated with all the new versions
-    run_chroot(["chroot", work_dir, "apt-get", "update"])
-    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"])
+    run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
+    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
 
-    run_chroot(["chroot", work_dir, "apt-get", "clean"])
-    umount_chroot()
+    run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
+    umount_chroot(work_dir)
 
 
-def install_files():
+def install_files(work_dir, dist):
     list_files_to_install = get_from_config("images", "list_files_to_install", dist)
     if not os.path.isfile(list_files_to_install):
         logging.warning("{0} is not a file!".format(list_files_to_install))
@@ -285,14 +288,14 @@ def install_files():
                 os.chmod(final_file, file_perm)
 
                 if ("etc/init.d" in dest):
-                    run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"])
+                    run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"], work_dir)
 
     # Empty hostname
     os.remove(work_dir + "/etc/hostname")
-    run_chroot(["chroot", work_dir, "touch", "/etc/hostname"])
+    run_chroot(["chroot", work_dir, "touch", "/etc/hostname"], work_dir)
 
 
-def remove_files():
+def remove_files(work_dir, dist):
     files_to_remove = get_from_config("images", "files_to_remove", dist).split(',')
     for f in files_to_remove:
         if os.path.isfile(work_dir + "/" + f):
@@ -300,7 +303,7 @@ def remove_files():
     os.remove(work_dir + "/usr/sbin/policy-rc.d")
 
 
-def run_script_post_creation():
+def run_script_post_creation(work_dir, dist):
     script = get_from_config("images", "script_post_image_creation", dist)
     if len(script) == 0:
         logging.warning("script_post_image_creation hasn't be set in the config.ini")
@@ -310,10 +313,10 @@ def run_script_post_creation():
         # Copy the script into the chroot and make sure it's executable
         shutil.copy(script, work_dir + "/tmp/script")
         os.chmod(work_dir + "/tmp/script", 0o755)
-        run_chroot(["chroot", work_dir, "bash", "/tmp/script"])
+        run_chroot(["chroot", work_dir, "bash", "/tmp/script"], work_dir)
 
 
-def genimg(image):
+def genimg(image, work_dir, dist):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
         if (squashfs_file=="" or squashfs_file==None):
@@ -330,7 +333,7 @@ def genimg(image):
         squashfs_file = image
 
     logging.info("Cleaning APT cache in working directory")
-    run_chroot(["chroot", work_dir, "apt-get", "clean"])
+    run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
 
     if os.path.isfile(squashfs_file):
         os.rename(squashfs_file, squashfs_file + ".old")
@@ -360,7 +363,7 @@ def genimg(image):
         sftp_client.upload([squashfs_file], os.path.dirname(squashfs_file), 0o755)
 
 
-def extract_image(image):
+def extract_image(image, dist):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
         if (squashfs_file=="" or squashfs_file==None):
@@ -383,7 +386,7 @@ def extract_image(image):
           "\tclara images repack {0} ( <dist> | --image=<path> )".format(extract_dir))
 
 
-def geninitrd(path):
+def geninitrd(path, work_dir, dist):
     if (path is None):
         trg_dir = get_from_config("images", "trg_dir", dist)
 
@@ -414,21 +417,22 @@ def geninitrd(path):
     if len(kver) == 0:
         clara_exit("kver hasn't be set in config.ini")
     else:
-        run_chroot(["chroot", work_dir, "apt-get", "update"])
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver])
+        run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
+        run_chroot(["chroot", work_dir, "apt-get", "install",
+                    "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
     if len(packages_initrd) == 0:
         logging.warning("packages_initrd hasn't be set in config.ini")
     else:
         pkgs = packages_initrd.split(',')
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
+        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs,
+                   work_dir)
 
     # Generate the initrd in the image
-    run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver])
+    run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver], work_dir)
 
-
-    umount_chroot()
+    umount_chroot(work_dir)
 
     # Copy the initrd out of the chroot
     initrd_file = trg_dir + "/initrd-" + kver
@@ -453,7 +457,7 @@ def geninitrd(path):
         sftp_client = sftp.Sftp(sftp_hosts, sftp_user, sftp_private_key, sftp_passphrase)
         sftp_client.upload([initrd_file, vmlinuz_file], trg_dir, 0o644)
 
-def push(image):
+def push(image, dist):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
         if (squashfs_file=="" or squashfs_file==None):
@@ -479,7 +483,7 @@ def push(image):
         clara_exit("Hosts not found for the image {0}".format(squashfs_file))
 
 
-def edit(image):
+def edit(image, work_dir, dist):
     if (image is None):
         squashfs_file = get_from_config("images", "trg_img", dist)
         if (squashfs_file=="" or squashfs_file==None):
@@ -521,9 +525,9 @@ def edit(image):
           "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
 
 
-def clean_and_exit():
+def clean_and_exit(work_dir, keep_chroot_dir):
     if os.path.exists(work_dir):
-        umount_chroot()
+        umount_chroot(work_dir)
         if not keep_chroot_dir:
             shutil.rmtree(work_dir)
 
@@ -532,47 +536,46 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global keep_chroot_dir
     keep_chroot_dir = False
-    # Not executed in the following cases
-    # - the program dies because of a signal
-    # - os._exit() is invoked directly
-    # - a Python fatal error is detected (in the interpreter)
-    atexit.register(clean_and_exit)
 
-    global dist
     dist = get_from_config("common", "default_distribution")
     if dargs['<dist>'] is not None:
         dist = dargs["<dist>"]
     if dist not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a know distribution".format(dist))
 
-    global work_dir
+    work_dir = ""
     if dargs['repack']:
         work_dir = dargs['<directory>']
     else:
         tmpdir = get_from_config_or("images", "tmp_dir", dist, "/tmp")
         work_dir = tempfile.mkdtemp(prefix="tmpClara", dir=tmpdir)
 
+    # Not executed in the following cases
+    # - the program dies because of a signal
+    # - os._exit() is invoked directly
+    # - a Python fatal error is detected (in the interpreter)
+    atexit.register(clean_and_exit, work_dir, keep_chroot_dir)
+
     if dargs['create']:
         if dargs["--keep-chroot-dir"]:
             keep_chroot_dir = True
-        base_install()
-        install_files()
-        system_install()
-        remove_files()
-        run_script_post_creation()
-        genimg(dargs['<image>'])
+        base_install(work_dir, dist)
+        install_files(work_dir, dist)
+        system_install(work_dir, dist)
+        remove_files(work_dir, dist)
+        run_script_post_creation(work_dir, dist)
+        genimg(dargs['<image>'], work_dir, dist)
     elif dargs['repack']:
-        genimg(dargs['--image'])
+        genimg(dargs['--image'], work_dir, dist)
     elif dargs['unpack']:
-        extract_image(dargs['--image'])
+        extract_image(dargs['--image'], dist)
     elif dargs['initrd']:
-        geninitrd(dargs['--output'])
+        geninitrd(dargs['--output'], work_dir, dist)
     elif dargs['edit']:
-        edit(dargs['<image>'])
+        edit(dargs['<image>'], work_dir, dist)
     elif dargs['push']:
-        push(dargs['<image>'])
+        push(dargs['<image>'], dist)
 
 if __name__ == '__main__':
     main()
