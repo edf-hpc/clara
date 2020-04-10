@@ -11,7 +11,7 @@ def fakeconfig():
     return config
 
 
-def test_main(mocker):
+def test_main_source(mocker):
     def fakedocopt(doc, argv=None, options_first=False):
         fake_options = {'<dist>': 'calibre9',
                         'source': True,
@@ -43,6 +43,3 @@ def test_main(mocker):
                                   '-v', u'0.20190424-0sci8u1+c9+1',
                                   'Rebuild for calibre9.'])
     m_logging.assert_any_call(u'/root/cowbuilder-calibre9 --build clara_0.20190424-0sci8u1+c9+1.dsc')
-
-    #m_subprocess.assert_any_call(['/root/cowbuilder-calibre9', '--build','clara_0.20190424-0sci8u1.dsc'])
-    #([u'/root/cowbuilder-calibre9',\n  '--build',\n  'clara_0.20190424-0sci8u1+c9+1.dsc'])

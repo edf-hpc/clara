@@ -122,8 +122,10 @@ def main():
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         lines_proc = proc.stdout.readlines()
         found_package = False
+        line_package = ""
         for line in lines_proc:
             if ("|source: {0} ".format(package_name) in line):
+                line_package = line
                 found_package = True
                 break
 
@@ -140,7 +142,7 @@ def main():
 
         # Look for the files and copy them to the temp directory
         area = "main"
-        if "non-free" in line:
+        if "non-free" in line_package:
             area = "non-free"
 
         if package_name.startswith("lib"):
@@ -151,7 +153,7 @@ def main():
         # Note this is the path from the *origin* dist
         repo_path_pool = get_from_config("build", "repo_path_pool", origin_dist)
         repo_path_pool = repo_path_pool + "{0}/{1}".format(area, package_dir)
-        full_version = line.split(" ")[-1].strip()
+        full_version = line_package.split(" ")[-1].strip()
         upstream_version, debian_version = full_version.split("-")
         name = package_name
 
