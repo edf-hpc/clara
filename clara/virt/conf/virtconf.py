@@ -42,6 +42,7 @@ from clara.virt.exceptions import VirtConfigurationException
 
 from ClusterShell.NodeSet import NodeSet
 
+
 class VirtConf(ConfigParser.ConfigParser, object):
 
     def __init__(self, filename):
