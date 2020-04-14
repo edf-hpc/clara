@@ -58,14 +58,10 @@ Options:
 """
 
 import logging
-logger = logging.getLogger(__name__)
-
 import docopt
 import sys
 import os.path
 import ClusterShell
-
-
 from clara import utils
 
 # Version 10.2.9 is Debian Jessie
@@ -87,7 +83,10 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
-def do_list(conf, show_hosts = False, show_volumes = False, host_name = None):
+logger = logging.getLogger(__name__)
+
+
+def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
     vm_line = "VM:{0:16} State:{1:12} Host:{2:16}"
     host_line = "    Host:{0:16} HostState:{1:16}"
     vol_line = "    Volume:{0:32} Pool:{1:16} Capacity:{2:12}"
@@ -102,30 +101,31 @@ def do_list(conf, show_hosts = False, show_volumes = False, host_name = None):
         vm_name = vm.get_name()
         if host_name:
             if host_name==host:
-                print vm_line.format(vm_name, vm.get_state(), host)
+                print(vm_line.format(vm_name, vm.get_state(), host))
         else:
-            print vm_line.format(vm_name, vm.get_state(), host)
+            print(vm_line.format(vm_name, vm.get_state(), host))
         if show_hosts:            
             if host_name:
                 for host, state in host_states.items():
-                    if host_name==host:
-                        print "Host:"
-                        print host_line.format(host, state)
-                        print "  Volumes:"
+                    if host_name == host:
+                        print("Host:")
+                        print(host_line.format(host, state))
+                        print("  Volumes:")
             else:
-                print "  Hosts:"
+                print("  Hosts:")
                 for host, state in host_states.items():
-                    print host_line.format(host, state)
-                    print "  Volumes:"
+                    print(host_line.format(host, state))
+                    print("  Volumes:")
         if show_volumes:
             if host_name:
                 for vol in vm.get_volumes():
-                    if vol.get_name()==vm_name+"_system" and host_name==host:
-                        print vol_line.format(
+                    if vol.get_name() == vm_name+"_system" and host_name==host:
+                        print(vol_line.format(
                             vol.get_name(),
                             vol.get_pool().get_name(),
                             vol.get_capacity()
-                        )
+                        ))
+
 
 def do_action(conf, params, action):
     group = NodeGroup(conf)
@@ -166,6 +166,7 @@ def do_action(conf, params, action):
             logging.error("Action %s not supported.", action)
             exit(1)
 
+
 def do_define(conf, params):
     group = NodeGroup(conf)
     vm_names = params['vm_names']
@@ -188,6 +189,7 @@ def do_define(conf, params):
         machine.create_volumes(template_name, template_dir)
         machine.define(template_name, template_dir, host)
 
+
 def do_getmacs(conf, params):
     group = NodeGroup(conf)
     vm_names = params['vm_names']
@@ -201,7 +203,7 @@ def do_getmacs(conf, params):
                 template_name = conf.get_template_default()
 
         machine = group.get_vm(vm_name, create=True)
-        print("%s:" % (vm_name))
+        print("%s:" % vm_name)
         for net, mac in machine.get_macs(template_name).iteritems():
             print("  %s: %s" % (net, mac))
 
@@ -215,7 +217,7 @@ def main():
 
     try:
         virt_conf.read()
-    except VirtConfigurationException, err:
+    except VirtConfigurationException as err:
         utils.clara_exit("Configuration Error: %s" % err)
 
     params = {
@@ -259,6 +261,7 @@ def main():
         elif dargs['getmacs']:
             params['template'] = dargs['--template']
             do_getmacs(virt_conf, params)
+
 
 if __name__ == '__main__':
     main()

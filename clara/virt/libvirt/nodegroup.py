@@ -40,7 +40,8 @@ from clara.virt.libvirt.libvirtclient import LibVirtClient
 from clara.virt.libvirt.vm import VM
 from clara.virt.libvirt.pool import Pool
 
-class NodeGroup():
+
+class NodeGroup:
 
     """Group of nodes acting as physical hosts for VMs
 

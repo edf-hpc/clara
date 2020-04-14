@@ -34,14 +34,14 @@
 ##############################################################################
 
 import logging
-logger = logging.getLogger(__name__)
-
 import humanize
 
 from clara.virt.exceptions import VirtRuntimeError
 
+logger = logging.getLogger(__name__)
 
-class Volume():
+
+class Volume:
 
     """VirPilot Storage Volume
     """

@@ -34,13 +34,13 @@
 ##############################################################################
 
 import logging
-logger = logging.getLogger(__name__)
-
 import libvirt
 from libvirt import libvirtError
 
+logger = logging.getLogger(__name__)
 
-class LibVirtClient():
+
+class LibVirtClient:
     state_name = {
         libvirt.VIR_DOMAIN_RUNNING:     'RUNNING',
         libvirt.VIR_DOMAIN_BLOCKED:     'BLOCKED',
@@ -80,7 +80,7 @@ class LibVirtClient():
         try:
             self._connect()
         except libvirtError:
-            logger.warn("Failed to connect to %s" % self.hostname)
+            logger.warning("Failed to connect to %s" % self.hostname)
         if self.conn is None:
             return False
         else:
@@ -138,16 +138,16 @@ class LibVirtClient():
         domain = self._get_domain(vm_name)
         if self.get_vm_state(vm_name) is 'RUNNING':
             if hard:
-                logger.warn("Destroying VM '%s'", vm_name)
+                logger.warning("Destroying VM '%s'", vm_name)
                 success = domain.destroy() == 0
             else:
-                logger.warn("Shutting down VM '%s'", vm_name)
+                logger.warning("Shutting down VM '%s'", vm_name)
                 success = domain.shutdown() == 0
             if not success:
-                logger.warn("Failed to request shutdown of VM '%s'", vm_name)
+                logger.warning("Failed to request shutdown of VM '%s'", vm_name)
             return success
         else:
-            logger.warn("VM '%s' is not running, can't shutdown", vm_name)
+            logger.warning("VM '%s' is not running, can't shutdown", vm_name)
             return False
 
     def vm_start(self, vm_name):
@@ -155,10 +155,10 @@ class LibVirtClient():
         if self.get_vm_state(vm_name) is not 'RUNNING':
             success = domain.create() == 0
             if not success:
-                logger.warn("Failed to request start of VM '%s'" % vm_name)
+                logger.warning("Failed to request start of VM '%s'" % vm_name)
             return success
         else:
-            logger.warn("VM '%s' is already running, can't start" % vm_name)
+            logger.warning("VM '%s' is already running, can't start" % vm_name)
             return False
 
     def vm_define(self, xml_desc):
@@ -167,7 +167,7 @@ class LibVirtClient():
     def vm_undefine(self, vm_name):
         domain = self._get_domain(vm_name)
         if self.get_vm_state(vm_name) is 'RUNNING':
-            logger.warn("VM '%s' is running, can't undefine.", vm_name)
+            logger.warning("VM '%s' is running, can't undefine.", vm_name)
             return False
         domain.undefine()
         return True
