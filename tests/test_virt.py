@@ -14,6 +14,9 @@ class virDomain:
     def state(self):
         return self._state
 
+    def shutdown(self):
+        return 0
+
 
 class virStorageVol:
     """ Fake class for libvirt.virStorageVol"""
@@ -38,6 +41,8 @@ class virStoragePool:
     def storageVolLookupByName(self, name):
         return virStorageVol()
 
+    def createXML(self, xml_desc):
+        return True
 
 class virConnect:
     """ Fake class for libvirt.virConnect"""
@@ -48,21 +53,26 @@ class virConnect:
 
     def __init__(self, host):
         self.domains = self.def_domains[host]
-        self.pools = pools
+        self.pools = self.pools
+
 
     def listAllStoragePools(self):
         return self.pools
+
 
     def storagePoolLookupByName(self, name):
         for pool in self.pools:
             if pool.name() == name:
                 return pool
 
+
     def listAllDomains(self):
         return self.domains
 
+
     def lookupByName(self, name):
         return self.domains[0]
+
 
 @pytest.fixture
 def nodegroup(mocker):
@@ -72,16 +82,47 @@ def nodegroup(mocker):
     virt_conf.read()
     return NodeGroup(virt_conf)
 
+
 def test_load_virtualconf():
     virt_conf = VirtConf('data/virt.ini')
     virt_conf.read()
 
 
-def test_nodegroup_init(mocker, nodegroup):
-    print(nodegroup.clients)
+def test_nodegroup_init(nodegroup):
     assert nodegroup.clients.keys() == ['hw2', 'hw1']
 
-def test_nodegroup_vms(mocker, nodegroup):
+
+def test_nodegroup_vms(nodegroup):
     vms = nodegroup.get_vms()
     vm1 = vms.values()[0]
     assert vm1.get_host_state() == {'hw1': 'RUNNING'}
+    assert vm1.get_name() == "node1"
+    assert vm1.get_state() == "RUNNING"
+    volumes = vm1.get_volumes()
+    assert volumes[0].get_name() == "node1_disk"
+    assert volumes[0].get_capacity() == '10.0 GB'
+
+
+def test_vm_actions(nodegroup):
+    vms = nodegroup.get_vms()
+    vm1 = vms.values()[0]
+    assert vm1.wipe() is False
+    assert vm1.start() is False
+    assert vm1.stop() is True
+    assert vm1.undefine() is False
+    # this is buggy None is returned
+    assert vm1.migrate('host2') not in [True, False]
+
+
+def test_get_macs(nodegroup):
+    vms = nodegroup.get_vms()
+    vm1 = vms.values()[0]
+    vm2 = vms.values()[1]
+    assert vm1.get_macs("") == {'administration': '00:16:3e:c8:96:1f'}
+    # different MAC
+    assert vm2.get_macs("") != {'administration': '00:16:3e:c8:96:1f'}
+
+def test_create_volume(nodegroup):
+    vms = nodegroup.get_vms()
+    vm1 = vms.values()[0]
+    vm1.create_volumes("node","data")
