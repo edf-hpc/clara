@@ -47,9 +47,11 @@ class virStoragePool:
 class virConnect:
     """ Fake class for libvirt.virConnect"""
 
-    pools = [virStoragePool('bb-pool', ['node1_disk']), virStoragePool('bb2-pool', ['node2_disk'])]
+    pools = [virStoragePool('bb-pool', ['node1_disk']),
+             virStoragePool('bb2-pool', ['node2_disk'])]
+
     def_domains = {'qemu+ssh://hw1/system': [virDomain('node1', [1, 2])],
-               'qemu+ssh://hw2/system': [virDomain('node2', [1, 3])]}
+                   'qemu+ssh://hw2/system': [virDomain('node2', [1, 3])]}
 
     def __init__(self, host):
         self.domains = self.def_domains[host]
@@ -76,6 +78,9 @@ class virConnect:
 
 @pytest.fixture
 def nodegroup(mocker):
+    """it setup mock object for libvirt module and returns
+    Nodegroup object
+    """
     mocker.patch("clara.virt.libvirt.libvirtclient.libvirt.open",
                  side_effect=virConnect)
     virt_conf = VirtConf('data/virt.ini')
@@ -89,6 +94,7 @@ def test_load_virtualconf():
 
 
 def test_nodegroup_init(nodegroup):
+    """It tests NodeGroup object initialisation"""
     # the order is not always guaranteed
     assert list(nodegroup.clients.keys()) == ['hw1', 'hw2']
 
@@ -105,6 +111,7 @@ def test_nodegroup_vms(nodegroup):
 
 
 def test_vm_actions(nodegroup):
+    """It tests VM actions"""
     vms = nodegroup.get_vms()
     vm1 = list(vms.values())[0]
     assert vm1.wipe() is False
@@ -116,6 +123,7 @@ def test_vm_actions(nodegroup):
 
 
 def test_get_macs(nodegroup):
+    """It tests that assigned macs are different"""
     vms = nodegroup.get_vms()
     vm1 = list(vms.values())[0]
     vm2 = list(vms.values())[1]
@@ -126,4 +134,4 @@ def test_get_macs(nodegroup):
 def test_create_volume(nodegroup):
     vms = nodegroup.get_vms()
     vm1 = list(vms.values())[0]
-    vm1.create_volumes("node","data")
+    vm1.create_volumes("node", "data")
