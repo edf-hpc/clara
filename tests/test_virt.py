@@ -21,7 +21,7 @@ class virDomain:
 class virStorageVol:
     """ Fake class for libvirt.virStorageVol"""
     def info(self):
-        return [3, 10000000000L, 0L]
+        return [3, 10000000000, 0]
     def path(self):
         return "/some_path"
 
@@ -89,12 +89,13 @@ def test_load_virtualconf():
 
 
 def test_nodegroup_init(nodegroup):
-    assert nodegroup.clients.keys() == ['hw2', 'hw1']
+    # the order is not always guaranteed
+    assert list(nodegroup.clients.keys()) == ['hw1', 'hw2']
 
 
 def test_nodegroup_vms(nodegroup):
     vms = nodegroup.get_vms()
-    vm1 = vms.values()[0]
+    vm1 = list(vms.values())[0]
     assert vm1.get_host_state() == {'hw1': 'RUNNING'}
     assert vm1.get_name() == "node1"
     assert vm1.get_state() == "RUNNING"
@@ -105,7 +106,7 @@ def test_nodegroup_vms(nodegroup):
 
 def test_vm_actions(nodegroup):
     vms = nodegroup.get_vms()
-    vm1 = vms.values()[0]
+    vm1 = list(vms.values())[0]
     assert vm1.wipe() is False
     assert vm1.start() is False
     assert vm1.stop() is True
@@ -116,13 +117,13 @@ def test_vm_actions(nodegroup):
 
 def test_get_macs(nodegroup):
     vms = nodegroup.get_vms()
-    vm1 = vms.values()[0]
-    vm2 = vms.values()[1]
+    vm1 = list(vms.values())[0]
+    vm2 = list(vms.values())[1]
     assert vm1.get_macs("") == {'administration': '00:16:3e:c8:96:1f'}
     # different MAC
     assert vm2.get_macs("") != {'administration': '00:16:3e:c8:96:1f'}
 
 def test_create_volume(nodegroup):
     vms = nodegroup.get_vms()
-    vm1 = vms.values()[0]
+    vm1 = list(vms.values())[0]
     vm1.create_volumes("node","data")

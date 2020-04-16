@@ -61,7 +61,7 @@ class Pool:
         self.client = None
 
     def refresh(self):
-        clients = self.group.get_clients().values()
+        clients = list(self.group.get_clients().values())
         if len(clients) == 0:
             raise VirtRuntimeError(
                 "Pool discovery needs at least one client in the node group.")

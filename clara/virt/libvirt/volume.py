@@ -59,12 +59,12 @@ class Volume:
         self.vm_name = data['vm_name']
         self.role = data['vol_role']
         self.client = None
-        self.capacity_bytes = 0L
-        self.allocation_bytes = 0L
+        self.capacity_bytes = 0
+        self.allocation_bytes = 0
         self.path = ""
 
     def refresh(self):
-        clients = self.group.get_clients().values()
+        clients = list(self.group.get_clients().values())
         if len(clients) == 0:
             raise VirtRuntimeError(
                 "Volume discovery needs at least one client in the node group.")
@@ -80,8 +80,8 @@ class Volume:
             self.path = self.client.get_vol_path(pool_name, self.name)
         else:
             self.state = "MISSING"
-            self.capacity_bytes = 0L
-            self.allocation_bytes = 0L
+            self.capacity_bytes = 0
+            self.allocation_bytes = 0
             self.path = ""
 
     def wipe(self):

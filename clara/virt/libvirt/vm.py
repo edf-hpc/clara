@@ -56,7 +56,8 @@ class VM():
         self.volumes = {}
 
     def generate_mac(self, net_name, salt=''):
-        digest = hashlib.sha1(self.name + net_name + salt).hexdigest()[:6]
+        mix_name = "{}{}{}".format(self.name, net_name, salt).encode('utf-8')
+        digest = hashlib.sha1(mix_name).hexdigest()[:6]
         mac = ['00', '16', '3e',
                digest[:2],
                digest[2:4],
@@ -119,7 +120,7 @@ class VM():
                 vol.wipe()
             return True
         else:
-            logger.warn("Bad state to wipe disks (%s) for VM %s",
+            logger.warning("Bad state to wipe disks (%s) for VM %s",
                         self.state, self.name)
             return False
 
@@ -238,7 +239,6 @@ class VM():
         params = template_params.copy()
         params.update(vm_params)
         networks = self.conf.get_vm_networks(self.name, params['network_list'])
-
         # iterate over the networks
         for net_name in networks:
             mac_address = networks[net_name]['mac_address']

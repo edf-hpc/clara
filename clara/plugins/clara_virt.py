@@ -100,7 +100,7 @@ def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
             host = ''
         vm_name = vm.get_name()
         if host_name:
-            if host_name==host:
+            if host_name == host:
                 print(vm_line.format(vm_name, vm.get_state(), host))
         else:
             print(vm_line.format(vm_name, vm.get_state(), host))
