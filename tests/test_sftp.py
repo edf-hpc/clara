@@ -1,11 +1,6 @@
-#from context import sftp
 from clara.sftp import Sftp
-import socket
 import pytest
 import paramiko
-import pytest_mock
-import mock
-
 
 
 def test_init():
@@ -19,33 +14,30 @@ def test_init_no_key():
         new_stfp = Sftp('', '', '', '')
 
     with pytest.raises(IOError):
-        new_stfp = sftp.Sftp('', '', '/tmp/noexist', '')
+        new_stfp = Sftp('', '', '/tmp/noexist', '')
 
 
 def test_init_blank_key():
     open('/tmp/clarakey', 'a')
     with pytest.raises(IndexError):
-        new_stfp = sftp.Sftp('', '', '/tmp/clarakey', '')
+        new_stfp = Sftp('', '', '/tmp/clarakey', '')
 
 
-#def test_init_key():
-#    new_stfp = sftp.Sftp('', '', 'data/id_rsa', '')
-
-def test_upload_fake_hosts(mocker):
-    new_stfp = Sftp(['host1'], '', 'data/id_rsa', '')
+def test_upload_fake_hosts(mocker, data_dir):
+    new_stfp = Sftp(['host1'], '', data_dir.id_rsa, '')
     mock_logger = mocker.patch("clara.sftp.logging.error")
 
     new_stfp.upload("file", 'destination')
     mock_logger.assert_called_with("sftp/push: Failed to connect to host host1")
 
-def test_upload_ssh_error(mocker):
+def test_upload_ssh_error(mocker, data_dir):
     mock_logger = mocker.patch("clara.sftp.logging.error")
     mock_paramiko = mocker.patch("clara.sftp.paramiko.Transport.connect",
                                  side_effect=paramiko.ssh_exception.SSHException)
     mocker.patch("clara.sftp.paramiko.SFTPClient")
     mocker.patch("clara.sftp.Sftp._upload")
 
-    new_stfp = Sftp(['localhost'], '', 'data/id_rsa', '')
+    new_stfp = Sftp(['localhost'], '', data_dir.id_rsa, '')
     new_stfp.upload("file", 'destination')
     mock_logger.assert_called_with("sftp/push: SSH failed to @localhost")
 

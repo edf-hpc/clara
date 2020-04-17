@@ -1,22 +1,18 @@
 from configparser import ConfigParser
 from clara.plugins.clara_build import main
-import pytest
-#from clara.utils import get_from_config
 
 
-
-def fakeconfig():
-    config = ConfigParser()
-    config.read("../example-conf/config.ini")
-    return config
-
-
-def test_main_source(mocker):
+def test_main_source(mocker, data_dir):
     def fakedocopt(doc, argv=None, options_first=False):
         fake_options = {'<dist>': 'calibre9',
                         'source': True,
                         '<dsc_file>': 'clara_0.20190424-0sci8u1.dsc'}
         return fake_options
+
+    def fakeconfig():
+        config = ConfigParser()
+        config.read(data_dir.clara_conf)
+        return config
 
     mocker.patch("clara.plugins.clara_build.docopt.docopt",
                  side_effect=fakedocopt)

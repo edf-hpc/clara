@@ -77,19 +77,19 @@ class virConnect:
 
 
 @pytest.fixture
-def nodegroup(mocker):
+def nodegroup(mocker, data_dir):
     """it setup mock object for libvirt module and returns
     Nodegroup object
     """
     mocker.patch("clara.virt.libvirt.libvirtclient.libvirt.open",
                  side_effect=virConnect)
-    virt_conf = VirtConf('data/virt.ini')
+    virt_conf = VirtConf(data_dir.virt_conf)
     virt_conf.read()
     return NodeGroup(virt_conf)
 
 
-def test_load_virtualconf():
-    virt_conf = VirtConf('data/virt.ini')
+def test_load_virtualconf(data_dir):
+    virt_conf = VirtConf(data_dir.virt_conf)
     virt_conf.read()
 
 
@@ -131,7 +131,7 @@ def test_get_macs(nodegroup):
     # different MAC
     assert vm2.get_macs("") != {'administration': '00:16:3e:c8:96:1f'}
 
-def test_create_volume(nodegroup):
+def test_create_volume(nodegroup, data_dir):
     vms = nodegroup.get_vms()
     vm1 = list(vms.values())[0]
-    vm1.create_volumes("node", "data")
+    vm1.create_volumes("node", data_dir.root)

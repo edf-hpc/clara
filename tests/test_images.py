@@ -4,10 +4,11 @@ import tempfile
 import os
 import pytest
 
+
 def fakeconfig():
-    config = ConfigParser()
-    config.read("../example-conf/config.ini")
-    return config
+        config = ConfigParser()
+        config.read('example-conf/config.ini')
+        return config
 
 def test_base_install(mocker):
     test_dir = tempfile.mkdtemp()

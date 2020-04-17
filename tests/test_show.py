@@ -3,7 +3,7 @@ from clara.plugins.clara_show import show
 
 def fakeconfig():
     config = ConfigParser()
-    config.read("../example-conf/config.ini")
+    config.read("example-conf/config.ini")
     return config
 
 
