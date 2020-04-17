@@ -65,7 +65,7 @@ def run_chroot(cmd):
 
     try:
         retcode = subprocess.call(cmd)
-    except OSError, e:
+    except OSError as e:
         if (e.errno == errno.ENOENT):
             clara_exit("Binary not found, check your path and/or retry as root. \
                       You were trying to run:\n {0}".format(" ".join(cmd)))
@@ -75,7 +75,7 @@ def run_chroot(cmd):
         clara_exit(' '.join(cmd))
 
 
-def base_install():
+def base_install(work_dir, dist, src_list):
     # Debootstrap
     apt_pref = work_dir + "/etc/apt/preferences.d/00custompreferences"
     apt_conf = work_dir + "/etc/apt/apt.conf.d/99nocheckvalid"
@@ -158,7 +158,7 @@ path-include=/usr/share/locale/locale.alias
     # output = part2.communicate()[0]
 
 
-def mount_chroot():
+def mount_chroot(work_dir, dist):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
     try:
@@ -178,7 +178,7 @@ def mount_chroot():
             run(["mount", "-o", "bind", dirtomount, mountpoint])
 
 
-def umount_chroot():
+def umount_chroot(work_dir, dist):
     if os.path.ismount(work_dir + "/proc/sys/fs/binfmt_misc"):
         run(["chroot", work_dir, "umount", "/proc/sys/fs/binfmt_misc"])
 
@@ -208,8 +208,8 @@ def umount_chroot():
                 clara_exit("Something went wrong when umounting in the chroot")
 
 
-def system_install():
-    mount_chroot()
+def system_install(work_dir, dist):
+    mount_chroot(work_dir, dist)
 
     # Configure foreign architecture if this has been set in config.ini
     try:
@@ -269,10 +269,10 @@ def system_install():
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
     run_chroot(["chroot", work_dir, "apt-get", "clean"])
-    umount_chroot()
+    umount_chroot(work_dir, dist)
 
 
-def install_files():
+def install_files(work_dir, dist):
     list_files_to_install = get_from_config("chroot", "list_files_to_install", dist)
     if not os.path.isfile(list_files_to_install):
         logging.warning("{0} is not a file!".format(list_files_to_install))
@@ -298,7 +298,7 @@ def install_files():
                 shutil.copy(path_orig, path_dest)
                 os.chmod(final_file, file_perm)
 
-                if ("etc/init.d" in dest):
+                if "etc/init.d" in dest:
                     run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"])
 
     # Empty hostname
@@ -306,7 +306,7 @@ def install_files():
     run_chroot(["chroot", work_dir, "touch", "/etc/hostname"])
 
 
-def install_https_apt():
+def install_https_apt(work_dir, dist, src_list):
     try:
         list_https_repos = get_from_config("chroot", "list_https_repos", dist).split(",")
     except:
@@ -374,7 +374,7 @@ Acquire::https::Verify-Peer "false";
     run_chroot(["chroot", work_dir, "apt-get", "update"])
 
 
-def remove_files():
+def remove_files(work_dir, dist):
     files_to_remove = get_from_config("chroot", "files_to_remove", dist).split(',')
     for f in files_to_remove:
         if os.path.isfile(work_dir + "/" + f):
@@ -382,7 +382,7 @@ def remove_files():
     os.remove(work_dir + "/usr/sbin/policy-rc.d")
 
 
-def run_script_post_creation():
+def run_script_post_creation(work_dir, dist):
     script = get_from_config("chroot", "script_post_creation", dist)
     if len(script) == 0:
         logging.warning("script_post_creation hasn't be set in the config.ini")
@@ -395,18 +395,14 @@ def run_script_post_creation():
         run_chroot(["chroot", work_dir, "bash", "/tmp/script"])
 
 
-def edit(chroot):
-    if (chroot is None):
-        chroot_dir = work_dir
-    else:
-        chroot_dir = chroot
+def edit(chroot_dir, dist):
 
     if not os.path.isdir(chroot_dir):
         clara_exit("The directory {0} doesn't exist.".format(chroot_dir))
 
     # Work in the chroot
-    mount_chroot()
-    os.chdir(work_dir)
+    mount_chroot(chroot_dir, dist)
+    os.chdir(chroot_dir)
     logging.info("Entering into the chroot to edit. ^d when you have finished.")
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara chroot> \e[0m'".format(dist))
     pty.spawn(["chroot", "."])
@@ -414,12 +410,12 @@ def edit(chroot):
     clara_exit("Exiting the chroot {0}.".format(chroot_dir))
 
 
-def clean_and_exit():
+def clean_and_exit(work_dir):
     if os.path.exists(work_dir):
-        umount_chroot()
+        umount_chroot(work_dir)
 
 
-def install_packages(packages):
+def install_packages(work_dir, packages):
     if len(packages) == 0:
         logging.warning("No package list provided")
     else:
@@ -429,7 +425,7 @@ def install_packages(packages):
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
 
-def remove_packages(packages):
+def remove_packages(work_dir, packages):
     if len(packages) == 0:
         logging.warning("No package list provided")
     else:
@@ -442,7 +438,6 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global work_dir, src_list, dist
     dist = get_from_config("common", "default_distribution")
     if dargs['<dist>'] is not None:
         dist = dargs["<dist>"]
@@ -458,23 +453,26 @@ def main():
     # - the program dies because of a signal
     # - os._exit() is invoked directly
     # - a Python fatal error is detected (in the interpreter)
-    atexit.register(clean_and_exit)
+    atexit.register(clean_and_exit, work_dir)
 
     if dargs['create']:
-        base_install()
-        install_files()
-        system_install()
-        install_https_apt()
-        remove_files()
-        run_script_post_creation()
+        base_install(work_dir, dist, src_list)
+        install_files(work_dir, dist)
+        system_install(work_dir, dist)
+        install_https_apt(work_dir, dist)
+        remove_files(work_dir, dist)
+        run_script_post_creation(work_dir, dist)
     elif dargs['edit']:
-        edit(dargs['<chroot_dir>'])
+        if dargs['<chroot_dir>']:
+            edit(dargs['<chroot_dir>'], dist)
+        else:
+            edit(work_dir, dist)
     elif dargs['install']:
-        install_packages(dargs['<packages>'])
+        install_packages(work_dir, dargs['<packages>'])
     elif dargs['reconfig']:
-        install_files()    
+        install_files(work_dir, dist)
     elif dargs['remove']:
-        remove_packages(dargs['<packages>'])
+        remove_packages(work_dir, dargs['<packages>'])
 
 
 if __name__ == '__main__':
