@@ -94,12 +94,14 @@ _opts = {'parallel': 1}
 def full_hostname(host):
     prefix = get_from_config("ipmi", "prefix")
     suffix = get_from_config_or("ipmi", "suffix", "")
-    return (prefix + host + suffix)
+    return prefix + host + suffix
 
 
 def ipmi_run(cmd):
 
-    ipmi_p = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    ipmi_p = subprocess.Popen(cmd, stderr=subprocess.STDOUT,
+                              stdout=subprocess.PIPE,
+                              universal_newlines=True)
     output = ipmi_p.communicate()[0].strip()
     exit_code = ipmi_p.wait()
     if exit_code:
@@ -132,7 +134,7 @@ def ipmi_do(hosts, *cmd):
     p.join()
 
     for host, result in result_map.items():
-        print host, result.get()
+        print(host, result.get())
 
 
 def getmac(hosts):
@@ -150,7 +152,8 @@ def getmac(hosts):
                "-U", imm_user, "-E", "fru", "print", "0"]
         logging.debug("ipmi/getmac: {0}".format(" ".join(cmd)))
 
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                universal_newlines=True)
         # The data we want is in line 15
         lines = proc.stdout.readlines()
         if (len(lines) < 14):
@@ -200,7 +203,7 @@ def do_connect(host, j=False, f=False):
     else:
         conmand = get_from_config_or("ipmi", "conmand", '')
         port = int(get_from_config("ipmi", "port"))
-        if (len(conmand) == 0):
+        if len(conmand) == 0:
             do_connect_ipmi(host)
             return
 
@@ -253,9 +256,9 @@ def do_ssh(hosts, command):
 
 
     for buf, nodes in task.iter_buffers():
-        print "---\n%s:\n---\n %s" \
+        print("---\n%s:\n---\n %s" \
               % (ClusterShell.NodeSet.fold(",".join(nodes)),
-                 buf)
+                 buf))
 
 
 def main():
