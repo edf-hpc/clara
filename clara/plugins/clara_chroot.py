@@ -415,22 +415,22 @@ def clean_and_exit(work_dir):
         umount_chroot(work_dir)
 
 
-def install_packages(work_dir, packages):
+def install_packages(work_dir, dist, packages):  # need to be repaired
     if len(packages) == 0:
         logging.warning("No package list provided")
     else:
         pkgs = packages.split(',')
-        mount_chroot
+        mount_chroot(work_dir, dist)
         run_chroot(["chroot", work_dir, "apt-get", "update"])
         run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs)
 
 
-def remove_packages(work_dir, packages):
+def remove_packages(work_dir, dist, packages):  # need to be repaired
     if len(packages) == 0:
         logging.warning("No package list provided")
     else:
         pkgs = packages.split(',')
-        mount_chroot
+        mount_chroot(work_dir, dist)
         run_chroot(["chroot", work_dir, "apt-get", "remove", "--yes", "--force-yes"] + pkgs)
 
 
@@ -468,11 +468,11 @@ def main():
         else:
             edit(work_dir, dist)
     elif dargs['install']:
-        install_packages(work_dir, dargs['<packages>'])
+        install_packages(work_dir, dist, dargs['<packages>'])
     elif dargs['reconfig']:
         install_files(work_dir, dist)
     elif dargs['remove']:
-        remove_packages(work_dir, dargs['<packages>'])
+        remove_packages(work_dir, dist, dargs['<packages>'])
 
 
 if __name__ == '__main__':
