@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+output = [' Chassis Type          : Rack XXX Chassis\n',
+ ' Chassis Part Number   : ..................\n',
+ ' Chassis Serial        : ..................\n',
+ ' Chassis Extra         : ...............................\n',
+ ' Chassis Extra         : ...............................\n',
+ ' Board Mfg Date        : Thu Sep 01 11:31:00 2118\n',
+ ' Board Mfg             : Intel Corporation\n',
+ ' Board Product         : 1210XBPB\n',
+ ' Board Serial          : QSBPfaf00497\n',
+ ' Board Part Number     : H8XXX-550\n',
+ ' Product Manufacturer  : Intel Corporation\n',
+ ' Product Name          : S1200XXX\n',
+ ' Product Part Number   : ..........\n',
+ ' Product Version       : ....................\n',
+ ' Product Serial        : 1234567890123456789AB\n',
+ ' Product Asset Tag     : ....................\n']
+
+print(('').join(output))

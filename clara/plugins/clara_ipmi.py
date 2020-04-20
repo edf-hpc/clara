@@ -88,6 +88,9 @@ import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, has_config_value
 
 
+# Global dictionary
+_opts = {'parallel': 1}
+
 def full_hostname(host):
     prefix = get_from_config("ipmi", "prefix")
     suffix = get_from_config_or("ipmi", "suffix", "")
@@ -111,7 +114,7 @@ def ipmi_do(hosts, *cmd):
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
 
-    p = multiprocessing.Pool(parallel)
+    p = multiprocessing.Pool(_opts['parallel'])
     result_map = {}
 
     for host in nodeset:
@@ -145,7 +148,6 @@ def getmac(hosts):
         logging.info("{0}: ".format(host))
         cmd = ["ipmitool", "-I", "lanplus", "-H", host,
                "-U", imm_user, "-E", "fru", "print", "0"]
-
         logging.debug("ipmi/getmac: {0}".format(" ".join(cmd)))
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -231,7 +233,7 @@ def do_ping(hosts):
 
 
 def do_ssh(hosts, command):
-    hosts_l = [ full_hostname(host) for host in ClusterShell.NodeSet.NodeSet(hosts) ]
+    hosts_l = [full_hostname(host) for host in ClusterShell.NodeSet.NodeSet(hosts)]
     hosts = ClusterShell.NodeSet.NodeSet('')
     hosts.updaten(hosts_l)
 
@@ -249,25 +251,25 @@ def do_ssh(hosts, command):
     task.shell(command, nodes=hosts.__str__())
     task.resume()
 
+
     for buf, nodes in task.iter_buffers():
         print "---\n%s:\n---\n %s" \
               % (ClusterShell.NodeSet.fold(",".join(nodes)),
                  buf)
 
+
 def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global parallel
     # Use the value provided by the user in the command line
     if dargs['--p'] is not None and dargs['--p'].isdigit():
-        parallel = int(dargs['--p'])
+        _opts['parallel'] = int(dargs['--p'])
     # Read the value from the config file and use 1 if it hasn't been set
     elif has_config_value("ipmi", "parallel"):
-        parallel = int(get_from_config("ipmi", "parallel"))
+        _opts['parallel']= int(get_from_config("ipmi", "parallel"))
     else:
         logging.debug("parallel hasn't been set in config.ini, using 1 as default")
-        parallel = 1
 
     if dargs['connect']:
         do_connect(dargs['<host>'], dargs['-j'], dargs['-f'])
