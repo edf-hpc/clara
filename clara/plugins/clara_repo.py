@@ -66,6 +66,7 @@ import ConfigParser
 import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf
 
+_opt = {'dist': None}
 
 def do_key():
     key = get_from_config("repo", "gpg_key")
@@ -114,9 +115,9 @@ def do_key():
 
 def do_init():
     import shutil
-    repo_dir = get_from_config("repo", "repo_dir", dist)
+    repo_dir = get_from_config("repo", "repo_dir", _opt['dist'])
     reprepro_config = repo_dir + '/conf/distributions'
-    mirror_local = get_from_config("repo", "mirror_local", dist)
+    mirror_local = get_from_config("repo", "mirror_local", _opt['dist'])
     if (mirror_local=="" or mirror_local==None):
         mirror_local = repo_dir +'/mirror'
 
@@ -141,11 +142,11 @@ SignWith: {3}
 Description: Depot Local {4}
 DebIndices: Packages Release . .gz .bz2
 DscIndices: Sources Release . .gz .bz2
-""".format(get_from_config("common", "origin", dist),
-                    dist,
-                    get_from_config("repo", "version", dist),
-                    get_from_config("repo", "gpg_key", dist),
-                    get_from_config("repo", "clustername", dist)))
+""".format(get_from_config("common", "origin", _opt['dist']),
+                    _opt['dist'],
+                    get_from_config("repo", "version", _opt['dist']),
+                    get_from_config("repo", "gpg_key", _opt['dist']),
+                    get_from_config("repo", "clustername", _opt['dist'])))
             freprepro.close()
 
             os.chdir(repo_dir)
@@ -158,7 +159,7 @@ DscIndices: Sources Release . .gz .bz2
                 run(['reprepro'] + list_flags +
                     ['--basedir', repo_dir,
                     '--outdir', mirror_local,
-                    'export', dist])
+                    'export', _opt['dist']])
             except:
                 shutil.rmtree(repo_dir)
                 clara_exit("The repository '{0}' has not been initialized properly, it will be deleted  !".format(repo_dir))
@@ -234,14 +235,14 @@ def do_push(dist=''):
 
 
 def do_reprepro(action, package=None, flags=None, extra=None):
-    repo_dir = get_from_config("repo", "repo_dir", dist)
+    repo_dir = get_from_config("repo", "repo_dir", _opt['dist'])
     reprepro_config = repo_dir + '/conf/distributions'
-    mirror_local = get_from_config("repo", "mirror_local", dist)
+    mirror_local = get_from_config("repo", "mirror_local", _opt['dist'])
     if (mirror_local=="" or mirror_local==None):
         mirror_local = repo_dir +'/mirror'
     oldMask = os.umask(0022)
     if not os.path.isfile(reprepro_config):
-        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(dist))
+        clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(_opt['dist']))
 
     list_flags = ['--silent', '--ask-passphrase']
     if conf.ddebug:
@@ -251,7 +252,7 @@ def do_reprepro(action, package=None, flags=None, extra=None):
         list_flags.append(flags)
 
     cmd = ['reprepro'] + list_flags + \
-         ['--basedir', get_from_config("repo", "repo_dir", dist),
+         ['--basedir', get_from_config("repo", "repo_dir", _opt['dist']),
          '--outdir', mirror_local,
          action]
 
@@ -260,7 +261,7 @@ def do_reprepro(action, package=None, flags=None, extra=None):
             cmd.append(e)
     else:
         if action in ['includedeb', 'include', 'includedsc', 'remove', 'removesrc', 'list']:
-            cmd.append(dist)
+            cmd.append(_opt['dist'])
 
         if package is not None:
             cmd.append(package)
@@ -296,12 +297,12 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global dist
-    dist = get_from_config("common", "default_distribution")
+
+    _opt['dist'] = get_from_config("common", "default_distribution")
     if dargs["<dist>"] is not None:
-        dist = dargs["<dist>"]
-    if dist not in get_from_config("common", "allowed_distributions"):
-        clara_exit("{0} is not a known distribution".format(dist))
+        _opt['dist'] = dargs["<dist>"]
+    if _opt['dist'] not in get_from_config("common", "allowed_distributions"):
+        clara_exit("{0} is not a known distribution".format(_opt['dist']))
 
     if dargs['key']:
         do_key()
