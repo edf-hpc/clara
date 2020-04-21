@@ -32,7 +32,6 @@ def test_mktorrent(mocker, tmpdir_factory):
     mocker.patch("clara.utils.getconfig", side_effect=fake_config)
     mocker.patch("clara.plugins.clara_p2p.get_from_config", side_effect=fake_getfromconfig)
     mocker.patch("clara.plugins.clara_p2p.os.path.isfile")
-    mocker.patch("clara.plugins.clara_p2p.os.path.isfile")
     mocker.patch("clara.plugins.clara_p2p.os.remove")
     mocker.patch("clara.plugins.clara_p2p.os.chmod")
     m_run = mocker.patch("clara.plugins.clara_p2p.run")

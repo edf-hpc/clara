@@ -28,7 +28,7 @@ def test_base_install(mocker):
     assert os.path.isfile(os.path.join(test_dir, "usr/sbin/policy-rc.d"))
     assert os.path.isfile(os.path.join(test_dir, "etc/apt/apt.conf.d/99nocheckvalid"))
     assert os.path.isfile(os.path.join(test_dir, "etc/dpkg/dpkg.cfg.d/excludes"))
-    assert oct(file_permisions.st_mode) == '0100755'
+    assert file_permisions.st_mode == 33261
     m_run.assert_called_with(['debootstrap', u'--keyring=/usr/share/keyrings/scibian-archive-keyring.gpg', u'jessie', test_dir, u'http://debian/debian/'])
 
 def test_mount_chroot(mocker):

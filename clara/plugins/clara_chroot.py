@@ -347,18 +347,18 @@ def install_https_apt(work_dir, dist, src_list):
         full_dir_path = work_dir + dir_path
         if not os.path.isdir(full_dir_path):
             os.makedirs(full_dir_path)
-    os.chmod(work_dir + path_dest, 0755)
-    os.chmod(work_dir + path_dest + "certs/", 0755)
+    os.chmod(work_dir + path_dest, 0o755)
+    os.chmod(work_dir + path_dest + "certs/", 0o755)
     os.chown(work_dir + path_dest + "certs/", owner_uid, 0)
-    os.chmod(work_dir + path_dest + "private/", 0700)
+    os.chmod(work_dir + path_dest + "private/", 0o700)
     os.chown(work_dir + path_dest + "private/", owner_uid, 0)
 
     # Copy crt/key files
     shutil.copy(apt_ssl_key_source, work_dir+apt_ssl_key)
-    os.chmod(work_dir+apt_ssl_key, 0600)
+    os.chmod(work_dir+apt_ssl_key, 0o600)
     os.chown(work_dir+apt_ssl_key, owner_uid, -1)
     shutil.copy(apt_ssl_crt_source, work_dir+apt_ssl_crt)
-    os.chmod(work_dir+apt_ssl_crt, 0644)
+    os.chmod(work_dir+apt_ssl_crt, 0o644)
     os.chown(work_dir+apt_ssl_crt, owner_uid, -1)
 
     # Add apt config for ssl key
