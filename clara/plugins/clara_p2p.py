@@ -107,10 +107,10 @@ def mktorrent(image):
             announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
 
         run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_f, squashfs_file])
-        os.chmod(torrent_f,0644)
-        os.chmod(v_seeders,0644)
+        os.chmod(torrent_f,0o644)
+        os.chmod(v_seeders,0o644)
 
-        os.chmod(torrent_repo,0755)
+        os.chmod(torrent_repo,0o755)
         if sftp_mode:
             sftp_client.upload(torrent_f, os.path.dirname(torrent_f))
 

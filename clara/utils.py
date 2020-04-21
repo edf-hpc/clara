@@ -64,7 +64,8 @@ def clush(hosts, cmds):
     task.run(cmds, nodes=hosts)
 
     for output, nodes in task.iter_buffers():
-        logging.info("{0} {1}".format(ClusterShell.NodeSet.NodeSet.fromlist(nodes), output))
+        logging.info("{0} {1}".format(ClusterShell.NodeSet.NodeSet.fromlist(nodes),
+                                      output.message().decode('utf8')))
 
 
 def run(cmd, exit_on_error=True):
