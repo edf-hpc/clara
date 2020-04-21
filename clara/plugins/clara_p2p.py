@@ -57,27 +57,29 @@ import ClusterShell.NodeSet
 from clara.utils import clara_exit, clush, run, get_from_config, get_from_config_or, has_config_value
 from clara import sftp
 
+_opts = {'dist' : None}
+
 def mktorrent(image):
     if (image is None):
-        squashfs_file = get_from_config("images", "trg_img", dist)
+        squashfs_file = get_from_config("images", "trg_img", _opts['dist'])
     else:
         squashfs_file = image
-    torrent_repo = get_from_config("images", "trg_dir", dist)
-    trackers_port = get_from_config("p2p", "trackers_port", dist)
-    trackers_schema = get_from_config("p2p", "trackers_schema", dist)
-    seeding_service = get_from_config("p2p", "seeding_service", dist)
-    init_stop = get_from_config("p2p", "init_stop", dist)
-    init_start = get_from_config("p2p", "init_start", dist)
+    torrent_repo = get_from_config("images", "trg_dir", _opts['dist'])
+    trackers_port = get_from_config("p2p", "trackers_port", _opts['dist'])
+    trackers_schema = get_from_config("p2p", "trackers_schema", _opts['dist'])
+    seeding_service = get_from_config("p2p", "seeding_service", _opts['dist'])
+    init_stop = get_from_config("p2p", "init_stop", _opts['dist'])
+    init_start = get_from_config("p2p", "init_start", _opts['dist'])
 
     # trackers is a dictionary with pairs nodeset and torrent file
     trackers = {}
-    for e in get_from_config("p2p", "trackers", dist).split(";"):
+    for e in get_from_config("p2p", "trackers", _opts['dist']).split(";"):
         k, v_trackers = e.split(":")
         trackers[k] = v_trackers
 
     # seeders in the config file is a dictionary with pairs nodeset and torrent file
     seeders_dict = {}
-    for e in get_from_config("p2p", "seeders", dist).split(";"):
+    for e in get_from_config("p2p", "seeders", _opts['dist']).split(";"):
         k, v_seeders = e.split(":")
         seeders_dict[k] = v_seeders
     seeders = ",".join(seeders_dict.keys())
@@ -92,23 +94,25 @@ def mktorrent(image):
 
     clush(seeders, init_stop.format(seeding_service))
 
-    sftp_mode = has_config_value("p2p", "sftp_user", dist)
+    sftp_mode = has_config_value("p2p", "sftp_user", _opts['dist'])
     if sftp_mode:
-        sftp_user = get_from_config("p2p", "sftp_user", dist)
-        sftp_private_key = get_from_config("p2p", "sftp_private_key", dist)
-        sftp_passphrase = get_from_config_or("p2p", "sftp_passphrase", dist, None)
+        sftp_user = get_from_config("p2p", "sftp_user", _opts['dist'])
+        sftp_private_key = get_from_config("p2p", "sftp_private_key", _opts['dist'])
+        sftp_passphrase = get_from_config_or("p2p", "sftp_passphrase", _opts['dist'], None)
         sftp_client = sftp.Sftp(seeders.split(','), sftp_user, sftp_private_key, sftp_passphrase)
 
-    for e in trackers.keys():
+    for server, torrent_f in trackers.items():
         announce = []
-        for t in list(ClusterShell.NodeSet.NodeSet(e)):
+        for t in list(ClusterShell.NodeSet.NodeSet(server)):
             announce.append("{0}://{1}:{2}/announce".format(trackers_schema, t, trackers_port))
-        run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", trackers[e], squashfs_file])
-        os.chmod(v_trackers,0644)
+
+        run(["/usr/bin/mktorrent", "-a", ",".join(announce), "-o", torrent_f, squashfs_file])
+        os.chmod(torrent_f,0644)
         os.chmod(v_seeders,0644)
+
         os.chmod(torrent_repo,0755)
         if sftp_mode:
-            sftp_client.upload([trackers[e]], os.path.dirname(trackers[e]))
+            sftp_client.upload(torrent_f, os.path.dirname(torrent_f))
 
     clush(seeders, init_start.format(seeding_service))
 
@@ -116,27 +120,27 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    global dist
-    dist = get_from_config("common", "default_distribution")
+
+    _opts['dist'] = get_from_config("common", "default_distribution")
     if dargs["<dist>"] is not None:
-        dist = dargs["<dist>"]
-    if dist not in get_from_config("common", "allowed_distributions"):
-        clara_exit("{0} is not a known distribution".format(dist))
+        _opts['dist'] = dargs["<dist>"]
+    if _opts['dist']  not in get_from_config("common", "allowed_distributions"):
+        clara_exit("{0} is not a known distribution".format(_opts['dist']))
 
     trackers_dict = {}
-    for e in get_from_config("p2p", "trackers", dist).split(";"):
+    for e in get_from_config("p2p", "trackers", _opts['dist']).split(";"):
         k, v = e.split(":")
         trackers_dict[k] = v
     trackers = ",".join(trackers_dict.keys())
 
     seeders_dict = {}
-    for e in get_from_config("p2p", "seeders", dist).split(";"):
+    for e in get_from_config("p2p", "seeders", ).split(";"):
         k, v = e.split(":")
         seeders_dict[k] = v
     seeders = ",".join(seeders_dict.keys())
 
-    tracking_service = get_from_config("p2p", "tracking_service", dist)
-    seeding_service = get_from_config("p2p", "seeding_service", dist)
+    tracking_service = get_from_config("p2p", "tracking_service", _opts['dist'])
+    seeding_service = get_from_config("p2p", "seeding_service", _opts['dist'])
 
     if dargs['status']:
         init_status = get_from_config("p2p", "init_status")
