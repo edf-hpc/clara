@@ -78,11 +78,11 @@ def get_digest_type():
     if digest == "":
         logging.warning("Digest type not defined")
         logging.info("Using default digest type: sha256")
-    	digest = "sha256"
+        digest = "sha256"
     elif digest not in ['md2', 'md5', 'mdc2', 'rmd160', 'sha', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512']:
         logging.warning("Invalid digest type : {0}".format(digest))
         logging.info("Using default digest type: sha256 ")
-    	digest = "sha256"
+        digest = "sha256"
     return digest
 
 def do(op, origfile):
