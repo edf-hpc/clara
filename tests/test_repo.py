@@ -1,24 +1,8 @@
-from configparser import ConfigParser
+import os
 from clara.plugins.clara_repo import do_key, do_sync
 import clara.plugins.clara_repo as clara_repo
 from clara.utils import get_from_config
-import os
-
-
-class FakeConfig(ConfigParser):
-
-    def read(self, filenames, encoding=None):
-        super(FakeConfig, self).read('example-conf/repos.ini')
-
-
-def fakeconfig():
-    config = ConfigParser()
-    config.read('example-conf/config.ini')
-    return config
-
-
-def fake_value(myfile, key):
-    return "password"
+from tests.common import FakeConfig, fakeconfig
 
 
 def fake_subprocess(cmd, stdout=None, stderr=None):
@@ -32,6 +16,7 @@ def test_dokey(mocker):
     mocker.patch("clara.utils.getconfig", side_effect=fakeconfig)
     mocker.patch("clara.plugins.clara_repo.value_from_file",
                  side_effect=lambda f, k: "password")
+    mocker.patch("clara.plugins.clara_repo.clara_exit")
     do_key()
 
 
@@ -73,7 +58,7 @@ def test_dosycn(mocker):
 
     mocker.patch("clara.plugins.clara_repo.os.path.isfile")
     mocker.patch("clara.utils.getconfig", side_effect=fakeconfig)
-    mocker.patch("clara.plugins.clara_repo.ConfigParser.ConfigParser",
+    mocker.patch("clara.plugins.clara_repo.configparser.ConfigParser",
                  side_effect=FakeConfig)
     m_run = mocker.patch("clara.plugins.clara_repo.run")
 

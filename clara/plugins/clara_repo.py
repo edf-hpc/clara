@@ -61,7 +61,7 @@ import logging
 import os
 import sys
 import tempfile
-import ConfigParser
+import configparser
 
 import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf
@@ -202,7 +202,7 @@ def do_sync(selected_dist, input_suites=[]):
     # Read /etc/clara/repos.ini
     if not os.path.isfile('/etc/clara/repos.ini'):
         clara_exit("File /etc/clara/repos.ini not found.")
-    repos = ConfigParser.ConfigParser()
+    repos = configparser.ConfigParser()
     repos.read("/etc/clara/repos.ini")
 
     for s in suites:
@@ -240,7 +240,7 @@ def do_reprepro(action, package=None, flags=None, extra=None):
     mirror_local = get_from_config("repo", "mirror_local", _opt['dist'])
     if (mirror_local=="" or mirror_local==None):
         mirror_local = repo_dir +'/mirror'
-    oldMask = os.umask(0022)
+    oldMask = os.umask(0o022)
     if not os.path.isfile(reprepro_config):
         clara_exit("There is not configuration for the local repository for {0}. Run first 'clara repo init <dist>'".format(_opt['dist']))
 
