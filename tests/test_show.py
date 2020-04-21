@@ -1,11 +1,6 @@
 from configparser import ConfigParser
 from clara.plugins.clara_show import show
-
-def fakeconfig():
-    config = ConfigParser()
-    config.read("example-conf/config.ini")
-    return config
-
+from tests.common import fakeconfig
 
 def test_show(mocker, capsys):
     mocker.patch("clara.plugins.clara_show.getconfig",

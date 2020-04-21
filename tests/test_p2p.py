@@ -1,13 +1,7 @@
+import os
 import clara.plugins.clara_p2p as clara_p2p
 from clara.utils import get_from_config
-from configparser import ConfigParser
-import os
-
-def fake_config():
-    config = ConfigParser()
-    config.read('example-conf/config.ini')
-    return config
-
+from tests.common import fakeconfig
 
 
 def fakechmod(file, mode):
@@ -29,7 +23,7 @@ def test_mktorrent(mocker, tmpdir_factory):
 
         return get_from_config(section, value, dist)
 
-    mocker.patch("clara.utils.getconfig", side_effect=fake_config)
+    mocker.patch("clara.utils.getconfig", side_effect=fakeconfig)
     mocker.patch("clara.plugins.clara_p2p.get_from_config", side_effect=fake_getfromconfig)
     mocker.patch("clara.plugins.clara_p2p.os.path.isfile")
     mocker.patch("clara.plugins.clara_p2p.os.remove")
@@ -39,10 +33,10 @@ def test_mktorrent(mocker, tmpdir_factory):
 
     clara_p2p.mktorrent(None)
 
-    m_run.assert_called_with(["/usr/bin/mktorrent", "-a",
-                              "http://server2:6881/announce", '-o',
-                              u'/srv/clara/website/boot/file2.torrent',
-                              u'/srv/clara/website/boot/calibre9.squashfs'])
+    m_run.assert_any_call(["/usr/bin/mktorrent", "-a",
+                           "http://server2:6881/announce", '-o',
+                           u'/srv/clara/website/boot/file2.torrent',
+                           u'/srv/clara/website/boot/calibre9.squashfs'])
     file_permisions = os.stat(seed_file)
     assert file_permisions.st_mode == 33188#'0100644'
     file_permisions = os.stat(torrent_dir)

@@ -3,12 +3,8 @@ import tempfile
 import os
 from clara.plugins.clara_chroot import (base_install, mount_chroot,
                                         umount_chroot, system_install, install_files)
+from tests.common import fakeconfig
 
-
-def fakeconfig():
-    config = ConfigParser()
-    config.read('example-conf/config.ini')
-    return config
 
 def test_base_install(mocker):
     test_dir = tempfile.mkdtemp()
