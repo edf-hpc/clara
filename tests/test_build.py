@@ -1,18 +1,17 @@
 from configparser import ConfigParser
 from clara.plugins.clara_build import main
-
+from tests.common import fakeconfig
 
 def test_main_source(mocker, data_dir):
+    """It tests main() using fake options passed by
+    fakedocopt method
+    """
     def fakedocopt(doc, argv=None, options_first=False):
+        """Provides a dictionary with fake options"""
         fake_options = {'<dist>': 'calibre9',
                         'source': True,
                         '<dsc_file>': 'clara_0.20190424-0sci8u1.dsc'}
         return fake_options
-
-    def fakeconfig():
-        config = ConfigParser()
-        config.read(data_dir.clara_conf)
-        return config
 
     mocker.patch("clara.plugins.clara_build.docopt.docopt",
                  side_effect=fakedocopt)
@@ -22,12 +21,11 @@ def test_main_source(mocker, data_dir):
 
     m_exit = mocker.patch("clara.plugins.clara_build.sys.exit")
     m_p_info = mocker.patch("clara.plugins.clara_build.print_info")
-    m_chdir = mocker.patch("clara.plugins.clara_build.os.chdir")
+    mocker.patch("clara.plugins.clara_build.os.chdir")
     m_subprocess = mocker.patch("clara.plugins.clara_build.subprocess.call")
     m_logging = mocker.patch("clara.plugins.clara_build.logging.debug")
 
     main()
-
 
     m_exit.assert_called_with("The file /root/cowbuilder-calibre9 doesn't exist")
     m_p_info.assert_called_with('clara', '0.20190424-0sci8u1', '0.20190424', '0sci8u1')

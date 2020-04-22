@@ -3,12 +3,8 @@ from clara.plugins.clara_images import base_install, mount_chroot, umount_chroot
 import tempfile
 import os
 import pytest
+from tests.common import fakeconfig
 
-
-def fakeconfig():
-        config = ConfigParser()
-        config.read('example-conf/config.ini')
-        return config
 
 def test_base_install(mocker):
     test_dir = tempfile.mkdtemp()
@@ -18,10 +14,10 @@ def test_base_install(mocker):
     os.mkdir(os.path.join(test_dir, "etc/apt/apt.conf.d/"))
     os.makedirs(os.path.join(test_dir, "etc/dpkg/dpkg.cfg.d/"))
 
-
     mocker.patch("clara.utils.getconfig", side_effect=fakeconfig)
     m_run = mocker.patch("clara.plugins.clara_images.run")
     mocker.patch("clara.plugins.clara_images.subprocess.Popen")
+
     base_install(test_dir, 'calibre9')
     # we assert files created
     assert os.path.isfile(os.path.join(test_dir, "etc/apt/preferences.d/00custompreferences"))
@@ -47,6 +43,7 @@ def test_umount_chroot(mocker):
     m_run.assert_any_call(["chroot", work_dir, "umount", "/sys"])
     m_run.assert_any_call(["chroot", work_dir, "umount","-lf", "/proc"])
 
+
 def test_system_install(mocker):
     mocker.patch("clara.plugins.clara_images.mount_chroot")
     mocker.patch("clara.plugins.clara_images.umount_chroot")
@@ -56,12 +53,13 @@ def test_system_install(mocker):
     system_install(work_dir, 'calibre9')
     m_crun.assert_any_call(["chroot", work_dir, "apt-get", "update"], '/test')
 
+
 def test_genimg(mocker):
     mocker.patch("clara.utils.getconfig", side_effect=fakeconfig)
     mocker.patch("clara.plugins.clara_images.os.chmod")
     mocker.patch("clara.plugins.clara_images.docopt.docopt")
-    m_crun = mocker.patch("clara.plugins.clara_images.run_chroot")
-    m_run = mocker.patch("clara.plugins.clara_images.run")
-    # This error should be Fix img parameter should be checked before
+    mocker.patch("clara.plugins.clara_images.run_chroot")
+    mocker.patch("clara.plugins.clara_images.run")
+    # This error should be Fixed, img parameter should be checked before
     with pytest.raises(FileNotFoundError):
         genimg('calibre9.img', '/test', 'calibre9')

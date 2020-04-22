@@ -1,3 +1,5 @@
+# This files is used to provide fake methods used for testing
+
 from configparser import ConfigParser
 import os
 
