@@ -416,9 +416,9 @@ def edit(chroot_dir, dist):
     clara_exit("Exiting the chroot {0}.".format(chroot_dir))
 
 
-def clean_and_exit(work_dir):
+def clean_and_exit(work_dir, dist):
     if os.path.exists(work_dir):
-        umount_chroot(work_dir)
+        umount_chroot(work_dir, dist)
 
 
 def install_packages(work_dir, dist, packages):  # need to be repaired
@@ -459,7 +459,7 @@ def main():
     # - the program dies because of a signal
     # - os._exit() is invoked directly
     # - a Python fatal error is detected (in the interpreter)
-    atexit.register(clean_and_exit, work_dir)
+    atexit.register(clean_and_exit, work_dir, dist)
 
     if dargs['create']:
         base_install(work_dir, dist, src_list)
