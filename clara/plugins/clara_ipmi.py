@@ -258,7 +258,7 @@ def do_ssh(hosts, command):
     for buf, nodes in task.iter_buffers():
         print("---\n%s:\n---\n %s" \
               % (ClusterShell.NodeSet.fold(",".join(nodes)),
-                 buf))
+                 buf.message().decode('utf8')))
 
 
 def main():

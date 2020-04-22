@@ -71,6 +71,7 @@ try:
     import libvirt
 except ImportError:
     utils.clara_exit("LibVirt Missing, needs version >= 10.2.9.")
+
 libvirt_version = libvirt.getVersion()
 if libvirt_version < 1002009:
     utils.clara_exit("LibVirt too old (%d.%d.%d), needs version >= 10.2.9." % (
@@ -95,7 +96,7 @@ def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
     for vm in vms.values():
         host_states = vm.get_host_state()
         if len(host_states) == 1:
-            host = host_states.keys()[0]
+            host = list(host_states.keys())[0]
         else:
             host = ''
         vm_name = vm.get_name()
@@ -204,7 +205,7 @@ def do_getmacs(conf, params):
 
         machine = group.get_vm(vm_name, create=True)
         print("%s:" % vm_name)
-        for net, mac in machine.get_macs(template_name).iteritems():
+        for net, mac in machine.get_macs(template_name).items():
             print("  %s: %s" % (net, mac))
 
 
