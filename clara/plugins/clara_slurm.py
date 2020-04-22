@@ -63,7 +63,9 @@ from clara.utils import clara_exit, clush, run, get_from_config, conf
 
 def show_nodes(option):
     selection = []
-    part1 = subprocess.Popen(["sinfo"], stdout=subprocess.PIPE)
+    part1 = subprocess.Popen(["sinfo"],
+                             stdout=subprocess.PIPE,
+                             universal_newlines=True)
     for line in part1.stdout:
         if option in line:
             cols = line.rstrip().split(" ")
@@ -72,7 +74,8 @@ def show_nodes(option):
     cmd = ["scontrol", "show", "node", ",".join(selection)]
     logging.debug("slurm/show_nodes: {0}".format(" ".join(cmd)))
 
-    part2 = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    part2 = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             universal_newlines=True)
     for line in part2.stdout:
         if "NodeName" in line:
             logging.info(line.split(" ")[0])

@@ -152,8 +152,12 @@ path-include=/usr/share/locale/locale.alias
 """)
 
     # Set root password to 'clara'
-    part1 = subprocess.Popen(["echo", "root:clara"], stdout=subprocess.PIPE)
-    part2 = subprocess.Popen(["chroot", work_dir, "/usr/sbin/chpasswd"], stdin=part1.stdout)
+    part1 = subprocess.Popen(["echo", "root:clara"],
+                             stdout=subprocess.PIPE,
+                             universal_newlines=True)
+    part2 = subprocess.Popen(["chroot", work_dir, "/usr/sbin/chpasswd"],
+                             stdin=part1.stdout,
+                             universal_newlines=True)
     part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
     # output = part2.communicate()[0]
 
@@ -240,9 +244,11 @@ def system_install(work_dir, dist):
         shutil.copy(package_file, work_dir + "/tmp/packages.file")
         for i in range(0, 2):
             part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],
-                                     stdout=subprocess.PIPE)
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
             part2 = subprocess.Popen(["chroot", work_dir, "dpkg", "--set-selections"],
-                                     stdin=part1.stdout, stdout=subprocess.PIPE)
+                                     stdin=part1.stdout, stdout=subprocess.PIPE,
+                                     universal_newlines=True)
             part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
             output = part2.communicate()[0]
             run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"])

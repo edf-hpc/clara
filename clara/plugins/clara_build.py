@@ -119,7 +119,8 @@ def main():
         # Check if the source package exists in the reprepro of origin_dist
         cmd = ["clara", "repo", "list", origin_dist]
         logging.debug(" ".join(cmd))
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                universal_newlines=True)
         lines_proc = proc.stdout.readlines()
         found_package = False
         line_package = ""
@@ -132,7 +133,8 @@ def main():
         # If we fail to find the package, we list what's available and exit
         if not found_package:
             logging.info("Package {0} not found. The available packages in {1} are:".format(package_name, origin_dist))
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                    universal_newlines=True)
             lines_proc = proc.stdout.readlines()
             for l in lines_proc:
                 if "|source: " in l:

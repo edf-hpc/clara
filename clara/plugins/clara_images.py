@@ -164,8 +164,12 @@ path-include=/usr/share/locale/locale.alias
     os.chmod(dpkg_conf, 0o644)
 
     # Set root password to 'clara'
-    part1 = subprocess.Popen(["echo", "root:clara"], stdout=subprocess.PIPE)
-    part2 = subprocess.Popen(["chroot", work_dir, "/usr/sbin/chpasswd"], stdin=part1.stdout)
+    part1 = subprocess.Popen(["echo", "root:clara"],
+                             stdout=subprocess.PIPE,
+                             universal_newlines=True)
+    part2 = subprocess.Popen(["chroot", work_dir, "/usr/sbin/chpasswd"],
+                             stdin=part1.stdout,
+                             universal_newlines=True)
     part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
     #output = part2.communicate()[0]
 
