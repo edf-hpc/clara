@@ -60,6 +60,9 @@ import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
 
+_opts = {'keep_chroot_dir': None}
+
+
 def run_chroot(cmd, work_dir):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
 
@@ -72,7 +75,7 @@ def run_chroot(cmd, work_dir):
 
     if retcode != 0:
         umount_chroot(work_dir)
-        if not keep_chroot_dir:
+        if not _opts['keep_chroot_dir']:
             shutil.rmtree(work_dir)
         clara_exit(' '.join(cmd))
 
@@ -414,7 +417,7 @@ def geninitrd(path, work_dir, dist):
     else:
         run(["unsquashfs", "-f", "-d", work_dir, squashfs_file])
 
-    mount_chroot()
+    mount_chroot(work_dir)
 
     # Install the kernel in the image
     kver = get_from_config("images", "kver", dist)
@@ -512,7 +515,7 @@ def edit(image, work_dir, dist):
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara images> \e[0m'".format(dist))
     pty.spawn(["/bin/bash"])
 
-    save = raw_input('Save changes made in the image? (N/y)')
+    save = input('Save changes made in the image? (N/y)')
     logging.debug("Input from the user: '{0}'".format(save))
     if save not in ('Y', 'y'):
         clara_exit("Changes ignored. The image {0} hasn't been modified.".format(squashfs_file))
@@ -529,10 +532,10 @@ def edit(image, work_dir, dist):
           "\nThe image has been repacked at {1}".format(squashfs_file + ".old", squashfs_file))
 
 
-def clean_and_exit(work_dir, keep_chroot_dir):
+def clean_and_exit(work_dir):
     if os.path.exists(work_dir):
         umount_chroot(work_dir)
-        if not keep_chroot_dir:
+        if not _opts['keep_chroot_dir']:
             shutil.rmtree(work_dir)
 
 
@@ -540,7 +543,7 @@ def main():
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
 
-    keep_chroot_dir = False
+    _opts['keep_chroot_dir'] = False
 
     dist = get_from_config("common", "default_distribution")
     if dargs['<dist>'] is not None:
@@ -559,11 +562,11 @@ def main():
     # - the program dies because of a signal
     # - os._exit() is invoked directly
     # - a Python fatal error is detected (in the interpreter)
-    atexit.register(clean_and_exit, work_dir, keep_chroot_dir)
+    atexit.register(clean_and_exit, work_dir)
 
     if dargs['create']:
         if dargs["--keep-chroot-dir"]:
-            keep_chroot_dir = True
+            _opts['keep_chroot_dir'] = True
         base_install(work_dir, dist)
         install_files(work_dir, dist)
         system_install(work_dir, dist)
