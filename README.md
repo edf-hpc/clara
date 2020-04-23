@@ -40,3 +40,12 @@ To generate a tarball, run:
 git archive --format=tar.gz --prefix=clara-$VERSION/ \
     v$VERSION > ../clara-$VERSION.tar.gz
 ```
+
+## Tests
+
+For running tests please install: `pytest pytest-mock mock` and then run:
+
+```buildoutcfg
+pytest
+```
+Under the project directory
