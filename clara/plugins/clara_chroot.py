@@ -465,7 +465,7 @@ def main():
         base_install(work_dir, dist, src_list)
         install_files(work_dir, dist)
         system_install(work_dir, dist)
-        install_https_apt(work_dir, dist)
+        install_https_apt(work_dir, dist, src_list)
         remove_files(work_dir, dist)
         run_script_post_creation(work_dir, dist)
     elif dargs['edit']:
