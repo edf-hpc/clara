@@ -96,12 +96,12 @@ def test_load_virtualconf(data_dir):
 def test_nodegroup_init(nodegroup):
     """It tests NodeGroup object initialisation"""
     # the order is not always guaranteed
-    assert list(nodegroup.clients.keys()) == ['hw1', 'hw2']
+    assert sorted(list(nodegroup.clients.keys())) == ['hw1', 'hw2']
 
 
 def test_nodegroup_vms(nodegroup):
     vms = nodegroup.get_vms()
-    vm1 = list(vms.values())[0]
+    vm1 = vms['node1']
     assert vm1.get_host_state() == {'hw1': 'RUNNING'}
     assert vm1.get_name() == "node1"
     assert vm1.get_state() == "RUNNING"
@@ -125,8 +125,8 @@ def test_vm_actions(nodegroup):
 def test_get_macs(nodegroup):
     """It tests that assigned macs are different"""
     vms = nodegroup.get_vms()
-    vm1 = list(vms.values())[0]
-    vm2 = list(vms.values())[1]
+    vm1 = vms['node1']
+    vm2 = vms['node2']
     assert vm1.get_macs("") == {'administration': '00:16:3e:c8:96:1f'}
     # different MAC
     assert vm2.get_macs("") != {'administration': '00:16:3e:c8:96:1f'}
