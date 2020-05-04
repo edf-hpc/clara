@@ -19,7 +19,7 @@ def test_init_no_key():
 
 def test_init_blank_key():
     open('/tmp/clarakey', 'a')
-    with pytest.raises(IndexError):
+    with pytest.raises(paramiko.ssh_exception.SSHException):
         new_stfp = Sftp('', '', '/tmp/clarakey', '')
 
 
