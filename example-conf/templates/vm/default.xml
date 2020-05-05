@@ -77,7 +77,7 @@
     <controller type='virtio-serial' index='0'>
       <alias name='virtio-serial0'/>
     </controller>
-    {% for network_name, network in networks.iteritems() %}
+    {% for network_name, network in networks.items() %}
     <interface type='network'>
       <mac address='{{ network.mac_address }}'/>
       <source network='{{ network_name }}'/>
