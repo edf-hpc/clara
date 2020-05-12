@@ -307,40 +307,41 @@ def system_install(work_dir, dist):
 
     run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"])
 
-    # Set presseding if the file has been set in config.ini
-    preseed_file = get_from_config("images", "preseed_file", dist)
-    if not os.path.isfile(preseed_file):
-        logging.warning("preseed_file contains '{0}' and it is not a file!".format(preseed_file))
-    else:
-        shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
-        # we need to install debconf-utils
-        run_chroot(["chroot", work_dir, "apt-get", "install",
-                    "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"], work_dir)
-        run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
-        run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"], work_dir)
-        run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"], work_dir)
-
-    # Install packages from package_file if this file has been set in config.ini
-    try:
-        package_file = get_from_config("images", "package_file", dist)
-    except:
-        package_file = None
-
-    if not package_file:
-        logging.warning("package_file is not specified in config.ini".format(package_file))
-    elif not os.path.isfile(package_file):
-        logging.warning("package_file contains '{0}' and it is not a file.".format(package_file))
-    else:
-        shutil.copy(package_file, work_dir + "/tmp/packages.file")
-        for i in range(0, 2):
-            part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],
-                                     stdout=subprocess.PIPE)
-            part2 = subprocess.Popen(["chroot", work_dir, "dpkg", "--set-selections"],
-                                     stdin=part1.stdout, stdout=subprocess.PIPE)
-            part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
-            output = part2.communicate()[0]
-            run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"],
-                       work_dir)
+    if ID == "debian":
+        # Set presseding if the file has been set in config.ini
+        preseed_file = get_from_config("images", "preseed_file", dist)
+        if not os.path.isfile(preseed_file):
+            logging.warning("preseed_file contains '{0}' and it is not a file!".format(preseed_file))
+        else:
+            shutil.copy(preseed_file, work_dir + "/tmp/preseed.file")
+            # we need to install debconf-utils
+            run_chroot(["chroot", work_dir, "apt-get", "install",
+                        "--no-install-recommends", "--yes", "--force-yes", "debconf-utils"], work_dir)
+            run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
+            run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"], work_dir)
+            run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"], work_dir)
+    
+        # Install packages from package_file if this file has been set in config.ini
+        try:
+            package_file = get_from_config("images", "package_file", dist)
+        except:
+            package_file = None
+    
+        if not package_file:
+            logging.warning("package_file is not specified in config.ini".format(package_file))
+        elif not os.path.isfile(package_file):
+            logging.warning("package_file contains '{0}' and it is not a file.".format(package_file))
+        else:
+            shutil.copy(package_file, work_dir + "/tmp/packages.file")
+            for i in range(0, 2):
+                part1 = subprocess.Popen(["cat", work_dir + "/tmp/packages.file"],
+                                         stdout=subprocess.PIPE)
+                part2 = subprocess.Popen(["chroot", work_dir, "dpkg", "--set-selections"],
+                                         stdin=part1.stdout, stdout=subprocess.PIPE)
+                part1.stdout.close()  # Allow part1 to receive a SIGPIPE if part2 exits.
+                output = part2.communicate()[0]
+                run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"],
+                           work_dir)
 
     # Install extra packages if extra_packages_image has been set in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
