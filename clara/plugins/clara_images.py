@@ -83,6 +83,26 @@ dists = {
 }
 
 
+class osRelease:
+    # Common base class for OS release
+    def __init__(self, ID, VERSION_ID):
+        self.ID = ID
+        self.VERSION_ID = VERSION_ID
+        self.dist = dists[ID]
+
+    def bootstrapper(self, opts):
+        opts.insert(0,self.dist["bootstrapper"])
+        run(opts)
+
+    def genInitrd(opts):
+        run([self.dist["initrdGen"],opts])
+
+class imageInstant(osRelease):
+    # Common base class for
+    def __init__(self, workdir):
+        self.workdir = workdir
+
+
 def run_chroot(cmd, work_dir):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
 
