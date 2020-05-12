@@ -163,16 +163,18 @@ def base_install(work_dir, dist):
     if conf.ddebug:
         opts = "--verbose" + opts
 
+    gpg = 1
     if gpg_check:
         if gpg_keyring is not None:
-            cmd.insert(1, "--keyring=%s" % gpg_keyring)
+            opts.insert(1, "--keyring=%s" % gpg_keyring)
     else:
-        cmd.insert(1, "--no-check-gpg")
+        opts.insert(1, "--no-check-gpg")
+        gpg = 0
 
     if conf.ddebug:
-        cmd.insert(1, "--verbose")
+        opts.insert(1, "--verbose")
 
-    run(cmd)
+    image.bootstrapper(opts)
 
     # Prevent services from starting automatically
     policy_rc = work_dir + "/usr/sbin/policy-rc.d"
