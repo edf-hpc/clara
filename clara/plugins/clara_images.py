@@ -301,11 +301,11 @@ def system_install(work_dir, dist):
     if not foreign_archs:
         logging.warning("foreign_archs is not specified in config.ini".format(foreign_archs))
     else:
-        for arch in foreign_archs:
-            logging.warning("Configure foreign_arch {0}".format(arch))
-            if ID == "debian":
-                run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch])
-            if ID == "centos":
+        if ID == "debian":
+            for arch in foreign_archs:
+                logging.warning("Configure foreign_arch {0}".format(arch))
+                run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
+        if ID == "centos":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"])
 
     run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"])
