@@ -135,21 +135,33 @@ def get_osRelease(dist):
 
 
 def base_install(work_dir, dist):
-    # Debootstrap
-    src_list = work_dir + "/etc/apt/sources.list"
-    apt_pref = work_dir + "/etc/apt/preferences.d/00custompreferences"
-    apt_conf = work_dir + "/etc/apt/apt.conf.d/99nocheckvalid"
-    dpkg_conf = work_dir + "/etc/dpkg/dpkg.cfg.d/excludes"
-    etc_host = work_dir + "/etc/hosts"
+    ID, VERSION_ID = get_osRelease(dist)
+    image = imageInstant(work_dir, ID, VERSION_ID)
+    distrib = image.dist
+    opts = []
 
-    debiandist = get_from_config("images", "debiandist", dist)
-    debmirror = get_from_config("images", "debmirror", dist)
+    # bootstrap
+    src_list = work_dir + distrib["src_list"]
+    if ID == "debian":
+        apt_pref = work_dir + distrib["apt_pref"]
+        apt_conf = work_dir + distrib["apt_conf"]
+        dpkg_conf = work_dir + distrib["dpkg_conf"]
+        etc_host = work_dir + "/etc/hosts"
 
-    # Get GPG options
-    gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
-    gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
+        debiandist = get_from_config("images", "debiandist", dist)
+        debmirror = get_from_config("images", "debmirror", dist)
 
-    cmd = ["debootstrap", debiandist, work_dir, debmirror]
+        opts = [debiandist , work_dir, debmirror]
+
+    if ID == "centos":
+        rpm_lib = work_dir + distrib["rpm_lib"]
+        baseurl = get_from_config("images", "baseurl", dist)
+        run(["mkdir", "-p", rpm_lib])
+        run(["rpm", "--root", work_dir ,"-initdb"])
+        opts = ["install", "-y" , "--installroot=" + work_dir, "yum"]
+
+    if conf.ddebug:
+        opts = "--verbose" + opts
 
     if gpg_check:
         if gpg_keyring is not None:
