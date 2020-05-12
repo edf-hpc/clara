@@ -99,9 +99,9 @@ class osRelease:
 
 class imageInstant(osRelease):
     # Common base class for
-    def __init__(self, workdir):
+    def __init__(self, workdir, ID, VERSION_ID):
+        osRelease.__init__(self, ID, VERSION_ID)
         self.workdir = workdir
-
 
 def run_chroot(cmd, work_dir):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
