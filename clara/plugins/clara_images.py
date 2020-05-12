@@ -63,6 +63,26 @@ from clara import sftp
 _opts = {'keep_chroot_dir': None}
 
 
+dists = {
+   "debian": {
+     "pkgManager": "apt-get",
+     "src_list": "/etc/apt/sources.list",
+     "apt_pref": "/etc/apt/preferences.d/00custompreferences",
+     "apt_conf": "/etc/apt/apt.conf.d/99nocheckvalid",
+     "dpkg_conf": "/etc/dpkg/dpkg.cfg.d/excludes",
+     "bootstrapper": "debootstrap",
+     "initrdGen": "mkinitramfs"
+  },
+   "centos": {
+     "pkgManager": "yum",
+     "src_list": "/etc/yum.repos.d/centos.repo",
+     "rpm_lib": "/var/lib/rpm",
+     "bootstrapper": "yum",
+     "initrdGen":"dracut"
+  }
+}
+
+
 def run_chroot(cmd, work_dir):
     logging.debug("images/run_chroot: {0}".format(" ".join(cmd)))
 
