@@ -177,10 +177,13 @@ def base_install(work_dir, dist):
     if conf.ddebug:
         opts = "--verbose" + opts
 
+    # Get GPG options
+    gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
+    gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
     gpg = 1
     if gpg_check:
         if gpg_keyring is not None:
-            opts.insert(1, "--keyring=%s" % gpg_keyring)
+            opts.insert(0, "--keyring=%s" % gpg_keyring)
     else:
         opts.insert(1, "--no-check-gpg")
         gpg = 0
