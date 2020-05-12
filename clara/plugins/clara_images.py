@@ -176,63 +176,65 @@ def base_install(work_dir, dist):
 
     image.bootstrapper(opts)
 
-    # Prevent services from starting automatically
-    policy_rc = work_dir + "/usr/sbin/policy-rc.d"
-    with open(policy_rc, 'w') as p_rcd:
-        p_rcd.write("exit 101")
-    p_rcd.close()
 
-    os.chmod(policy_rc, 0o755)
-    # Mirror setup
-    list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
-    if ';' in list_repos_nonsplitted:
-        separator = ';'
-    else:
-        separator = ','
-    list_repos = list_repos_nonsplitted.split(separator)
-
-    with open(src_list, 'w') as fsources:
-        for line in list_repos:
-            fsources.write(line + '\n')
-    os.chmod(src_list, 0o644)
-
-    with open(apt_pref, 'w') as fapt:
-        fapt.write("""Package: *
-Pin: release o={0}
-Pin-Priority: 5000
-
-Package: *
-Pin: release o={1}
-Pin-Priority: 6000
-""".format(dist, get_from_config("common", "origin", dist)))
-    os.chmod(apt_pref, 0o644)
-
-    # Misc config
-    with open(apt_conf, 'w') as fconf:
-        fconf.write('Acquire::Check-Valid-Until "false";\n')
-    os.chmod(apt_conf, 0o644)
-
-    lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
-    with open(etc_host, 'w') as fhost:
-        for elem in lists_hosts:
-            if ":" in elem:
-                ip, host = elem.split(":")
-                fhost.write("{0} {1}\n".format(ip, host))
-            else:
-                logging.warning("The option etc_hosts is malformed or missing an argument")
-    os.chmod(etc_host, 0o644)
-
-    with open(dpkg_conf, 'w') as fdpkg:
-        fdpkg.write("""# Drop locales except French
-path-exclude=/usr/share/locale/*
-path-include=/usr/share/locale/fr/*
-path-include=/usr/share/locale/locale.alias
-
-# Drop manual pages
-# (We keep manual pages in the image)
-## path-exclude=/usr/share/man/*
-""")
-    os.chmod(dpkg_conf, 0o644)
+    if ID == "debian":
+        # Prevent services from starting automatically
+        policy_rc = work_dir + "/usr/sbin/policy-rc.d"
+        with open(policy_rc, 'w') as p_rcd:
+            p_rcd.write("exit 101")
+        p_rcd.close()
+    
+        os.chmod(policy_rc, 0o755)
+        # Mirror setup
+        list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
+        if ';' in list_repos_nonsplitted:
+            separator = ';'
+        else:
+            separator = ','
+        list_repos = list_repos_nonsplitted.split(separator)
+    
+        with open(src_list, 'w') as fsources:
+            for line in list_repos:
+                fsources.write(line + '\n')
+        os.chmod(src_list, 0o644)
+    
+        with open(apt_pref, 'w') as fapt:
+            fapt.write("""Package: *
+    Pin: release o={0}
+    Pin-Priority: 5000
+    
+    Package: *
+    Pin: release o={1}
+    Pin-Priority: 6000
+    """.format(dist, get_from_config("common", "origin", dist)))
+        os.chmod(apt_pref, 0o644)
+    
+        # Misc config
+        with open(apt_conf, 'w') as fconf:
+            fconf.write('Acquire::Check-Valid-Until "false";\n')
+        os.chmod(apt_conf, 0o644)
+    
+        lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
+        with open(etc_host, 'w') as fhost:
+            for elem in lists_hosts:
+                if ":" in elem:
+                    ip, host = elem.split(":")
+                    fhost.write("{0} {1}\n".format(ip, host))
+                else:
+                    logging.warning("The option etc_hosts is malformed or missing an argument")
+        os.chmod(etc_host, 0o644)
+    
+        with open(dpkg_conf, 'w') as fdpkg:
+            fdpkg.write("""# Drop locales except French
+    path-exclude=/usr/share/locale/*
+    path-include=/usr/share/locale/fr/*
+    path-include=/usr/share/locale/locale.alias
+    
+    # Drop manual pages
+    # (We keep manual pages in the image)
+    ## path-exclude=/usr/share/man/*
+    """)
+        os.chmod(dpkg_conf, 0o644)
 
     # Set root password to 'clara'
     part1 = subprocess.Popen(["echo", "root:clara"],
