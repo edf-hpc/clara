@@ -120,6 +120,20 @@ def run_chroot(cmd, work_dir):
         clara_exit(' '.join(cmd))
 
 
+def get_osRelease(dist):
+    if "centos8" in dist:
+        ID = "centos"
+        ID_Version = "8"
+    if "calibre9" in dist:
+        ID = "debian"
+        ID_Version = "8"
+    if "scibian9" in dist:
+        ID = "debian"
+        ID_Version = "8"
+
+    return ID, ID_Version
+
+
 def base_install(work_dir, dist):
     # Debootstrap
     src_list = work_dir + "/etc/apt/sources.list"
