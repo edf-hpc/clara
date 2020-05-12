@@ -270,8 +270,11 @@ def umount_chroot(work_dir):
 
 def system_install(work_dir, dist):
     mount_chroot(work_dir)
+    ID, VERSION_ID = get_osRelease(dist)
+    image = imageInstant(work_dir, ID, VERSION_ID)
+    distrib = image.dist
 
-    # Configure foreign architecture if this has been set in config.ini
+# Configure foreign architecture if this has been set in config.ini
     try:
         foreign_archs = get_from_config("images", "foreign_archs", dist).split(",")
     except:
@@ -282,9 +285,12 @@ def system_install(work_dir, dist):
     else:
         for arch in foreign_archs:
             logging.warning("Configure foreign_arch {0}".format(arch))
-            run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
+            if ID == "debian":
+                run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch])
+            if ID == "centos":
+                run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"])
 
-    run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
+    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"])
 
     # Set presseding if the file has been set in config.ini
     preseed_file = get_from_config("images", "preseed_file", dist)
