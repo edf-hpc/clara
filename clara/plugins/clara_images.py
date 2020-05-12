@@ -133,6 +133,20 @@ def get_osRelease(dist):
 
     return ID, ID_Version
 
+def set_yum_src_file(src_list, baseurl,gpgcheck):
+    sources = ["BaseOS","AppStream"]
+    dir_path = os.path.dirname(os.path.realpath(src_list))
+    files = glob.glob(dir_path+"/*")
+    for f in files:
+        os.remove(f)
+    f = open(src_list, "w")
+    for source in sources:
+        name = "Forge_" + source
+        baseurl=baseurl + source
+        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+baseurl]
+        lines = "\n".join(lines)
+        f.writelines(lines)
+    f.close()
 
 def base_install(work_dir, dist):
     ID, VERSION_ID = get_osRelease(dist)
@@ -175,7 +189,8 @@ def base_install(work_dir, dist):
         opts.insert(1, "--verbose")
 
     image.bootstrapper(opts)
-
+    if ID == "centos":
+        set_yum_src_file(src_list, baseurl,gpg)
 
     if ID == "debian":
         # Prevent services from starting automatically
