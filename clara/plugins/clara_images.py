@@ -466,9 +466,6 @@ def genimg(image, work_dir, dist):
             os.makedirs(path_to_image)
         squashfs_file = image
 
-    logging.info("Cleaning APT cache in working directory")
-    run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
-
     if os.path.isfile(squashfs_file):
         os.rename(squashfs_file, squashfs_file + ".old")
         logging.info("Previous image renamed to {0}.".format(squashfs_file + ".old"))
