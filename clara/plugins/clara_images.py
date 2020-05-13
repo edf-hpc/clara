@@ -55,7 +55,7 @@ import subprocess
 import sys
 import tempfile
 import time
-
+import glob
 import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
@@ -175,18 +175,20 @@ def base_install(work_dir, dist):
         opts = ["install", "-y" , "--installroot=" + work_dir, "yum"]
 
     if conf.ddebug:
-        opts = "--verbose" + opts
+        opts = ["--verbose"] + opts
 
     # Get GPG options
     gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
     gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
     gpg = 1
-    if gpg_check:
-        if gpg_keyring is not None:
-            opts.insert(0, "--keyring=%s" % gpg_keyring)
-    else:
-        opts.insert(1, "--no-check-gpg")
-        gpg = 0
+
+    if ID == "debian":
+        if gpg_check:
+            if gpg_keyring is not None:
+                opts.insert(0, "--keyring=%s" % gpg_keyring)
+        else:
+            opts.insert(1, "--no-check-gpg")
+            gpg = 0
 
     if conf.ddebug:
         opts.insert(1, "--verbose")
@@ -352,7 +354,13 @@ def system_install(work_dir, dist):
         logging.warning("extra_packages_image hasn't be set in the config.ini")
     else:
         pkgs = extra_packages_image.split(",")
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs,
+        if ID == "debian":
+            opts = ["--no-install-recommends", "--yes", "--force-yes"]
+        if ID == "centos":
+            opts = ["-y"]
+
+        opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
+        run_chroot(opts,
                    work_dir)
 
     # Finally, make sure the base image is updated with all the new versions
