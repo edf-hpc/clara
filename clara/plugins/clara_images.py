@@ -270,6 +270,8 @@ def base_install(work_dir, dist):
 def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
+    run(["mknod", "-m", "444", work_dir + "/dev/random", "c", "1", "8"])
+    run(["mknod", "-m", "444", work_dir + "/dev/urandom", "c", "1", "9"])
 
 
 def umount_chroot(work_dir):
