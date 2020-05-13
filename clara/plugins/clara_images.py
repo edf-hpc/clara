@@ -401,7 +401,9 @@ def install_files(work_dir, dist):
                     run_chroot(["chroot", work_dir, "update-rc.d", orig, "defaults"], work_dir)
 
     # Empty hostname
-    os.remove(work_dir + "/etc/hostname")
+    hostnamefile = work_dir + "/etc/hostname"
+    if os.path.exists(hostnamefile):
+        os.remove(hostnamefile)
     run_chroot(["chroot", work_dir, "touch", "/etc/hostname"], work_dir)
 
 
