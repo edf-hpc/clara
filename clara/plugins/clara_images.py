@@ -245,14 +245,13 @@ def base_install(work_dir, dist):
     
         with open(dpkg_conf, 'w') as fdpkg:
             fdpkg.write("""# Drop locales except French
-    path-exclude=/usr/share/locale/*
-    path-include=/usr/share/locale/fr/*
-    path-include=/usr/share/locale/locale.alias
-    
-    # Drop manual pages
-    # (We keep manual pages in the image)
-    ## path-exclude=/usr/share/man/*
-    """)
+path-exclude=/usr/share/locale/*
+path-include=/usr/share/locale/fr/*
+path-include=/usr/share/locale/locale.alias
+# Drop manual pages
+# (We keep manual pages in the image)
+## path-exclude=/usr/share/man/*
+""")
         os.chmod(dpkg_conf, 0o644)
 
     # Set root password to 'clara'
@@ -313,7 +312,7 @@ def system_install(work_dir, dist):
         if ID == "centos":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"],work_dir)
 
-    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"],work_dir)
+    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"],work_dir)
 
     if ID == "debian":
         # Set presseding if the file has been set in config.ini
