@@ -143,7 +143,7 @@ def set_yum_src_file(src_list, baseurl,gpgcheck):
     for source in sources:
         name = "Forge_" + source
         baseurl=baseurl + source
-        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+baseurl]
+        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+baseurl,"sslverify=0"]
         lines = "\n".join(lines)
         f.writelines(lines)
     f.close()
@@ -180,7 +180,6 @@ def base_install(work_dir, dist):
     # Get GPG options
     gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
     gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
-    gpg = 1
 
     if ID == "debian":
         if gpg_check:
@@ -188,14 +187,13 @@ def base_install(work_dir, dist):
                 opts.insert(0, "--keyring=%s" % gpg_keyring)
         else:
             opts.insert(1, "--no-check-gpg")
-            gpg = 0
 
     if conf.ddebug:
         opts.insert(1, "--verbose")
 
     image.bootstrapper(opts)
     if ID == "centos":
-        set_yum_src_file(src_list, baseurl,gpg)
+        set_yum_src_file(src_list, baseurl,gpg_check)
 
     if ID == "debian":
         # Prevent services from starting automatically
@@ -270,8 +268,10 @@ def base_install(work_dir, dist):
 def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
-    run(["mknod", "-m", "444", work_dir + "/dev/random", "c", "1", "8"])
-    run(["mknod", "-m", "444", work_dir + "/dev/urandom", "c", "1", "9"])
+    if not os.path.exists(work_dir+"/dev/random"):
+        run(["mknod", "-m", "444", work_dir + "/dev/random", "c", "1", "8"])
+    if not os.path.exists(work_dir+"/dev/urandom"):
+        run(["mknod", "-m", "444", work_dir + "/dev/urandom", "c", "1", "9"])
 
 
 def umount_chroot(work_dir):
