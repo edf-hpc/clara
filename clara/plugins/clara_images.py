@@ -310,7 +310,7 @@ def system_install(work_dir, dist):
         if ID == "centos":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"],work_dir)
 
-    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"])
+    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "--verbose"],work_dir)
 
     if ID == "debian":
         # Set presseding if the file has been set in config.ini
