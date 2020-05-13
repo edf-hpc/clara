@@ -431,8 +431,10 @@ def remove_files(work_dir, dist):
     files_to_remove = get_from_config("images", "files_to_remove", dist).split(',')
     for f in files_to_remove:
         if os.path.isfile(work_dir + "/" + f):
-            os.remove(work_dir + "/" + f)
-    os.remove(work_dir + "/usr/sbin/policy-rc.d")
+            if os.path.exists(work_dir + "/" + f):
+                os.remove(work_dir + "/" + f)
+    if os.path.exists(work_dir + "/usr/sbin/policy-rc.d"):
+        os.remove(work_dir + "/usr/sbin/policy-rc.d")
 
 
 def run_script_post_creation(work_dir, dist):
