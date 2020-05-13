@@ -141,9 +141,10 @@ def set_yum_src_file(src_list, baseurl,gpgcheck):
         os.remove(f)
     f = open(src_list, "w")
     for source in sources:
+        lines = []
         name = "Forge_" + source
-        baseurl=baseurl + source
-        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+baseurl,"sslverify=0"]
+        base_url=baseurl + source
+        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
         lines = "\n".join(lines)
         f.writelines(lines)
     f.close()
@@ -365,11 +366,23 @@ def system_install(work_dir, dist):
         run_chroot(opts,
                    work_dir)
 
-    # Finally, make sure the base image is updated with all the new versions
-    run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
-    run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
+    # Manage groupinstall for centos
+    if ID == "centos":
+        group_pkgs = get_from_config("images", "group_pkgs", dist)
+        if len(extra_packages_image) == 0:
+            logging.warning("group_pkgs hasn't be set in the config.ini")
+        else:
+            group_pkgs = extra_packages_image.split(",")
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "install", "-y"] + group_pkgs) 
 
-    run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
+    # Finally, make sure the base image is updated with all the new versions
+    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
+    if ID == "debian":
+        run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
+        run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
+    if ID == "centos":
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade"], work_dir)
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
     umount_chroot(work_dir)
 
 
