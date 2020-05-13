@@ -368,12 +368,17 @@ def system_install(work_dir, dist):
 
     # Manage groupinstall for centos
     if ID == "centos":
+        src_list = work_dir + distrib["src_list"]
+        baseurl = get_from_config("images", "baseurl", dist)
+        gpg_check = get_from_config("images", "gpg_check", dist)
+        set_yum_src_file(src_list, baseurl,gpg_check)
         group_pkgs = get_from_config("images", "group_pkgs", dist)
-        if len(extra_packages_image) == 0:
+        if len(group_pkgs) == 0:
             logging.warning("group_pkgs hasn't be set in the config.ini")
         else:
-            group_pkgs = extra_packages_image.split(",")
-            run_chroot(["chroot", work_dir, distrib["pkgManager"], "install", "-y"] + group_pkgs) 
+            group_pkgs = group_pkgs.split(",")
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y"] + group_pkgs, work_dir)
+ 
 
     # Finally, make sure the base image is updated with all the new versions
     run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
