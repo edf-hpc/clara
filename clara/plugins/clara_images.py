@@ -517,6 +517,10 @@ def extract_image(image, dist):
 
 
 def geninitrd(path, work_dir, dist):
+    ID, VERSION_ID = get_osRelease(dist)
+    image = imageInstant(work_dir, ID, VERSION_ID)
+    distrib = image.dist
+
     if (path is None):
         trg_dir = get_from_config("images", "trg_dir", dist)
 
@@ -547,20 +551,31 @@ def geninitrd(path, work_dir, dist):
     if len(kver) == 0:
         clara_exit("kver hasn't be set in config.ini")
     else:
-        run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
-        run_chroot(["chroot", work_dir, "apt-get", "install",
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
+        if ID == "debian":
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
+        if ID == "centos":
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
+                    "-y","kernel-"+ kver], work_dir)
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
     if len(packages_initrd) == 0:
         logging.warning("packages_initrd hasn't be set in config.ini")
     else:
         pkgs = packages_initrd.split(',')
-        run_chroot(["chroot", work_dir, "apt-get", "install", "--no-install-recommends", "--yes", "--force-yes"] + pkgs,
-                   work_dir)
+        if ID == "debian":
+            opts = ["--no-install-recommends", "--yes", "--force-yes"]
+            intitrd_opts = ["-o", "/tmp/initrd-" + kver, kver]
+        if ID == "centos":
+            opts = ["-y"]
+            intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver]
+        opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
+        run_chroot(opts, work_dir)
 
     # Generate the initrd in the image
-    run_chroot(["chroot", work_dir, "mkinitramfs", "-o", "/tmp/initrd-" + kver, kver], work_dir)
+    intitrd_opts = ["chroot", work_dir, distrib["initrdGen"]] + intitrd_opts
+    run_chroot(intitrd_opts, work_dir)
 
     umount_chroot(work_dir)
 
