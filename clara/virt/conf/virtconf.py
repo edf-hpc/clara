@@ -78,14 +78,14 @@ class VirtConf(configparser.ConfigParser):
         template_list = self.get_template_list()
         for template in template_list:
             section = "template:%s" % template
-            if super(VirtConf, self).getboolean(section, 'default', fallback=False):
+            if self.getboolean(section, 'default', fallback=False):
                 return template
 
     def get_template_for_vm(self, vm_name):
         template_list = self.get_template_list()
         for template in template_list:
             section = "template:%s" % template
-            vm_names = super(VirtConf, self).get(section, 'vm_names', fallback='')
+            vm_names = self.get(section, 'vm_names', fallback='')
             if vm_names == '':
                 continue
             vm_nodeset = NodeSet(vm_names)
@@ -95,34 +95,34 @@ class VirtConf(configparser.ConfigParser):
 
     def get_template_vol_roles(self, template_name):
         section = "template:%s" % template_name
-        role_list = super(VirtConf, self).get(
+        role_list = self.get(
             section, 'vol_role', fallback='system').split(',')
         roles = {}
         for role_name in role_list:
             roles[role_name] = {}
-            roles[role_name]['capacity'] = super(VirtConf, self).getint(
+            roles[role_name]['capacity'] = self.getint(
                 section, "vol_roles_%s_capacity" % role_name, fallback=60000000000)
         return roles
 
     def get_template_vm_params(self, template_name):
         section = "template:%s" % template_name
         params = {
-            'memory_kib': super(VirtConf, self).getint(
+            'memory_kib': self.getint(
                 section, "memory_kib", fallback=2097152),
-            'core_count': super(VirtConf, self).getint(
+            'core_count': self.getint(
                 section, "core_count", fallback=4),
-            'serial_tcp_host': super(VirtConf, self).get(
+            'serial_tcp_host': self.get(
                 section, "serial_tcp_host", fallback="127.0.0.1"),
-            'serial_tcp_port': super(VirtConf, self).get(
+            'serial_tcp_port': self.get(
                 section, "serial_tcp_port", fallback="0"),
-            'network_list': super(VirtConf, self).get(
+            'network_list': self.get(
                 section, "networks", fallback="administration").split(",")
         }
         return params
 
     def get_template_xml_name(self, template_name):
         section = "template:%s" % template_name
-        return super(VirtConf, self).get(section, 'xml', fallback='default.xml')
+        return self.get(section, 'xml', fallback='default.xml')
 
     def get_vm_list(self):
         """Get the list of all VM names. Sections [vm:XXX]
@@ -138,7 +138,7 @@ class VirtConf(configparser.ConfigParser):
         networks = collections.OrderedDict()
         for network_name in network_list:
             networks[network_name] = {
-                'mac_address': super(VirtConf, self).get(
+                'mac_address': self.get(
                     section, 'net_%s_mac' % network_name, fallback="")
             }
         return networks
@@ -146,19 +146,19 @@ class VirtConf(configparser.ConfigParser):
     def get_vm_params(self, vm_name):
         section = "vm:%s" % vm_name
         params = {}
-        value = super(VirtConf, self).getint(section, "memory_kib", fallback=None)
+        value = self.getint(section, "memory_kib", fallback=None)
         if value is not None:
             params['memory_kib'] = value
-        value = super(VirtConf, self).getint(section, "core_count", fallback=None)
+        value = self.getint(section, "core_count", fallback=None)
         if value is not None:
             params['core_count'] = value
-        value = super(VirtConf, self).get(section, "serial_tcp_host", fallback='0')
+        value = self.get(section, "serial_tcp_host", fallback='0')
         if value is not None:
             params['serial_tcp_host'] = value
-        value = super(VirtConf, self).get(section, "serial_tcp_port", fallback='0')
+        value = self.get(section, "serial_tcp_port", fallback='0')
         if value is not None:
             params['serial_tcp_port'] = value
-        value = super(VirtConf, self).get(section, "networks", fallback=None)
+        value = self.get(section, "networks", fallback=None)
         if value is not None:
             params['network_list'] = value.split(',')
         return params
@@ -180,14 +180,14 @@ class VirtConf(configparser.ConfigParser):
         group_list = self.get_nodegroup_list()
         for group in group_list:
             section = "nodegroup:%s" % group
-            if super(VirtConf, self).get(section, 'default', fallback=False):
+            if self.get(section, 'default', fallback=False):
                 return group
 
     def get_nodegroup_host_list(self, group_name):
         """Get list of all hostnames for a nodegroup.
         """
         section = "nodegroup:%s" % group_name
-        folded_list = super(VirtConf, self).get(section, 'nodes', fallback='').split(',')
+        folded_list = self.get(section, 'nodes', fallback='').split(',')
         expanded_list = []
         for folded_element in folded_list:
             nodeset = NodeSet(folded_element)
@@ -212,12 +212,12 @@ class VirtConf(configparser.ConfigParser):
         pool_list = self.get_pool_list()
         for pool in pool_list:
             section = "pool:%s" % pool
-            if super(VirtConf, self).getboolean(section, 'default', fallback=False):
+            if self.getboolean(section, 'default', fallback=False):
                 return pool
 
     def get_pool_vol_pattern(self, pool_name):
         """Get the volume pattern for the pool
         """
         section = "pool:%s" % pool_name
-        return super(VirtConf, self).get(
+        return self.get(
             section, 'vol_pattern', fallback='\%(vm_name)s_\%(vol_role)%')
