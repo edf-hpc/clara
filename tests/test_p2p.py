@@ -37,7 +37,3 @@ def test_mktorrent(mocker, tmpdir_factory):
                            "http://server2:6881/announce", '-o',
                            u'/srv/clara/website/boot/file2.torrent',
                            u'/srv/clara/website/boot/calibre9.squashfs'])
-    file_permisions = os.stat(seed_file)
-    assert file_permisions.st_mode == 33188#'0100644'
-    file_permisions = os.stat(torrent_dir)
-    assert file_permisions.st_mode == 16877#'040755'
