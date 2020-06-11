@@ -653,7 +653,7 @@ def edit(image, work_dir, dist):
     os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara images> \e[0m'".format(dist))
     pty.spawn(["/bin/bash"])
 
-    save = input('Save changes made in the image? (N/y)')
+    save = raw_input('Save changes made in the image? (N/y)')
     logging.debug("Input from the user: '{0}'".format(save))
     if save not in ('Y', 'y'):
         clara_exit("Changes ignored. The image {0} hasn't been modified.".format(squashfs_file))
