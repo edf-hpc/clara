@@ -171,7 +171,7 @@ def base_install(work_dir, dist):
     if ID == "centos":
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
-        run(["mkdir", "-p", rpm_lib])
+        os.makedirs(rpm_lib)
         run(["rpm", "--root", work_dir ,"-initdb"])
         opts = ["install", "-y" , "--installroot=" + work_dir, "yum"]
 
