@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+
+## [0.20200106] - 2020-01-06
+
+### Added
+- clara: add pytest unitary tests
+
+### Changed
+- clara: port from Python2 to Python3.
+
 ## [0.20200106] - 2020-01-06
 
 ### Fixed
