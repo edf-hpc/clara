@@ -143,7 +143,7 @@ def set_yum_src_file(src_list, baseurl,gpgcheck):
     for source in sources:
         lines = []
         name = "Forge_" + source
-        base_url=baseurl + source
+        base_url=baseurl + source + "/x86_64/os/"
         lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
         lines = "\n".join(lines)
         f.writelines(lines)
