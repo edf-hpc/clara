@@ -1,8 +1,8 @@
 # Configuration Logic
 %define name clara
-%define version 0.20200617
-%define unmangled_version 0.20200617
-%define unmangled_version 0.20200617
+%define version 0.20200707
+%define unmangled_version 0.20200707
+%define unmangled_version 0.20200707
 %define debug_package %{nil}
 
 # Main preamble
@@ -264,7 +264,9 @@ Clara is a set of tools to help administering and installing clusters.
 
 
 %changelog
-* Thu Jun 30 2020 Pierre Trespeuch <pierre-externe.trespeuch@edf.fr> - 0.20200617-1el8.edf
-- Initial RPM release
+* Tue Jul 07 2020 Pierre Trespeuch <pierre-externe.trespeuch@edf.fr> 0.20200707-1el8.edf
+- New upstream version 0.20200707
 
+* Tue Jun 30 2020 Pierre Trespeuch <pierre-externe.trespeuch@edf.fr> 0.20200617-1el8.edf
+- Initial RPM release
 
