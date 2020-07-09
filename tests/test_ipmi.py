@@ -3,6 +3,7 @@ from clara.plugins.clara_ipmi import (do_connect, getmac, do_ping, do_ssh)
 import clara.plugins.clara_ipmi as clara_ipmi
 from subprocess import Popen, PIPE
 from tests.common import fakeconfig
+import os
 
 
 class FakeTask:
@@ -29,8 +30,9 @@ def fake_popen(cmd = None, stdout=None, stderr=None, universal_newlines=None):
         return Popen('echo \"Chassis Power is on\"',
                      stdout=PIPE, shell=True, universal_newlines=True)
 
-    return Popen('python tests/data/bin/impi',
-                 stdout=PIPE, shell=True, universal_newlines=True)
+    fake_ipmi_cmd = 'python3 {}/data/bin/impi'.format(os.path.dirname(__file__))
+
+    return Popen(fake_ipmi_cmd, stdout=PIPE, shell=True, universal_newlines=True)
 
 
 def test_do_coonect(mocker):
