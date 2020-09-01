@@ -1,14 +1,11 @@
 # Configuration Logic
-%define name clara
-%define version 0.20200707
-%define unmangled_version 0.20200707
 %define unmangled_version 0.20200707
 %define debug_package %{nil}
 
 # Main preamble
 Summary: Clara, a set of Cluster Administration Tools
-Name: %{name}
-Version: %{version}
+Name: clara
+Version: 0.20200707
 Release:  1%{?dist}.edf
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv3
