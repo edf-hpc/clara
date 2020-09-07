@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2016 EDF SA                                            #
+#  Copyright (C) 2014-2020 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -112,7 +112,7 @@ def mktorrent(image):
 
         os.chmod(torrent_repo,0o755)
         if sftp_mode:
-            sftp_client.upload(torrent_f, os.path.dirname(torrent_f))
+            sftp_client.upload([torrent_f], os.path.dirname(torrent_f))
 
     clush(seeders, init_start.format(seeding_service))
 
