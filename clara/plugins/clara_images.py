@@ -179,12 +179,12 @@ def base_install(work_dir, dist):
 
     # bootstrap
     src_list = work_dir + distrib["src_list"]
+    etc_host = work_dir + "/etc/hosts"
     if dists[ID]['bootstrapper'] == "debootstrap":
         logging.debug("images/base_install: Using debootstrap for %s (%s/%s)", dist, ID, VERSION_ID)
         apt_pref = work_dir + distrib["apt_pref"]
         apt_conf = work_dir + distrib["apt_conf"]
         dpkg_conf = work_dir + distrib["dpkg_conf"]
-        etc_host = work_dir + "/etc/hosts"
 
         debiandist = get_from_config("images", "debiandist", dist)
         debmirror = get_from_config("images", "debmirror", dist)
@@ -258,15 +258,6 @@ def base_install(work_dir, dist):
             fconf.write('Acquire::Check-Valid-Until "false";\n')
         os.chmod(apt_conf, 0o644)
     
-        lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
-        with open(etc_host, 'w') as fhost:
-            for elem in lists_hosts:
-                if ":" in elem:
-                    ip, host = elem.split(":")
-                    fhost.write("{0} {1}\n".format(ip, host))
-                else:
-                    logging.warning("The option etc_hosts is malformed or missing an argument")
-        os.chmod(etc_host, 0o644)
     
         with open(dpkg_conf, 'w') as fdpkg:
             fdpkg.write("""# Drop locales except French
@@ -278,6 +269,17 @@ path-include=/usr/share/locale/locale.alias
 ## path-exclude=/usr/share/man/*
 """)
         os.chmod(dpkg_conf, 0o644)
+
+    # Setup initial /etc/hosts
+    lists_hosts = get_from_config("images", "etc_hosts", dist).split(",")
+    with open(etc_host, 'w') as fhost:
+        for elem in lists_hosts:
+            if ":" in elem:
+                ip, host = elem.split(":")
+                fhost.write("{0} {1}\n".format(ip, host))
+            else:
+                logging.warning("The option etc_hosts is malformed or missing an argument")
+    os.chmod(etc_host, 0o644)
 
     # Set root password to 'clara'
     part1 = subprocess.Popen(["echo", "root:clara"],
