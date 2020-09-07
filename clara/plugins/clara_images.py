@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2014-2018 EDF SA                                            #
+#  Copyright (C) 2014-2020 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -78,7 +78,24 @@ dists = {
      "src_list": "/etc/yum.repos.d/centos.repo",
      "rpm_lib": "/var/lib/rpm",
      "bootstrapper": "yum",
-     "initrdGen":"dracut"
+     "initrdGen": "dracut",
+     "sources": {
+          'baseos': {'subdir': 'BaseOS/x86_64/os',
+          'appstream': {'subdir': 'AppStream/x86_64/os' }
+        }
+     }
+  },
+   "rhel": {
+     "pkgManager": "yum",
+     "src_list": "/etc/yum.repos.d/rhel.repo",
+     "rpm_lib": "/var/lib/rpm",
+     "bootstrapper": "yum",
+     "initrdGen": "dracut",
+     "sources": {
+          'baseos': {'subdir': 'BaseOS',
+          'appstream': {'subdir': 'AppStream' }
+        }
+     }
   }
 }
 
@@ -124,6 +141,9 @@ def get_osRelease(dist):
     if "centos8" in dist:
         ID = "centos"
         ID_Version = "8"
+    if "rhel8" in dist:
+        ID = "rhel"
+        ID_Version = "8"
     if "calibre9" in dist:
         ID = "debian"
         ID_Version = "8"
@@ -134,17 +154,18 @@ def get_osRelease(dist):
     logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
     return ID, ID_Version
 
-def set_yum_src_file(src_list, baseurl,gpgcheck):
-    sources = ["BaseOS","AppStream"]
+def set_yum_src_file(src_list, baseurl, gpgcheck, sources):
+    if not baseurl.endswith('/'):
+         baseurl = baseurl + '/'
     dir_path = os.path.dirname(os.path.realpath(src_list))
     files = glob.glob(dir_path+"/*")
     for f in files:
         os.remove(f)
     f = open(src_list, "w")
-    for source in sources:
+    for source_name in sources.keys():
         lines = []
-        name = "Forge_" + source
-        base_url=baseurl + source + "/x86_64/os/"
+        name = "bootstrap_" + source_name
+        base_url = baseurl + sources[source_name]['subdir']
         lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
         lines = "\n".join(lines)
         f.writelines(lines)
@@ -158,7 +179,7 @@ def base_install(work_dir, dist):
 
     # bootstrap
     src_list = work_dir + distrib["src_list"]
-    if ID == "debian":
+    if dists[ID]['bootstrapper'] == "debootstrap":
         logging.debug("images/base_install: Using debootstrap for %s (%s/%s)", dist, ID, VERSION_ID)
         apt_pref = work_dir + distrib["apt_pref"]
         apt_conf = work_dir + distrib["apt_conf"]
@@ -170,13 +191,14 @@ def base_install(work_dir, dist):
 
         opts = [debiandist , work_dir, debmirror]
 
-    if ID == "centos":
+    if dists[ID]['bootstrapper'] == "yum":
         logging.debug("images/base_install: Using RPM for %s (%s/%s)", dist, ID, VERSION_ID)
+        minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
         os.makedirs(rpm_lib)
         run(["rpm", "--root", work_dir ,"-initdb"])
-        opts = ["install", "-y" , "--installroot=" + work_dir, "yum"]
+        opts = ["install", "-y" , "--installroot=" + work_dir] + minimal_packages_list
 
     if conf.ddebug:
         opts = ["--verbose"] + opts
@@ -185,7 +207,7 @@ def base_install(work_dir, dist):
     gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
     gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
 
-    if ID == "debian":
+    if dists[ID]['pkgManager'] == "apt-get":
         if gpg_check:
             if gpg_keyring is not None:
                 opts.insert(0, "--keyring=%s" % gpg_keyring)
@@ -196,10 +218,10 @@ def base_install(work_dir, dist):
         opts.insert(1, "--verbose")
 
     image.bootstrapper(opts)
-    if ID == "centos":
-        set_yum_src_file(src_list, baseurl,gpg_check)
+    if dists[ID]['pkgManager'] == "yum":
+        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'])
 
-    if ID == "debian":
+    if dists[ID]['pkgManager'] == "apt-get":
         # Prevent services from starting automatically
         policy_rc = work_dir + "/usr/sbin/policy-rc.d"
         with open(policy_rc, 'w') as p_rcd:
@@ -312,7 +334,7 @@ def system_install(work_dir, dist):
             for arch in foreign_archs:
                 logging.warning("Configure foreign_arch {0}".format(arch))
                 run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
-        if ID == "centos":
+        if dists[ID]['pkgManager'] == "yum":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"],work_dir)
 
     run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"],work_dir)
@@ -361,7 +383,7 @@ def system_install(work_dir, dist):
         pkgs = extra_packages_image.split(",")
         if ID == "debian":
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
-        if ID == "centos":
+        if dists[ID]['pkgManager'] == "yum":
             opts = ["-y"]
 
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
@@ -369,11 +391,11 @@ def system_install(work_dir, dist):
                    work_dir)
 
     # Manage groupinstall for centos
-    if ID == "centos":
+    if dists[ID]['pkgManager'] == "yum":
         src_list = work_dir + distrib["src_list"]
         baseurl = get_from_config("images", "baseurl", dist)
         gpg_check = get_from_config("images", "gpg_check", dist)
-        set_yum_src_file(src_list, baseurl,gpg_check)
+        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'])
         group_pkgs = get_from_config("images", "group_pkgs", dist)
         if len(group_pkgs) == 0:
             logging.warning("group_pkgs hasn't be set in the config.ini")
@@ -387,7 +409,7 @@ def system_install(work_dir, dist):
     if ID == "debian":
         run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
         run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
-    if ID == "centos":
+    if dists[ID]['pkgManager'] == "yum":
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
     umount_chroot(work_dir)
@@ -475,7 +497,7 @@ def genimg(image, work_dir, dist):
     logging.info("Creating image at {0}".format(squashfs_file))
 
     if not os.path.exists(os.path.dirname(squashfs_file)):
-        logging.info("Creating local directory path", os.path.dirname(squashfs_file))
+        logging.info("Creating local directory path: %s", os.path.dirname(squashfs_file))
         os.makedirs(os.path.dirname(squashfs_file))
  
     if conf.ddebug:
@@ -558,7 +580,7 @@ def geninitrd(path, work_dir, dist):
         if ID == "debian":
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
-        if ID == "centos":
+        if dists[ID]['bootstrapper'] == "yum":
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "-y","kernel-"+ kver], work_dir)
     # Install packages from 'packages_initrd'
@@ -570,7 +592,7 @@ def geninitrd(path, work_dir, dist):
         if ID == "debian":
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
             intitrd_opts = ["-o", "/tmp/initrd-" + kver, kver]
-        if ID == "centos":
+        if dists[ID]['bootstrapper'] == "yum":
             opts = ["-y"]
             intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver]
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
