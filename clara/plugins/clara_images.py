@@ -131,6 +131,7 @@ def get_osRelease(dist):
         ID = "debian"
         ID_Version = "8"
 
+    logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
     return ID, ID_Version
 
 def set_yum_src_file(src_list, baseurl,gpgcheck):
@@ -158,6 +159,7 @@ def base_install(work_dir, dist):
     # bootstrap
     src_list = work_dir + distrib["src_list"]
     if ID == "debian":
+        logging.debug("images/base_install: Using debootstrap for %s (%s/%s)", dist, ID, VERSION_ID)
         apt_pref = work_dir + distrib["apt_pref"]
         apt_conf = work_dir + distrib["apt_conf"]
         dpkg_conf = work_dir + distrib["dpkg_conf"]
@@ -169,6 +171,7 @@ def base_install(work_dir, dist):
         opts = [debiandist , work_dir, debmirror]
 
     if ID == "centos":
+        logging.debug("images/base_install: Using RPM for %s (%s/%s)", dist, ID, VERSION_ID)
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
         os.makedirs(rpm_lib)
