@@ -153,8 +153,17 @@ def get_osRelease(dist):
 
     logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
     return ID, ID_Version
+    
+def list_all_repos(dist):
+	list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
+	if ';' in list_repos_nonsplitted:
+		separator = ';'
+	else:
+		separator = ','
+	list_repos = list_repos_nonsplitted.split(separator)
+	return list_repos
 
-def set_yum_src_file(src_list, baseurl, gpgcheck, sources):
+def set_yum_src_file(src_list, baseurl, gpgcheck, sources, list_repos = None):
     if not baseurl.endswith('/'):
          baseurl = baseurl + '/'
     dir_path = os.path.dirname(os.path.realpath(src_list))
@@ -169,6 +178,14 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, sources):
         lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
         lines = "\n".join(lines)
         f.writelines(lines)
+    for repo in list_repos:
+        lines = []
+        indice = 0
+        name = "bootstrap_repo_" + str(indice)
+        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+repo,"sslverify=0\n",]
+        lines = "\n".join(lines)
+        f.writelines(lines)
+        indice += 1
     f.close()
 
 def base_install(work_dir, dist):
@@ -219,7 +236,8 @@ def base_install(work_dir, dist):
 
     image.bootstrapper(opts)
     if dists[ID]['pkgManager'] == "yum":
-        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'])
+        list_repos = list_all_repos(dist)
+        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'], list_repos)
 
     if dists[ID]['pkgManager'] == "apt-get":
         # Prevent services from starting automatically
@@ -230,12 +248,7 @@ def base_install(work_dir, dist):
     
         os.chmod(policy_rc, 0o755)
         # Mirror setup
-        list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
-        if ';' in list_repos_nonsplitted:
-            separator = ';'
-        else:
-            separator = ','
-        list_repos = list_repos_nonsplitted.split(separator)
+        list_repos = list_all_repos(dist)
     
         with open(src_list, 'w') as fsources:
             for line in list_repos:
@@ -397,14 +410,14 @@ def system_install(work_dir, dist):
         src_list = work_dir + distrib["src_list"]
         baseurl = get_from_config("images", "baseurl", dist)
         gpg_check = get_from_config("images", "gpg_check", dist)
-        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'])
+        list_repos = list_all_repos(dist)
+        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'], list_repos)
         group_pkgs = get_from_config("images", "group_pkgs", dist)
         if len(group_pkgs) == 0:
             logging.warning("group_pkgs hasn't be set in the config.ini")
         else:
             group_pkgs = group_pkgs.split(",")
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y"] + group_pkgs, work_dir)
- 
 
     # Finally, make sure the base image is updated with all the new versions
     run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
