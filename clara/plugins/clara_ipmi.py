@@ -79,13 +79,12 @@ import multiprocessing
 import logging
 import os
 import re
-import socket
 import subprocess
 import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, has_config_value
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, get_bool_from_config_or, value_from_file, has_config_value
 
 
 def full_hostname(host):
@@ -202,26 +201,24 @@ def do_connect(host, j=False, f=False):
             do_connect_ipmi(host)
             return
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect((conmand, port))
-            os.environ["CONMAN_ESCAPE"] = '!'
+        cmd = []
+        ssh_jhost = get_bool_from_config_or("ipmi", "ssh_jump_host")
 
-            cmd = ["conman"]
+        if ssh_jhost:
+            cmd += ["ssh", "-t", conmand]
+            conmand = "localhost"
+        cmd += ["conman"]
+
+        try:
             if j:
                 cmd = cmd + ["-j"]
             if f:
                 cmd = cmd + ["-f"]
-            cmd = cmd + ["-d", conmand, host]
+            cmd = cmd + ["-d", conmand, host, "-e!"]
             run(cmd, exit_on_error=False)
-        except socket.error as e:
-            logging.debug("Conman not running. Message on connect: Errno {0} - {1}".format(e.errno, e.strerror))
-            do_connect_ipmi(host)
         except RuntimeError as e:
             logging.warning("Conman failed, fallback to ipmitool")
             do_connect_ipmi(host)
-
-        s.close()
 
 
 def do_ping(hosts):

@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+## Added
+- ipmi: provide an ssh_jump_host configuration option for connect
 
 ## [0.20200106.1] - 2020-10-20
 
