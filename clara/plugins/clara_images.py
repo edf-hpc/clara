@@ -57,6 +57,7 @@ import tempfile
 import time
 import glob
 import docopt
+
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
 
@@ -427,6 +428,8 @@ def system_install(work_dir, dist):
     if dists[ID]['pkgManager'] == "yum":
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
+        shutil.rmtree(work_dir + "/run")
+        os.symlink(work_dir + "/var/run",work_dir+"/run")
     umount_chroot(work_dir)
 
 
