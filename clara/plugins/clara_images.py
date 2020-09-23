@@ -179,9 +179,9 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, sources, list_repos = None):
         lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
         lines = "\n".join(lines)
         f.writelines(lines)
+    indice = 0
     for repo in list_repos:
         lines = []
-        indice = 0
         name = "bootstrap_repo_" + str(indice)
         lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+repo,"sslverify=0\n",]
         lines = "\n".join(lines)
