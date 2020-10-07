@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.20201007] - 2020-10-07
+
+### Added
+- images: Add list_repos feature for rhel distrib to support multiple repos
+- images: symlink run -> var/run
+
 ## [0.20200707] - 2020-07-07
 
 ### Added
