@@ -1,11 +1,11 @@
 # Configuration Logic
-%define unmangled_version 0.20200707
+%define unmangled_version 0.20201008
 %define debug_package %{nil}
 
 # Main preamble
 Summary: Clara, a set of Cluster Administration Tools
 Name: clara
-Version: 0.20201007
+Version: 0.20201008
 Release:  1%{?dist}.edf
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv3
@@ -44,6 +44,9 @@ install -d %{buildroot}/etc/clara
 install -d %{buildroot}/etc/clara/templates/vm
 install -d %{buildroot}/etc/clara/templates/volume
 install -d %{buildroot}/etc/bash_completion.d
+install -d %{buildroot}/docs
+cp docs/users_guide.pdf %{buildroot}/docs/
+cp -r docs/man %{buildroot}/docs/
 install -m 644 example-conf/config.ini %{buildroot}/etc/clara
 install -m 644 example-conf/virt.ini %{buildroot}/etc/clara
 install -m 644 contribs/bash-completion %{buildroot}/etc/bash_completion.d/clara
@@ -174,6 +177,7 @@ Clara is a set of tools to help administering and installing clusters.
 %defattr(-,root,root,-)
 %doc README.md
 %doc /docs/users_guide.pdf
+%doc /docs/man/clara.1
 %config /etc/clara/config.ini
 /etc/bash_completion.d/clara
 /usr/bin/clara
@@ -261,7 +265,12 @@ Clara is a set of tools to help administering and installing clusters.
 
 
 %changelog
-* Wed Oct 10 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201007-1el8.edf
+* Wed Oct 08 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201008-1el8.edf
+- New upstream version 0.20201008
+- Fix upstream import prefix fault
+- Fix doc installation 
+
+* Wed Oct 07 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201007-1el8.edf
 - New upstream version 0.20201007
 
 * Tue Sep 01 2020 Pierre Trespeuch <pierre-externe.trespeuch@edf.fr> 0.20200707-2el8.edf
