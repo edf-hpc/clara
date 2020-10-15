@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.20201015] - 2020-10-15
+
+### Fixed
+- clara: fix symlink run and var/run
+- clara: fix input function for python3
+
 ## [0.20201007] - 2020-10-07
 
 ### Added
