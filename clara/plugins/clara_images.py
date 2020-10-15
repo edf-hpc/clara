@@ -428,8 +428,6 @@ def system_install(work_dir, dist):
     if dists[ID]['pkgManager'] == "yum":
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
-        shutil.rmtree(work_dir + "/run")
-        run_chroot(["chroot", work_dir, "ln", "-s", "/var/run", "/run"], work_dir)
     umount_chroot(work_dir)
 
 
