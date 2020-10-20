@@ -82,9 +82,14 @@ def do_key():
         if os.path.isfile(file_stored_key):
             password = value_from_file(get_from_config("common", "master_passwd_file"), "ASUPASSWD")
 
+            digest = get_from_config_or("common", "digest_type", default="sha256")
+            if digest not in ['md2', 'md5', 'mdc2', 'rmd160', 'sha', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512']:
+                logging.warning("Invalid digest type : {0}, using default digest type: sha256".format(digest))
+                digest = "sha256"
+
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp(prefix="tmpClara")
-                cmd = ['openssl', 'aes-256-cbc', '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
+                cmd = ['openssl', 'aes-256-cbc', '-md', digest, '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
                 logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                 retcode = subprocess.call(cmd)
 
