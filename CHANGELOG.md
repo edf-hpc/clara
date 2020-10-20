@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20200106.1] - 2020-10-20
+
 ### Fixed
 
 - repo: control digest used to decode repos signature key
