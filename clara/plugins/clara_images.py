@@ -595,7 +595,7 @@ def geninitrd(path, work_dir, dist):
     if len(kver) == 0:
         clara_exit("kver hasn't be set in config.ini")
     else:
-        run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "-y"], work_dir)
         if ID == "debian":
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
