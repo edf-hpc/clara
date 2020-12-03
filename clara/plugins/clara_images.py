@@ -211,12 +211,12 @@ def base_install(work_dir, dist):
 
     if dists[ID]['bootstrapper'] == "yum":
         logging.debug("images/base_install: Using RPM for %s (%s/%s)", dist, ID, VERSION_ID)
-        minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils' ]
+        minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
         os.makedirs(rpm_lib)
         run(["rpm", "--root", work_dir ,"-initdb"])
-        opts = ["install", "-y" , "--installroot=" + work_dir] + minimal_packages_list
+        opts = ["install", "-y", "--nobest", "--installroot=" + work_dir] + minimal_packages_list
 
     if conf.ddebug:
         opts = ["--verbose"] + opts
@@ -350,10 +350,11 @@ def system_install(work_dir, dist):
             for arch in foreign_archs:
                 logging.warning("Configure foreign_arch {0}".format(arch))
                 run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"],work_dir)
         if dists[ID]['pkgManager'] == "yum":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"],work_dir)
+                run_chroot(["chroot", work_dir, distrib["pkgManager"], "makecache"],work_dir)
 
-    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"],work_dir)
 
     if ID == "debian":
         # Set presseding if the file has been set in config.ini
@@ -400,7 +401,7 @@ def system_install(work_dir, dist):
         if ID == "debian":
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
         if dists[ID]['pkgManager'] == "yum":
-            opts = ["-y"]
+            opts = ["-y", "--nobest"]
 
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
         run_chroot(opts,
@@ -418,19 +419,20 @@ def system_install(work_dir, dist):
             logging.warning("group_pkgs hasn't be set in the config.ini")
         else:
             group_pkgs = group_pkgs.split(",")
-            run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y"] + group_pkgs, work_dir)
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y", "--nobest"] + group_pkgs, work_dir)
 
     # Finally, make sure the base image is updated with all the new versions
-    run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
     if ID == "debian":
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
         run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
         run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
     if dists[ID]['pkgManager'] == "yum":
-        run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade"], work_dir)
-        run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
+        # If run from older yum version (like on Debian), this is necessary to do manually
         if not os.path.islink(work_dir + '/var/run'):
-          shutil.rmtree(work_dir + "/run")
-          run_chroot(["chroot", work_dir, "ln", "-s", "/run", "/var/run"], work_dir)
+            shutil.rmtree(work_dir + "/var/run")
+            run_chroot(["chroot", work_dir, "ln", "-s", "../run", "/var/run"], work_dir)
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade", "--nobest"], work_dir)
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
     umount_chroot(work_dir)
 
 
@@ -595,13 +597,14 @@ def geninitrd(path, work_dir, dist):
     if len(kver) == 0:
         clara_exit("kver hasn't be set in config.ini")
     else:
-        run_chroot(["chroot", work_dir, distrib["pkgManager"], "update", "-y"], work_dir)
         if ID == "debian":
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
         if dists[ID]['bootstrapper'] == "yum":
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "makecache"], work_dir)
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
-                    "-y","kernel-"+ kver], work_dir)
+                    "-y", "--nobest", "kernel-"+ kver], work_dir)
     # Install packages from 'packages_initrd'
     packages_initrd = get_from_config("images", "packages_initrd", dist)
     if len(packages_initrd) == 0:
@@ -612,7 +615,7 @@ def geninitrd(path, work_dir, dist):
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
             intitrd_opts = ["-o", "/tmp/initrd-" + kver, kver]
         if dists[ID]['bootstrapper'] == "yum":
-            opts = ["-y"]
+            opts = ["-y", "--nobest"]
             intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver]
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
         run_chroot(opts, work_dir)
