@@ -1,11 +1,11 @@
 # Configuration Logic
-%define unmangled_version 0.20201015
+%define unmangled_version 0.20201203
 %define debug_package %{nil}
 
 # Main preamble
 Summary: Clara, a set of Cluster Administration Tools
 Name: clara
-Version: 0.20201015
+Version: 0.20201203
 Release:  1%{?dist}.edf
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv3
@@ -14,7 +14,7 @@ Prefix: %{_prefix}
 Vendor: EDF CCN HPC <dsp-cspito-ccn-hpc@edf.fr>
 Url: https://github.com/scibian/%{__name}
 
-BuildRequires: git python36 python3-setuptools pandoc texlive-latex
+BuildRequires: git python36 python3-setuptools pandoc texlive-latex texlive-metafont-bin texlive-ec texlive-gsftopk texlive-udmap-map
 Requires: clara-core clara-plugin-chroot clara-plugin-enc
 Requires: clara-plugin-images clara-plugin-ipmi clara-plugin-p2p
 Requires: clara-plugin-show clara-plugin-repo clara-plugin-slurm
@@ -265,11 +265,15 @@ Clara is a set of tools to help administering and installing clusters.
 
 
 %changelog
+* Thu Dec 03 2020 Thomas HAMEL <thomas-t.hamel@edf.fr> 0.20201203-1el8.edf
+- New upstream version 0.20201203
+- Fix buildreqs to build the documentation
+
 * Thu Oct 15 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201015-1el8.edf
 - Fix symlink bug during image creation
 - Fix raw_input bug in python3
 
-* Wed Oct 08 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201008-1el8.edf
+* Thu Oct 08 2020 M'hamed Bouaziz <mhamed-extern.bouaziz@edf.fr> 0.20201008-1el8.edf
 - New upstream version 0.20201008
 - Fix upstream import prefix fault
 - Fix doc installation 
