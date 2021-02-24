@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20210224] - 2021-02-24
+
+### Added
+- ipmi: Option to use an ssh connexion as a relay to the conman server, set to true by default
+- images: ensure user's read access to /var/lib/rpm on rhel-based generated images
+
 ## [0.20201203] - 2020-12-03
 
 ### Fixed
