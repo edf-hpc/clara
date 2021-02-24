@@ -214,8 +214,10 @@ def base_install(work_dir, dist):
         minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
+        umask = os.umask(0o022)
         os.makedirs(rpm_lib)
         run(["rpm", "--root", work_dir ,"-initdb"])
+        os.umask(umask)
         opts = ["install", "-y", "--nobest", "--installroot=" + work_dir] + minimal_packages_list
 
     if conf.ddebug:
