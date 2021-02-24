@@ -79,7 +79,6 @@ import multiprocessing
 import logging
 import os
 import re
-import socket
 import subprocess
 import sys
 
@@ -207,26 +206,25 @@ def do_connect(host, j=False, f=False):
             do_connect_ipmi(host)
             return
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cmd = []
+        ssh_jhost = get_bool_from_config_or("ipmi", "ssh_jump_host")
+
+        if ssh_jhost:
+            cmd += ["ssh", "-t", conmand]
+        cmd += ["conman"]
+
         try:
-            s.connect((conmand, port))
             os.environ["CONMAN_ESCAPE"] = '!'
 
-            cmd = ["conman"]
             if j:
                 cmd = cmd + ["-j"]
             if f:
                 cmd = cmd + ["-f"]
             cmd = cmd + ["-d", conmand, host]
             run(cmd, exit_on_error=False)
-        except socket.error as e:
-            logging.debug("Conman not running. Message on connect: Errno {0} - {1}".format(e.errno, e.strerror))
-            do_connect_ipmi(host)
         except RuntimeError as e:
             logging.warning("Conman failed, fallback to ipmitool")
             do_connect_ipmi(host)
-
-        s.close()
 
 
 def do_ping(hosts):
