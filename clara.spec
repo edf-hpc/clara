@@ -1,11 +1,11 @@
 # Configuration Logic
-%define unmangled_version 0.20201203
+%define unmangled_version 0.20210224
 %define debug_package %{nil}
 
 # Main preamble
 Summary: Clara, a set of Cluster Administration Tools
 Name: clara
-Version: 0.20201203
+Version: 0.20210224
 Release:  1%{?dist}.edf
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv3
@@ -265,6 +265,11 @@ Clara is a set of tools to help administering and installing clusters.
 
 
 %changelog
+* Wed Feb 24 2021 Tàzio GENNUSO <tazio-externe.gennuso@edf.fr> 0.20210224-1el8.edf
+- New upstream version 0.20210224
+- images: ensure user's read access to /var/lib/rpm on rhel-based generated images
+- ipmi: Option to use an ssh connexion as a relay to the conman server, set to true by default
+
 * Thu Dec 03 2020 Thomas HAMEL <thomas-t.hamel@edf.fr> 0.20201203-1el8.edf
 - New upstream version 0.20201203
 - Fix buildreqs to build the documentation
