@@ -215,13 +215,11 @@ def do_connect(host, j=False, f=False):
         cmd += ["conman"]
 
         try:
-            os.environ["CONMAN_ESCAPE"] = '!'
-
             if j:
                 cmd = cmd + ["-j"]
             if f:
                 cmd = cmd + ["-f"]
-            cmd = cmd + ["-d", conmand, host]
+            cmd = cmd + ["-d", conmand, host, "-e!"]
             run(cmd, exit_on_error=False)
         except RuntimeError as e:
             logging.warning("Conman failed, fallback to ipmitool")
