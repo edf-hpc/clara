@@ -84,7 +84,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, has_config_value
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, get_bool_from_config_or, value_from_file, has_config_value
 
 
 # Global dictionary
