@@ -211,6 +211,7 @@ def do_connect(host, j=False, f=False):
 
         if ssh_jhost:
             cmd += ["ssh", "-t", conmand]
+            conmand = "localhost"
         cmd += ["conman"]
 
         try:
