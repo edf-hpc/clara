@@ -1,11 +1,11 @@
 # Configuration Logic
-%define unmangled_version 0.20210224
+%define unmangled_version 0.20210305
 %define debug_package %{nil}
 
 # Main preamble
 Summary: Clara, a set of Cluster Administration Tools
 Name: clara
-Version: 0.20210224
+Version: 0.20210305
 Release:  1%{?dist}.edf
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv3
@@ -14,7 +14,7 @@ Prefix: %{_prefix}
 Vendor: EDF CCN HPC <dsp-cspito-ccn-hpc@edf.fr>
 Url: https://github.com/scibian/%{__name}
 
-BuildRequires: git python36 python3-setuptools pandoc texlive-latex texlive-metafont-bin texlive-ec texlive-gsftopk texlive-udmap-map
+BuildRequires: git python36 python3-setuptools pandoc texlive-latex texlive-metafont-bin texlive-ec texlive-gsftopk texlive-updmap-map
 Requires: clara-core clara-plugin-chroot clara-plugin-enc
 Requires: clara-plugin-images clara-plugin-ipmi clara-plugin-p2p
 Requires: clara-plugin-show clara-plugin-repo clara-plugin-slurm
@@ -76,7 +76,6 @@ Clara is a set of tools to help administering and installing clusters.
 Summary: This package provides the build plugin of Clara.
 Group: Application/System
 Requires: clara-core
-Recommends: cowbuilder
 %description plugin-build
 Cluster administration tools build plugin
 Clara is a set of tools to help administering and installing clusters.
@@ -132,7 +131,6 @@ Clara is a set of tools to help administering and installing clusters.
 Summary: This package provides the repo plugin of Clara.
 Group: Application/System
 Requires: clara-core gnupg debmirror
-Recommends: reprepro
 %description plugin-repo
 Cluster administration tools repo plugin
 Clara is a set of tools to help administering and installing clusters.
@@ -265,6 +263,11 @@ Clara is a set of tools to help administering and installing clusters.
 
 
 %changelog
+* Fri Mar 05 2021 Guillaume RANQUET <guillaume-externe.ranquet@edf.fr> 0.20210305-1el8.edf
+- New upstream version 0.20210305
+- Fix typo in BuildRequires updmap
+- Removes weak dependencies to accomodate for CI support
+
 * Wed Feb 24 2021 Tàzio GENNUSO <tazio-externe.gennuso@edf.fr> 0.20210224-1el8.edf
 - New upstream version 0.20210224
 - images: ensure user's read access to /var/lib/rpm on rhel-based generated images

@@ -84,7 +84,7 @@ import sys
 
 import ClusterShell
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, has_config_value
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, get_bool_from_config_or, value_from_file, has_config_value
 
 
 # Global dictionary
@@ -211,16 +211,15 @@ def do_connect(host, j=False, f=False):
 
         if ssh_jhost:
             cmd += ["ssh", "-t", conmand]
+            conmand = "localhost"
         cmd += ["conman"]
 
         try:
-            os.environ["CONMAN_ESCAPE"] = '!'
-
             if j:
                 cmd = cmd + ["-j"]
             if f:
                 cmd = cmd + ["-f"]
-            cmd = cmd + ["-d", conmand, host]
+            cmd = cmd + ["-d", conmand, host, "-e!"]
             run(cmd, exit_on_error=False)
         except RuntimeError as e:
             logging.warning("Conman failed, fallback to ipmitool")

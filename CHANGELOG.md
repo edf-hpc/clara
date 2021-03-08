@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20210305] - 2021-03-05
+
+### Fixed
+- ipmi: make sure the escape sequence is the same whether or not a jump host is used
+- ipmi: use localhost as the conman destination when using a jump host
+- ipmi: fix a missing import
+
 ## [0.20210224] - 2021-02-24
 
 ### Added
