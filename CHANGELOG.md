@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- chroot: fix tedious shell glitches in clara chroot using real shell
+
 ## [0.20210305] - 2021-03-05
 
 ### Fixed
