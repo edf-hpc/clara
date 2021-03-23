@@ -48,7 +48,6 @@ Usage:
 import errno
 import logging
 import os
-import pty
 import shutil
 import atexit
 import subprocess
@@ -408,8 +407,8 @@ def edit(chroot):
     mount_chroot()
     os.chdir(work_dir)
     logging.info("Entering into the chroot to edit. ^d when you have finished.")
-    os.putenv("PROMPT_COMMAND", "echo -ne  '\e[1;31m({0}) clara chroot> \e[0m'".format(dist))
-    pty.spawn(["chroot", "."])
+    os.putenv("debian_chroot", "clara-chroot-{0}".format(dist))
+    run_chroot(["chroot", work_dir])
 
     clara_exit("Exiting the chroot {0}.".format(chroot_dir))
 
