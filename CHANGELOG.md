@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - chroot: fix tedious shell glitches in clara chroot using real shell
+- chroot: fix stupid variable name error
 
 ## [0.20210305] - 2021-03-05
 

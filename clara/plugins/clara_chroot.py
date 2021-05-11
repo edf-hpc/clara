@@ -409,7 +409,7 @@ def edit(chroot_dir, dist):
     mount_chroot(chroot_dir, dist)
     logging.info("Entering into the chroot to edit. ^d when you have finished.")
     os.putenv("debian_chroot", "clara-chroot-{0}".format(dist))
-    run_chroot(["chroot", work_dir])
+    run_chroot(["chroot", chroot_dir])
 
     clara_exit("Exiting the chroot {0}.".format(chroot_dir))
 
