@@ -123,7 +123,7 @@ if __name__ == '__main__':
         m.main()
     except KeyboardInterrupt:
         try:
-            nb= raw_input("Clara was interrupted, would you like to exit ? Y(yes)/N(no)  ")
+            nb= input("Clara was interrupted, would you like to exit ? Y(yes)/N(no)  ")
             if nb=='N' or nb=='no':
                 m.main()
             else:
