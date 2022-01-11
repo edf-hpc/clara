@@ -114,7 +114,8 @@ def do_edit(origfile):
     else:
         editfile = tempfile.NamedTemporaryFile(prefix="tmpClara")
 
-    subprocess.call(['sensible-editor', editfile.name])
+    editor = os.getenv('EDITOR', 'vim')
+    subprocess.call([editor, editfile.name])
     finalfile = do("encrypt", editfile.name)
     shutil.copy(finalfile.name, origfile)
     editfile.close()
@@ -137,7 +138,8 @@ def main():
 
     if dargs['show']:
         f = do("decrypt", dargs['<file>'])
-        subprocess.call(['sensible-pager', f.name])
+        pager = os.getenv('PAGER', 'less')
+        subprocess.call([pager, f.name])
         f.close()
     elif dargs['edit']:
         do_edit(dargs['<file>'])
