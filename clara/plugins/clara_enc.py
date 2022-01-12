@@ -74,15 +74,14 @@ def get_encryption_key():
 # Default digest type is sha256 in case of undefined or invalid type
 def get_digest_type():
 
-    digest = get_from_config_or("common", "digest_type")
-    if digest == "":
-        logging.warning("Digest type not defined")
-        logging.info("Using default digest type: sha256")
-        digest = "sha256"
+    digest = get_from_config_or("common", "digest_type", default=None)
+    default = "sha256"
+    if digest is None:
+        logging.debug("Digest type not defined in configuration, using default {0}".format(default))
+        return default
     elif digest not in ['md2', 'md5', 'mdc2', 'rmd160', 'sha', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512']:
-        logging.warning("Invalid digest type : {0}".format(digest))
-        logging.info("Using default digest type: sha256 ")
-        digest = "sha256"
+        logging.warning("Invalid digest type {0}, using default {1}".format(digest, default))
+        return default
     return digest
 
 def do(op, origfile):
