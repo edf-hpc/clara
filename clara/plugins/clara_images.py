@@ -311,6 +311,8 @@ path-include=/usr/share/locale/locale.alias
 def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
+    if os.path.ismount("/run"):
+        run(["mount", "-o", "bind", "/run", os.path.join(work_dir, "run")])
     if not os.path.exists(work_dir+"/dev/random"):
         run(["mknod", "-m", "444", work_dir + "/dev/random", "c", "1", "8"])
     if not os.path.exists(work_dir+"/dev/urandom"):
@@ -326,6 +328,10 @@ def umount_chroot(work_dir):
 
     if os.path.ismount(work_dir + "/proc"):
         run(["chroot", work_dir, "umount","-lf", "/proc"])
+
+    if os.path.ismount(work_dir + "/run"):
+        run(["umount","-lf", os.path.join(work_dir, "run")])
+
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
