@@ -417,11 +417,6 @@ def system_install(work_dir, dist):
 
     # Manage groupinstall for centos
     if dists[ID]['pkgManager'] == "yum":
-        src_list = work_dir + distrib["src_list"]
-        baseurl = get_from_config("images", "baseurl", dist)
-        gpg_check = get_from_config("images", "gpg_check", dist)
-        list_repos = list_all_repos(dist)
-        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'], list_repos)
         group_pkgs = get_from_config("images", "group_pkgs", dist)
         if len(group_pkgs) == 0:
             logging.warning("group_pkgs hasn't be set in the config.ini")
