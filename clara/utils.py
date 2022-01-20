@@ -39,6 +39,7 @@ import os
 import subprocess
 import configparser
 import sys
+import platform
 
 import ClusterShell.NodeSet
 import ClusterShell.Task
@@ -216,6 +217,14 @@ def initialize_logger(debug):
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+
+def os_distribution():
+    return platform.dist()[0]
+
+
+def os_major_version():
+    return int(platform.dist()[1].split('.')[0])
 
 
 def clara_exit(msg):
