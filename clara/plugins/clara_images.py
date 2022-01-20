@@ -164,7 +164,7 @@ def list_all_repos(dist):
 	list_repos = list_repos_nonsplitted.split(separator)
 	return list_repos
 
-def set_yum_src_file(src_list, baseurl, gpgcheck, sources, list_repos = None):
+def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = None):
     if not baseurl.endswith('/'):
          baseurl = baseurl + '/'
     dir_path = os.path.dirname(os.path.realpath(src_list))
@@ -173,19 +173,37 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, sources, list_repos = None):
         os.remove(f)
     f = open(src_list, "w")
     for source_name in sources.keys():
-        lines = []
         name = "bootstrap_" + source_name
         base_url = baseurl + sources[source_name]['subdir']
-        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+base_url,"sslverify=0\n",]
+        lines = ["["+name+"]",
+                 "name="+name,
+                 "enabled=1",
+                 "gpgcheck="+str(gpgcheck),
+                 "gpgkey=file://"+gpgkey,
+                 "baseurl="+base_url,
+                 "sslverify=0\n",]
         lines = "\n".join(lines)
+        logging.debug("Added yum repo in file %s:\n%s", src_list, lines)
         f.writelines(lines)
     indice = 0
     for repo in list_repos:
-        lines = []
+        repo_gpg_key = None
+        if '|' in repo:
+            (repo, repo_gpg_key) = repo.split('|')
         name = "bootstrap_repo_" + str(indice)
-        lines = ["["+name+"]","name="+name,"enabled=1","gpgcheck="+str(gpgcheck),"baseurl="+repo,"sslverify=0\n",]
+        lines = ["["+name+"]",
+                 "name="+name,
+                 "enabled=1",
+                 "baseurl="+repo,
+                 "sslverify=0\n",]
+        if repo_gpg_key:
+            lines[3:3] = ["gpgcheck=true", "gpgkey=file://"+repo_gpg_key]
+        else:
+            lines.insert(3, "gpgcheck=false")
         lines = "\n".join(lines)
         f.writelines(lines)
+        logging.debug("Added yum repo in %s:\n%s", src_list, lines)
+
         indice += 1
     f.close()
 
@@ -240,7 +258,7 @@ def base_install(work_dir, dist):
     image.bootstrapper(opts)
     if dists[ID]['pkgManager'] == "yum":
         list_repos = list_all_repos(dist)
-        set_yum_src_file(src_list, baseurl, gpg_check, dists[ID]['sources'], list_repos)
+        set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_repos)
 
     if dists[ID]['pkgManager'] == "apt-get":
         # Prevent services from starting automatically
@@ -434,7 +452,7 @@ def system_install(work_dir, dist):
         if not os.path.islink(work_dir + '/var/run'):
             shutil.rmtree(work_dir + "/var/run")
             run_chroot(["chroot", work_dir, "ln", "-s", "../run", "/var/run"], work_dir)
-        run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade", "--nobest"], work_dir)
+        run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade", "-y", "--nobest"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
     umount_chroot(work_dir)
 
