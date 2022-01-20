@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- utils: add functions to get OS information
+- enc: enable key derivation except on debian<=9
+- images: support GPG keyring in RPM/dnf repos
+
+### Fixed
+- all: fix python3 port by replacing raw\_input() with input()
+- enc: use $EDITOR and $PAGER instead of sensible-\* debianisms
+- images: bind-mount /run in chroot if it is a mount point to support more packages installations
+- images: remove duplicate yum repos conf generation
+- enc: avoid spurious msg for default digest type
+
 ## [0.20210511] - 2021-05-11
 
 ### Fixed
