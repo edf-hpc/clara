@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20220125] - 2022-01-25
+
 ### Added
 - utils: add functions to get OS information
 - enc: enable key derivation except on debian<=9
