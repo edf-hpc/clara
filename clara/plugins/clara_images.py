@@ -65,37 +65,37 @@ _opts = {'keep_chroot_dir': None}
 
 
 dists = {
-   "debian": {
-     "pkgManager": "apt-get",
-     "src_list": "/etc/apt/sources.list",
-     "apt_pref": "/etc/apt/preferences.d/00custompreferences",
-     "apt_conf": "/etc/apt/apt.conf.d/99nocheckvalid",
-     "dpkg_conf": "/etc/dpkg/dpkg.cfg.d/excludes",
-     "bootstrapper": "debootstrap",
-     "initrdGen": "mkinitramfs"
-  },
-   "centos": {
-     "pkgManager": "yum",
-     "src_list": "/etc/yum.repos.d/centos.repo",
-     "rpm_lib": "/var/lib/rpm",
-     "bootstrapper": "yum",
-     "initrdGen": "dracut",
-     "sources": {
-       'baseos': {'subdir': 'BaseOS/x86_64/os' },
-       'appstream': {'subdir': 'AppStream/x86_64/os' }
-     }
-  },
-   "rhel": {
-     "pkgManager": "yum",
-     "src_list": "/etc/yum.repos.d/rhel.repo",
-     "rpm_lib": "/var/lib/rpm",
-     "bootstrapper": "yum",
-     "initrdGen": "dracut",
-     "sources": {
-       'baseos': {'subdir': 'BaseOS' },
-       'appstream': {'subdir': 'AppStream' }
-     }
-  }
+    "debian": {
+        "pkgManager": "apt-get",
+        "src_list": "/etc/apt/sources.list",
+        "apt_pref": "/etc/apt/preferences.d/00custompreferences",
+        "apt_conf": "/etc/apt/apt.conf.d/99nocheckvalid",
+        "dpkg_conf": "/etc/dpkg/dpkg.cfg.d/excludes",
+        "bootstrapper": "debootstrap",
+        "initrdGen": "mkinitramfs"
+    },
+    "centos": {
+        "pkgManager": "yum",
+        "src_list": "/etc/yum.repos.d/centos.repo",
+        "rpm_lib": "/var/lib/rpm",
+        "bootstrapper": "yum",
+        "initrdGen": "dracut",
+        "sources": {
+            'baseos': {'subdir': 'BaseOS/x86_64/os' },
+            'appstream': {'subdir': 'AppStream/x86_64/os' }
+        }
+    },
+    "rhel": {
+        "pkgManager": "yum",
+        "src_list": "/etc/yum.repos.d/rhel.repo",
+        "rpm_lib": "/var/lib/rpm",
+        "bootstrapper": "yum",
+        "initrdGen": "dracut",
+        "sources": {
+            'baseos': {'subdir': 'BaseOS' },
+            'appstream': {'subdir': 'AppStream' }
+        }
+    }
 }
 
 
