@@ -186,15 +186,32 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
     indice = 0
     for repo in list_repos:
         repo_gpg_key = None
+        priority = None
         if '|' in repo:
-            (repo, repo_gpg_key) = repo.split('|')
+            repo_opts = repo.split('|')
+            repo = repo_opts[0]
+            # GPG key is optional, check it is not empty
+            if len(repo_opts[1]):
+                repo_gpg_key = repo_opts[1]
+            # Priority field is optional, check it is present and not empty.
+            if len(repo_opts) > 2 and len(repo_opts[2]):
+                try:
+                    priority = int(repo_opts[2])
+                except ValueError:
+                    logging.warning("Ignoring invalid format of repo %s priority '%s'", repo, repo_opts[2])
+
+
         name = "bootstrap_repo_" + str(indice)
         lines = ["["+name+"]",
                  "name="+name,
                  "enabled=1",
                  "baseurl="+repo,
                  "sslverify=0\n",]
-        if repo_gpg_key:
+        # Add priority setting if defined
+        if priority is not None:
+            lines.insert(4, "priority="+str(priority))
+        # Add GPG keyring settings if defined
+        if repo_gpg_key is not None:
             lines[3:3] = ["gpgcheck=true", "gpgkey=file://"+repo_gpg_key]
         else:
             lines.insert(3, "gpgcheck=false")
