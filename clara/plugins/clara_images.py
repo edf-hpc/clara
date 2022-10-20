@@ -81,9 +81,8 @@ dists = {
      "bootstrapper": "yum",
      "initrdGen": "dracut",
      "sources": {
-          'baseos': {'subdir': 'BaseOS/x86_64/os',
-          'appstream': {'subdir': 'AppStream/x86_64/os' }
-        }
+       'baseos': {'subdir': 'BaseOS/x86_64/os' },
+       'appstream': {'subdir': 'AppStream/x86_64/os' }
      }
   },
    "rhel": {
@@ -93,9 +92,8 @@ dists = {
      "bootstrapper": "yum",
      "initrdGen": "dracut",
      "sources": {
-          'baseos': {'subdir': 'BaseOS',
-          'appstream': {'subdir': 'AppStream' }
-        }
+       'baseos': {'subdir': 'BaseOS' },
+       'appstream': {'subdir': 'AppStream' }
      }
   }
 }

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- images: fix format of dists hash and centos/rhel sources loop for appstream
+
 ## [0.20220125] - 2022-01-25
 
 ### Added
