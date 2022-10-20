@@ -416,6 +416,15 @@ def system_install(work_dir, dist):
                 run_chroot(["chroot", work_dir, "apt-get", "dselect-upgrade", "-u", "--yes", "--force-yes"],
                            work_dir)
 
+    # Manage groupinstall for centos
+    if dists[ID]['pkgManager'] == "yum":
+        group_pkgs = get_from_config("images", "group_pkgs", dist)
+        if len(group_pkgs) == 0:
+            logging.warning("group_pkgs hasn't be set in the config.ini")
+        else:
+            group_pkgs = group_pkgs.split(",")
+            run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y", "--nobest"] + group_pkgs, work_dir)
+
     # Install extra packages if extra_packages_image has been set in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
     if len(extra_packages_image) == 0:
@@ -430,15 +439,6 @@ def system_install(work_dir, dist):
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
         run_chroot(opts,
                    work_dir)
-
-    # Manage groupinstall for centos
-    if dists[ID]['pkgManager'] == "yum":
-        group_pkgs = get_from_config("images", "group_pkgs", dist)
-        if len(group_pkgs) == 0:
-            logging.warning("group_pkgs hasn't be set in the config.ini")
-        else:
-            group_pkgs = group_pkgs.split(",")
-            run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y", "--nobest"] + group_pkgs, work_dir)
 
     # Finally, make sure the base image is updated with all the new versions
     if ID == "debian":

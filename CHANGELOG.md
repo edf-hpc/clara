@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - images: fix format of dists hash and centos/rhel sources loop for appstream
+- images: fix group/extra packages installation order
 
 ## [0.20220125] - 2022-01-25
 
