@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20221026] - 2022-10-26
+
 ### Added
 - images: support optional dnf/yum priorities in list\_repos
 
