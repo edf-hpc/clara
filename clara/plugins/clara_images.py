@@ -247,11 +247,16 @@ def base_install(work_dir, dist):
         minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
+
+        # Temporarily change umask to create directories of dnf/yum repos and initialize RPM db
         umask = os.umask(0o022)
+        repos_dir = os.path.join(work_dir,'etc','yum.repos.d')
+        os.makedirs(repos_dir)
         os.makedirs(rpm_lib)
         run(["rpm", "--root", work_dir ,"-initdb"])
-        os.umask(umask)
-        opts = ["install", "-y", "--nobest", "--installroot=" + work_dir] + minimal_packages_list
+        os.umask(umask)  # Restore umask
+
+        opts = ["install", "-y", "--nobest", "--installroot=" + work_dir, "--setopt=reposdir="+repos_dir] + minimal_packages_list
 
     if conf.ddebug:
         opts = ["--verbose"] + opts
@@ -270,10 +275,12 @@ def base_install(work_dir, dist):
     if conf.ddebug:
         opts.insert(1, "--verbose")
 
-    image.bootstrapper(opts)
     if dists[ID]['pkgManager'] == "yum":
-        list_repos = list_all_repos(dist)
-        set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_repos)
+        # generate dnf/yum repos files in work_dir
+        set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_all_repos(dist))
+
+    # run the bootstrap
+    image.bootstrapper(opts)
 
     if dists[ID]['pkgManager'] == "apt-get":
         # Prevent services from starting automatically
