@@ -57,15 +57,16 @@ class Sftp:
         return is_dir
 
     @staticmethod
-    def _mkdir(sftp_client, path):
+    def _mkdir(sftp_client, path, dirmode):
         if Sftp._is_dir(sftp_client, path):
             return
         else:
             parent = os.path.dirname(path[:-1])
-            Sftp._mkdir(sftp_client, parent)
+            Sftp._mkdir(sftp_client, parent, dirmode)
         sftp_client.mkdir(path)
+        sftp_client.chmod(path, dirmode)
 
-    def _upload(self, source_paths, sftp_client, remote_host, destination_path, mode=None):
+    def _upload(self, source_paths, sftp_client, remote_host, destination_path, mode, dirmode):
         hostname = socket.gethostname()
         # Upload the files
         for source_file_path in source_paths:
@@ -78,12 +79,12 @@ class Sftp:
                 dest_file_path = os.path.join(destination_path, os.path.basename(source_file_path))
                 # Create remote directory if necessary
                 logging.info("sftp/upload: uploading %s to %s:%s" % (source_file_path, remote_host, dest_file_path))
-                Sftp._mkdir(sftp_client, destination_path)
+                Sftp._mkdir(sftp_client, destination_path, dirmode)
                 sftp_client.put(source_file_path, dest_file_path)
                 if mode:
                     sftp_client.chmod(dest_file_path, mode)
 
-    def upload(self, files, destination, mode=None):
+    def upload(self, files, destination, mode=None, dirmode=0o0755):
         logging.info("sftp/push: pushing data on hosts %s", self.hosts)
 
         for host in self.hosts:
@@ -101,5 +102,5 @@ class Sftp:
             sftp_client = paramiko.SFTPClient.from_transport(transport)
 
             logging.debug("sftp/push: copying files")
-            self._upload(files, sftp_client, host, destination, mode)
+            self._upload(files, sftp_client, host, destination, mode, dirmode)
             sftp_client.close()

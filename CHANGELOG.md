@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - images: create local directories for squashfs with mode 0o0755 recursively
   whatever the current umask (#136).
 - p2p: enforce mode 0644 on SFTP pushed torrent file (#137).
+- sftp: create remote directory with mode 755 by default to avoid umask effect.
 
 ## [0.20221222] - 2022-12-22
 
