@@ -112,7 +112,7 @@ def mktorrent(image):
 
         os.chmod(torrent_repo,0o755)
         if sftp_mode:
-            sftp_client.upload([torrent_f], os.path.dirname(torrent_f))
+            sftp_client.upload([torrent_f], os.path.dirname(torrent_f), 0o0644)
 
     clush(seeders, init_start.format(seeding_service))
 
