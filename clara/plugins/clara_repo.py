@@ -339,9 +339,9 @@ def main():
         else:
             do_sync(dargs['<dist>'], dargs['<suites>'])
     elif dargs['push']:
-        get_from_config("repo", "push", dist)
+        get_from_config("repo", "push", _opt['dist'])
         if dargs['<dist>']:
-            do_push(dist)
+            do_push(_opt['dist'])
         else:
             do_push()
     elif dargs['add']:
@@ -355,13 +355,13 @@ def main():
             else:
                 clara_exit("File is not a *.deb *.dsc or *.changes")
         if dargs['<file>'] and not dargs['--no-push']:
-            do_push(dist)
+            do_push(_opt['dist'])
     elif dargs['del']:
         for elem in dargs['<name>']:
             do_reprepro('remove', elem)
             do_reprepro('removesrc', elem)
         if dargs['<name>'] and not dargs['--no-push']:
-            do_push(dist)
+            do_push(_opt['dist'])
     elif dargs['list']:
         if dargs['all']:
             do_reprepro('dumpreferences')
@@ -372,18 +372,18 @@ def main():
     elif dargs['copy']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
-        do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
+        do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
         if not dargs['--no-push']:
-            do_push(dist)
+            do_push(_opt['dist'])
     elif dargs['move']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
-        do_reprepro('copy', extra=[dist, dargs['<from-dist>'], dargs['<package>']])
+        do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
         do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
         if not dargs['--no-push']:
             do_push(dargs['<from-dist>'])
-            do_push(dist)
+            do_push(_opt['dist'])
     elif dargs['jenkins']:
         arch = dargs['--source']
         if arch is None:
