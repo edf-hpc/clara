@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- images: create local directories for squashfs with mode 0o0755 recursively
+  whatever the current umask (#136).
+
 ## [0.20221222] - 2022-12-22
 
 ### Added

@@ -227,6 +227,23 @@ def os_major_version():
     return int(platform.dist()[1].split('.')[0])
 
 
+def makedirs_mode(path, mode):
+    """Create directory recursively and set specific mode, no matter the
+       current umask. The path can end with a slash ('/'), in which case it is
+       stripped to avoid double creation of the same path with the ending slash
+       and its dirname without the slash."""
+    # Remove possible trailing '/' to avoid double processing with dirname(path)
+    path = path.rstrip('/')
+    if os.path.exists(path):
+        return
+    else:
+        # create parent directory first
+        makedirs_mode(os.path.dirname(path), mode)
+        logging.info("Creating local directory path %s with mode %o", path, mode)
+        os.mkdir(path)
+        os.chmod(path, mode)
+
+
 def clara_exit(msg):
     logging.error(msg)
     sys.exit(1)

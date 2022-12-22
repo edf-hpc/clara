@@ -58,7 +58,7 @@ import time
 import glob
 import docopt
 
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
+from clara.utils import clara_exit, run, makedirs_mode, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
 
 _opts = {'keep_chroot_dir': None}
@@ -249,10 +249,10 @@ def base_install(work_dir, dist):
         baseurl = get_from_config("images", "baseurl", dist)
 
         # Temporarily change umask to create directories of dnf/yum repos and initialize RPM db
-        umask = os.umask(0o022)
         repos_dir = os.path.join(work_dir,'etc','yum.repos.d')
-        os.makedirs(repos_dir)
-        os.makedirs(rpm_lib)
+        makedirs_mode(repos_dir, 0o0755)
+        makedirs_mode(rpm_lib, 0o0755)
+        umask = os.umask(0o022)
         run(["rpm", "--root", work_dir ,"-initdb"])
         os.umask(umask)  # Restore umask
 
@@ -500,8 +500,7 @@ def install_files(work_dir, dist):
                 if not os.path.isfile(path_orig):
                     logging.warning("{0} is not a file!".format(path_orig))
 
-                if not os.path.isdir(path_dest):
-                    os.makedirs(path_dest)
+                makedirs_mode(path_dest, 0o0755)
                 shutil.copy(path_orig, path_dest)
                 os.chmod(final_file, file_perm)
 
@@ -550,8 +549,8 @@ def genimg(image, work_dir, dist):
 
     else:
         path_to_image = os.path.dirname(image)
-        if not os.path.isdir(path_to_image) and len(path_to_image) != 0:
-            os.makedirs(path_to_image)
+        if len(path_to_image):
+            makedirs_mode(path_to_image, 0o0755)
         squashfs_file = image
 
     if os.path.isfile(squashfs_file):
@@ -560,9 +559,7 @@ def genimg(image, work_dir, dist):
 
     logging.info("Creating image at {0}".format(squashfs_file))
 
-    if not os.path.exists(os.path.dirname(squashfs_file)):
-        logging.info("Creating local directory path: %s", os.path.dirname(squashfs_file))
-        os.makedirs(os.path.dirname(squashfs_file))
+    makedirs_mode(os.path.dirname(squashfs_file), 0o0755)
  
     if conf.ddebug:
         run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend", "-info"])
@@ -619,8 +616,7 @@ def geninitrd(path, work_dir, dist):
         trg_dir = path
 
 
-    if not os.path.isdir(trg_dir):
-        os.makedirs(trg_dir)
+    makedirs_mode(trg_dir, 0o0755)
     squashfs_file = get_from_config("images", "trg_img", dist)
     if (squashfs_file=="" or squashfs_file==None):
         image_name=dist+"_image.squashfs"
