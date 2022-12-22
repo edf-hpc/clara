@@ -64,9 +64,18 @@ import tempfile
 import configparser
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf, os_distribution, os_major_version
 
 _opt = {'dist': None}
+
+# Returns a boolean to tell if password derivation can be used with OpenSSL.
+# It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
+# openssl provided in these old distributions.
+#
+# This code can be safely removed when Debian 9 stretch support is dropped.
+def enable_password_derivation():
+
+    return os_distribution() != 'debian' or os_major_version() > 9
 
 def do_key():
     key = get_from_config("repo", "gpg_key")
@@ -89,7 +98,18 @@ def do_key():
 
             if len(password) > 20:
                 fdesc, temp_path = tempfile.mkstemp(prefix="tmpClara")
-                cmd = ['openssl', 'aes-256-cbc', '-md', digest, '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
+                cmd = ['openssl', 'enc', '-aes-256-cbc', '-md', digest, '-d', '-in', file_stored_key, '-out', temp_path, '-k', password]
+
+                # Return the openssl command to proceed with operation op, with or without key
+                # derivation.
+                if enable_password_derivation():
+                    # The number of iterations is hard-coded as it must be changed
+                    # synchronously on both clara and puppet-hpc for seamless handling of
+                    # encrypted files. It is set explicitely to avoid relying on openssl
+                    # default value and being messed by sudden change of this default
+                    # value.
+                    cmd[3:3] = ['-iter', '+100000', '-pbkdf2' ]
+
                 logging.debug("repo/do_key: {0}".format(" ".join(cmd)))
                 retcode = subprocess.call(cmd)
 
