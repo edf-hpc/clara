@@ -349,6 +349,9 @@ path-include=/usr/share/locale/locale.alias
 def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
+    if not os.path.exists(work_dir+"/etc/resolv.conf"):
+        run(["touch", os.path.join(work_dir, "etc/resolv.conf")])
+        run(["mount", "-o", "bind", "/etc/resolv.conf", os.path.join(work_dir, "etc/resolv.conf")])
     if os.path.ismount("/run"):
         run(["mount", "-o", "bind", "/run", os.path.join(work_dir, "run")])
     if not os.path.exists(work_dir+"/dev/random"):
@@ -370,6 +373,9 @@ def umount_chroot(work_dir):
     if os.path.ismount(work_dir + "/run"):
         run(["umount","-lf", os.path.join(work_dir, "run")])
 
+    if os.path.ismount(work_dir + "/etc/resolv.conf"):
+        run(["umount","-lf", os.path.join(work_dir, "etc/resolv.conf")])
+        run(["rm", os.path.join(work_dir, "etc/resolv.conf")])
 
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
