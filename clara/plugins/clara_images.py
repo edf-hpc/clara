@@ -58,6 +58,7 @@ import time
 import glob
 import docopt
 import re
+import requests
 
 from clara.utils import clara_exit, run, makedirs_mode, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
@@ -258,6 +259,36 @@ def base_install(work_dir, dist):
     # Get GPG options
     gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
     gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
+    proxy = get_from_config_or("images", "proxy", dist, None)
+
+    if gpg_keyring is None:
+        gpg_keyring = 'XXXXXXXXXXXXXX'
+    elif not os.path.exists(gpg_keyring):
+        dir_path = os.path.dirname(os.path.realpath(gpg_keyring))
+        # Removing a trailing slash from url, if need
+        # Then, retrieve latest url path
+        url_path = baseurl.rstrip('/').split('/')[-1]
+        # form url without latest url path + gpg keying basename
+        url = baseurl.replace(url_path,'') + os.path.basename(os.path.realpath(gpg_keyring))
+        msg = """
+PLS be a that unexistent gpg_keyring for distribution {}{} will be downloaded
+from url
+Don't usoduced image if you don't trusted this link and associated key !
+Notice a that, if need, directory {} will be created to receive gpg keys.
+"""
+        logging.warning(msg.format(ID, VERSION_ID, url, dir_path))
+        if not os.path.exists(dir_path):
+            logging.info("creating directoring %s" % dir_path)
+            makedirs_mode(dir_path, 0o0755)
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            logging.info("Dowloading gpg key from url %s to %s" % (url, dir_path))
+            with open(gpg_keyring, 'wb') as f:
+                f.write(response.content)
+            os.chmod(gpg_keyring, 0o644)
+        else:
+            clara_exit("Failed to download gpg key from url %s" % url)
 
     if dists[ID]['pkgManager'] == "apt-get":
         if gpg_check:
