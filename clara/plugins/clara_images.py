@@ -150,7 +150,7 @@ def list_all_repos(dist):
 	list_repos = list_repos_nonsplitted.split(separator)
 	return list_repos
 
-def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = None):
+def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = None, proxy = None):
     if not baseurl.endswith('/'):
          baseurl = baseurl + '/'
     dir_path = os.path.dirname(os.path.realpath(src_list))
@@ -168,6 +168,9 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                  "gpgkey=file://"+gpgkey,
                  "baseurl="+base_url,
                  "sslverify=0\n",]
+        # Add proxy setting if defined
+        if proxy is not None:
+            lines.insert(6, "proxy="+str(proxy))
         lines = "\n".join(lines)
         logging.debug("Added yum repo in file %s:\n%s", src_list, lines)
         f.writelines(lines)
@@ -429,6 +432,7 @@ def system_install(work_dir, dist):
     image = imageInstant(work_dir, ID, VERSION_ID)
     distrib = image.dist
     src_list = work_dir + distrib["src_list"]
+    proxy = get_from_config_or("images", "proxy", dist, None)
 
 # Configure foreign architecture if this has been set in config.ini
     try:
@@ -523,6 +527,18 @@ def system_install(work_dir, dist):
             run_chroot(["chroot", work_dir, "ln", "-s", "../run", "/var/run"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade", "-y", "--nobest"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
+        if proxy:
+            # we need to remove temporary add proxy entry!
+            # using bellow tricks.
+            # open the file in r/w mode ("r+") and make use of seek to reset the
+            # f-pointer then truncate to remove everything after the last write.
+            with open(src_list, "r+") as f:
+                lines = f.readlines()
+                f.seek(0)
+                for line in lines:
+                    if not line.strip("\n").startswith("proxy="):
+                        f.write(line)
+                f.truncate()
     umount_chroot(work_dir)
 
 
