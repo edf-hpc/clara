@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20231003] - 2023-10-03
+
+### Added
+- images: add support to dnf through proxy
+- images: support unexistent gpg_keyring creation
+- images: add support to redhat like distribution
+
+### Fixed
+- images: fix dns name resolution issue in chroot
+
+### Changed
+- config: update default redhat like distribution
+- docs: add support to redhat like distribution
+
 ## [0.20230103] - 2023-01-03
 
 ### Fixed

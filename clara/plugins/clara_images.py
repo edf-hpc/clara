@@ -57,6 +57,8 @@ import tempfile
 import time
 import glob
 import docopt
+import re
+import requests
 
 from clara.utils import clara_exit, run, makedirs_mode, get_from_config, get_from_config_or, has_config_value, conf, get_bool_from_config_or
 from clara import sftp
@@ -73,31 +75,22 @@ dists = {
         "dpkg_conf": "/etc/dpkg/dpkg.cfg.d/excludes",
         "bootstrapper": "debootstrap",
         "initrdGen": "mkinitramfs"
-    },
-    "centos": {
-        "pkgManager": "yum",
-        "src_list": "/etc/yum.repos.d/centos.repo",
-        "rpm_lib": "/var/lib/rpm",
-        "bootstrapper": "yum",
-        "initrdGen": "dracut",
-        "sources": {
-            'baseos': {'subdir': 'BaseOS/x86_64/os' },
-            'appstream': {'subdir': 'AppStream/x86_64/os' }
-        }
-    },
-    "rhel": {
-        "pkgManager": "yum",
-        "src_list": "/etc/yum.repos.d/rhel.repo",
-        "rpm_lib": "/var/lib/rpm",
-        "bootstrapper": "yum",
-        "initrdGen": "dracut",
-        "sources": {
-            'baseos': {'subdir': 'BaseOS' },
-            'appstream': {'subdir': 'AppStream' }
-        }
     }
 }
 
+dists.update({
+    distro: {
+        "pkgManager": "dnf",
+        "src_list": "/etc/yum.repos.d/%s.repo" % distro,
+        "rpm_lib": "/var/lib/rpm",
+        "bootstrapper": "dnf",
+        "initrdGen": "dracut",
+        "sources": {
+            'baseos': {'subdir': 'BaseOS%s' % ('' if distro == "rhel" else '/x86_64/os') },
+            'appstream': {'subdir': 'AppStream%s' % ('' if distro == "rhel" else '/x86_64/os') }
+        }
+      } for distro in ["rhel", "centos", "rocky", "almalinux"]
+})
 
 class osRelease:
     # Common base class for OS release
@@ -137,21 +130,16 @@ def run_chroot(cmd, work_dir):
 
 
 def get_osRelease(dist):
-    if "centos8" in dist:
-        ID = "centos"
-        ID_Version = "8"
-    if "rhel8" in dist:
-        ID = "rhel"
-        ID_Version = "8"
-    if "calibre9" in dist:
-        ID = "debian"
-        ID_Version = "8"
-    if "scibian9" in dist:
-        ID = "debian"
-        ID_Version = "8"
+    pattern = re.compile(r"(?P<distro>[a-z]+)(?P<version>\d+)")
+    match = pattern.match(dist)
+    if match:
+        ID = match.group('distro')
+        ID_Version = match.group('version')
 
-    logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
-    return ID, ID_Version
+        logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
+        return ID, ID_Version
+    else:
+        clara_exit("images/get_osRelease: can't figured out distro/version for %s" % dist)
     
 def list_all_repos(dist):
 	list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
@@ -162,7 +150,7 @@ def list_all_repos(dist):
 	list_repos = list_repos_nonsplitted.split(separator)
 	return list_repos
 
-def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = None):
+def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = None, proxy = None):
     if not baseurl.endswith('/'):
          baseurl = baseurl + '/'
     dir_path = os.path.dirname(os.path.realpath(src_list))
@@ -180,6 +168,9 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                  "gpgkey=file://"+gpgkey,
                  "baseurl="+base_url,
                  "sslverify=0\n",]
+        # Add proxy setting if defined
+        if proxy is not None:
+            lines.insert(6, "proxy="+str(proxy))
         lines = "\n".join(lines)
         logging.debug("Added yum repo in file %s:\n%s", src_list, lines)
         f.writelines(lines)
@@ -222,6 +213,13 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
         indice += 1
     f.close()
 
+def remove_original_repos(src_list, pattern):
+    dir_path = os.path.dirname(os.path.realpath(src_list))
+    files = glob.glob(dir_path+"/?%s-*.repo" % pattern)
+    for f in files:
+        logging.debug("removing repo file %s" % f)
+        os.remove(f)
+
 def base_install(work_dir, dist):
     ID, VERSION_ID = get_osRelease(dist)
     image = imageInstant(work_dir, ID, VERSION_ID)
@@ -242,7 +240,7 @@ def base_install(work_dir, dist):
 
         opts = [debiandist , work_dir, debmirror]
 
-    if dists[ID]['bootstrapper'] == "yum":
+    if dists[ID]['bootstrapper'] == "dnf":
         logging.debug("images/base_install: Using RPM for %s (%s/%s)", dist, ID, VERSION_ID)
         minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
@@ -264,6 +262,36 @@ def base_install(work_dir, dist):
     # Get GPG options
     gpg_check = get_bool_from_config_or("images", "gpg_check", dist, True)
     gpg_keyring = get_from_config_or("images", "gpg_keyring", dist, None)
+    proxy = get_from_config_or("images", "proxy", dist, None)
+
+    if gpg_keyring is None:
+        gpg_keyring = 'XXXXXXXXXXXXXX'
+    elif not os.path.exists(gpg_keyring):
+        dir_path = os.path.dirname(os.path.realpath(gpg_keyring))
+        # Removing a trailing slash from url, if need
+        # Then, retrieve latest url path
+        url_path = baseurl.rstrip('/').split('/')[-1]
+        # form url without latest url path + gpg keying basename
+        url = baseurl.replace(url_path,'') + os.path.basename(os.path.realpath(gpg_keyring))
+        msg = """
+PLS be a that unexistent gpg_keyring for distribution {}{} will be downloaded
+from url
+Don't usoduced image if you don't trusted this link and associated key !
+Notice a that, if need, directory {} will be created to receive gpg keys.
+"""
+        logging.warning(msg.format(ID, VERSION_ID, url, dir_path))
+        if not os.path.exists(dir_path):
+            logging.info("creating directoring %s" % dir_path)
+            makedirs_mode(dir_path, 0o0755)
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            logging.info("Dowloading gpg key from url %s to %s" % (url, dir_path))
+            with open(gpg_keyring, 'wb') as f:
+                f.write(response.content)
+            os.chmod(gpg_keyring, 0o644)
+        else:
+            clara_exit("Failed to download gpg key from url %s" % url)
 
     if dists[ID]['pkgManager'] == "apt-get":
         if gpg_check:
@@ -275,12 +303,16 @@ def base_install(work_dir, dist):
     if conf.ddebug:
         opts.insert(1, "--verbose")
 
-    if dists[ID]['pkgManager'] == "yum":
+    if dists[ID]['pkgManager'] == "dnf":
         # generate dnf/yum repos files in work_dir
-        set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_all_repos(dist))
+        set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_all_repos(dist), proxy)
 
     # run the bootstrap
     image.bootstrapper(opts)
+
+    # Remove original repo as we are in air-gapped environment and so haven't outside internet access!
+    if dists[ID]['pkgManager'] == "dnf":
+        remove_original_repos(src_list, ID[1:])
 
     if dists[ID]['pkgManager'] == "apt-get":
         # Prevent services from starting automatically
@@ -351,6 +383,9 @@ path-include=/usr/share/locale/locale.alias
 def mount_chroot(work_dir):
     run(["chroot", work_dir, "mount", "-t", "proc", "none", "/proc"])
     run(["chroot", work_dir, "mount", "-t", "sysfs", "none", "/sys"])
+    if not os.path.exists(work_dir+"/etc/resolv.conf"):
+        run(["touch", os.path.join(work_dir, "etc/resolv.conf")])
+        run(["mount", "-o", "bind", "/etc/resolv.conf", os.path.join(work_dir, "etc/resolv.conf")])
     if os.path.ismount("/run"):
         run(["mount", "-o", "bind", "/run", os.path.join(work_dir, "run")])
     if not os.path.exists(work_dir+"/dev/random"):
@@ -372,11 +407,23 @@ def umount_chroot(work_dir):
     if os.path.ismount(work_dir + "/run"):
         run(["umount","-lf", os.path.join(work_dir, "run")])
 
+    if os.path.ismount(work_dir + "/etc/resolv.conf"):
+        run(["umount","-lf", os.path.join(work_dir, "etc/resolv.conf")])
+        run(["rm", os.path.join(work_dir, "etc/resolv.conf")])
+
     time.sleep(1)  # Wait one second so the system has time to unmount
     with open("/proc/mounts", "r") as file_to_read:
         for line in file_to_read:
             if work_dir in line:
-                clara_exit("Something went wrong when umounting in the chroot")
+                # second change to unmount bind mounting!
+                # due to bug https://bugs.python.org/issue29707 (up to 3.6),
+                # ismount don't unmount bind mount :-( !
+                if "/etc/resolv.conf" in line:
+                    run(["umount","-lf", os.path.join(work_dir, "etc/resolv.conf")])
+                    run(["rm", os.path.join(work_dir, "etc/resolv.conf")])
+                    time.sleep(1)  # Wait one second so the system has time to unmount
+                else:
+                    clara_exit(f"Something went wrong when umounting in the chroot for {line}")
 
 
 def system_install(work_dir, dist):
@@ -384,6 +431,8 @@ def system_install(work_dir, dist):
     ID, VERSION_ID = get_osRelease(dist)
     image = imageInstant(work_dir, ID, VERSION_ID)
     distrib = image.dist
+    src_list = work_dir + distrib["src_list"]
+    proxy = get_from_config_or("images", "proxy", dist, None)
 
 # Configure foreign architecture if this has been set in config.ini
     try:
@@ -399,7 +448,7 @@ def system_install(work_dir, dist):
                 logging.warning("Configure foreign_arch {0}".format(arch))
                 run_chroot(["chroot", work_dir, "dpkg", "--add-architecture", arch], work_dir)
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"],work_dir)
-        if dists[ID]['pkgManager'] == "yum":
+        if dists[ID]['pkgManager'] == "dnf":
                 run_chroot(["chroot", work_dir, "echo","'multilib_policy=all'", ">>" , work_dir+"/etc/yum.conf"],work_dir)
                 run_chroot(["chroot", work_dir, distrib["pkgManager"], "makecache"],work_dir)
 
@@ -441,13 +490,15 @@ def system_install(work_dir, dist):
                            work_dir)
 
     # Manage groupinstall for centos
-    if dists[ID]['pkgManager'] == "yum":
+    if dists[ID]['pkgManager'] == "dnf":
         group_pkgs = get_from_config("images", "group_pkgs", dist)
         if len(group_pkgs) == 0:
             logging.warning("group_pkgs hasn't be set in the config.ini")
         else:
             group_pkgs = group_pkgs.split(",")
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y", "--nobest"] + group_pkgs, work_dir)
+            # Remove original repo as we are in air-gapped environment and so haven't outside internet access!
+            remove_original_repos(src_list, ID[1:])
 
     # Install extra packages if extra_packages_image has been set in config.ini
     extra_packages_image = get_from_config("images", "extra_packages_image", dist)
@@ -457,7 +508,7 @@ def system_install(work_dir, dist):
         pkgs = extra_packages_image.split(",")
         if ID == "debian":
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
-        if dists[ID]['pkgManager'] == "yum":
+        if dists[ID]['pkgManager'] == "dnf":
             opts = ["-y", "--nobest"]
 
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
@@ -469,13 +520,25 @@ def system_install(work_dir, dist):
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
         run_chroot(["chroot", work_dir, "apt-get", "dist-upgrade", "--yes", "--force-yes"], work_dir)
         run_chroot(["chroot", work_dir, "apt-get", "clean"], work_dir)
-    if dists[ID]['pkgManager'] == "yum":
+    if dists[ID]['pkgManager'] == "dnf":
         # If run from older yum version (like on Debian), this is necessary to do manually
         if not os.path.islink(work_dir + '/var/run'):
             shutil.rmtree(work_dir + "/var/run")
             run_chroot(["chroot", work_dir, "ln", "-s", "../run", "/var/run"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "upgrade", "-y", "--nobest"], work_dir)
         run_chroot(["chroot", work_dir, distrib["pkgManager"], "clean","all"], work_dir)
+        if proxy:
+            # we need to remove temporary add proxy entry!
+            # using bellow tricks.
+            # open the file in r/w mode ("r+") and make use of seek to reset the
+            # f-pointer then truncate to remove everything after the last write.
+            with open(src_list, "r+") as f:
+                lines = f.readlines()
+                f.seek(0)
+                for line in lines:
+                    if not line.strip("\n").startswith("proxy="):
+                        f.write(line)
+                f.truncate()
     umount_chroot(work_dir)
 
 
@@ -640,7 +703,7 @@ def geninitrd(path, work_dir, dist):
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "update"], work_dir)
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "--no-install-recommends", "--yes", "--force-yes", "linux-image-" + kver], work_dir)
-        if dists[ID]['bootstrapper'] == "yum":
+        if dists[ID]['bootstrapper'] == "dnf":
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "makecache"], work_dir)
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "install",
                     "-y", "--nobest", "kernel-"+ kver], work_dir)
@@ -653,7 +716,7 @@ def geninitrd(path, work_dir, dist):
         if ID == "debian":
             opts = ["--no-install-recommends", "--yes", "--force-yes"]
             intitrd_opts = ["-o", "/tmp/initrd-" + kver, kver]
-        if dists[ID]['bootstrapper'] == "yum":
+        if dists[ID]['bootstrapper'] == "dnf":
             opts = ["-y", "--nobest"]
             intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver]
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
