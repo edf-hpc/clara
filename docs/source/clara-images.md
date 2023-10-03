@@ -21,6 +21,8 @@ Options:
 # DESCRIPTION
 
 *clara images* makes easy to create and update the images to boot the nodes of a cluster.
+Support debian and redhat like distribution like CentOS, Rocky and AlmaLinux.
+Even Centos Stream, Fedora, Oracle Linux and openSUSE must work, but haven't been tested!
 
 # OPTIONS
 
@@ -61,7 +63,7 @@ Options:
 
         Force an existed image which was edited or created with --no-sync to sync
         over the network.
-           
+
 This distribution in <dist> must be listed in the field "allowed_distributions" from the section [common].
 
 # EXAMPLES
@@ -69,6 +71,13 @@ This distribution in <dist> must be listed in the field "allowed_distributions" 
 To create a image for calibre8 and store it in /tmp/c8.squashfs
 
     clara images create calibre8 /tmp/c8.squashfs
+    clara images create centos8
+    clara images create almalinux8
+    clara images create rocky9
+
+Provided gpg key file can been automatically downloaded if config ini entry gpg_keyring exist.
+
+At another part, you can set proxy with needfull eponym config ini entry.
 
 To edit the image
 
