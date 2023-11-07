@@ -185,7 +185,10 @@ def value_from_file(myfile, key):
 
 
 def initialize_logger(debug):
-    output_dir = "/var/log/clara"
+    if os.geteuid() == 0:
+        output_dir = "/var/log/clara"
+    else:
+        output_dir = "~/log/clara"
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
