@@ -74,8 +74,9 @@ if __name__ == '__main__':
         args = docopt.docopt(__doc__, version=__version__, options_first=True)
 
         # if you are not root, launch the script with sudo
-        if os.geteuid() != 0:
-            os.execvp("sudo", ["sudo"] + sys.argv)
+        if args['<plugin>'] != 'redfish' or (args['<plugin>'] == 'redfish' and 'setpwd' in args['<args>']):
+            if os.geteuid() != 0:
+                os.execvp("sudo", ["sudo"] + sys.argv )
 
         if args['-d'] > 0:
             conf.debug = True
