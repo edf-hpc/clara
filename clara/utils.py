@@ -44,6 +44,10 @@ import platform
 import ClusterShell.NodeSet
 import ClusterShell.Task
 
+import json
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import requests
+
 import distutils
 from distutils import util
 
@@ -57,6 +61,31 @@ class Conf:
 # global runtime Conf object
 conf = Conf()
 
+def get_response(url, endpoint, headers, data=None, method=None, verify=False):
+    try:
+        if data == None and method == None:
+            method = 'GET'
+        elif method == None:
+            method = 'POST'
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        response = requests.request(url=url + endpoint, auth=headers, json=data, method=method, timeout=5, verify=verify)
+        response.raise_for_status()
+        try:
+            return response.json()
+        except ValueError as e:
+            return response
+    except requests.exceptions.HTTPError as errh:
+        print(errh)
+        sys.exit(1)
+    except requests.exceptions.ConnectionError as errc:
+        print(errc)
+        sys.exit(1)
+    except requests.exceptions.Timeout as errt:
+        print(errt)
+        sys.exit(1)
+    except requests.exceptions.RequestException as err:
+        print(err)
+        sys.exit(1)
 
 def clush(hosts, cmds):
     logging.debug("utils/clush: {0} {1}".format(cmds, hosts))
