@@ -133,7 +133,7 @@ def get_osRelease(dist):
     pattern = re.compile(r"(?P<distro>[a-z]+)(?P<version>\d+)")
     match = pattern.match(dist)
     if match:
-        ID = match.group('distro')
+        ID = 'debian' if "scibian" in dist else match.group('distro')
         ID_Version = match.group('version')
 
         logging.debug("images/get_osRelease: %s => %s/%s", dist, ID, ID_Version)
