@@ -37,11 +37,13 @@ Manages and get the status from the nodes of a cluster.
 
 Usage:
     clara redfish getmac <hostlist>
+    clara redfish [--p=<level>] ping <hostlist>
     clara redfish [--p=<level>] sellist <hostlist>
     clara redfish [--p=<level>] status <hostlist>
     clara redfish -h | --help
 Alternative:
     clara redfish <hostlist> getmac
+    clara redfish [--p=<level>] <hostlist> ping
     clara redfish [--p=<level>] <hostlist> sellist
     clara redfish [--p=<level>] <hostlist> status
 """
@@ -112,6 +114,11 @@ def getmac(hosts):
         logging.info("  eth0's MAC address is {0}\n"
                      "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
 
+def do_ping(hosts):
+    nodes = ClusterShell.NodeSet.NodeSet(hosts)
+    cmd = ["/sbin/fping", "-r1", "-u", "-s"] + list(nodes)
+    run(cmd)
+
 def redfish_do(hosts, *cmd):
 
     imm_user, imm_password = get_authentication()
@@ -165,6 +172,8 @@ def main():
         getmac(dargs['<hostlist>'])
     elif dargs['sellist']:
         redfish_do(dargs['<hostlist>'], "sel", "list")
+    elif dargs['ping']:
+        do_ping(dargs['<hostlist>'])
 
 if __name__ == '__main__':
     main()
