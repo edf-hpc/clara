@@ -37,10 +37,12 @@ Manages and get the status from the nodes of a cluster.
 
 Usage:
     clara redfish getmac <hostlist>
+    clara redfish [--p=<level>] sellist <hostlist>
     clara redfish [--p=<level>] status <hostlist>
     clara redfish -h | --help
 Alternative:
     clara redfish <hostlist> getmac
+    clara redfish [--p=<level>] <hostlist> sellist
     clara redfish [--p=<level>] <hostlist> status
 """
 
@@ -63,6 +65,7 @@ from clara.utils import clara_exit, run, get_from_config, get_from_config_or, ge
 _opts = {'parallel': 1}
 
 urls = {'powerstatus': '/redfish/v1/Chassis/Self',
+        'sellist': '/redfish/v1/Systems/Self/LogServices/BIOS/Entries',
        }
 
 def get_authentication():
@@ -135,6 +138,13 @@ def redfish_do(hosts, *cmd):
             redfishtool = [response['PowerState'] if 'PowerState' in response else '']
             logging.debug("redfish/redfish_do: {0}".format(" ".join(redfishtool)))
             logging.info(f"{cmd} {redfishtool}")
+        elif value == "sellist":
+            response = get_response(url, endpoint, headers)
+            for mbr in response['Members']:
+                tab = mbr['Message'].split(',')
+                fmt = '%Y/%m/%d | %H:%M:%S'
+                datecreated = datetime.strptime(mbr['Created'], '%Y-%m-%dT%H:%M:%Sz').astimezone()
+                logging.info(f"{mbr['Id']} | {datecreated.strftime(fmt)} | {mbr['SensorType']} | {tab[9].split(':')[1]} | {mbr['EntryCode']} ")
 
 def main():
     logging.debug(sys.argv)
@@ -153,6 +163,8 @@ def main():
         redfish_do(dargs['<hostlist>'], "power", "status")
     elif dargs['getmac']:
         getmac(dargs['<hostlist>'])
+    elif dargs['sellist']:
+        redfish_do(dargs['<hostlist>'], "sel", "list")
 
 if __name__ == '__main__':
     main()
