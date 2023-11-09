@@ -36,9 +36,11 @@
 Manages and get the status from the nodes of a cluster.
 
 Usage:
+    clara redfish getmac <hostlist>
     clara redfish [--p=<level>] status <hostlist>
     clara redfish -h | --help
 Alternative:
+    clara redfish <hostlist> getmac
     clara redfish [--p=<level>] <hostlist> status
 """
 
@@ -49,6 +51,7 @@ import os
 import re
 import subprocess
 import sys
+from datetime import datetime
 
 import ClusterShell
 import docopt
@@ -82,6 +85,30 @@ def get_authentication():
 
     return imm_user, imm_password
 
+def getmac(hosts):
+
+    imm_user, imm_password = get_authentication()
+    headers = HTTPBasicAuth(imm_user, imm_password)
+
+    endpoint = "/redfish/v1/Managers/Self/EthernetInterfaces"
+
+    nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+    for host in nodeset:
+
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+
+        url = "https://{0}".format(host)
+        logging.debug(f"{url} {endpoint}")
+        logging.info("{0}: ".format(host))
+
+        response = get_response(url, endpoint + "/eth0", headers)
+        mac_address1 = [response['MACAddress'] if 'MACAddress' in response else '']
+        response = get_response(url, endpoint + "/eth1", headers)
+        mac_address2 = [response['MACAddress'] if 'MACAddress' in response else '']
+
+        logging.info("  eth0's MAC address is {0}\n"
+                     "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
+
 def redfish_do(hosts, *cmd):
 
     imm_user, imm_password = get_authentication()
@@ -95,7 +122,6 @@ def redfish_do(hosts, *cmd):
         for i in range(len(cmd) - 2, len(cmd), 1):
             value = value + cmd[i]
         endpoint = urls[value]
-
 
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
@@ -125,6 +151,8 @@ def main():
 
     if dargs['status']:
         redfish_do(dargs['<hostlist>'], "power", "status")
+    elif dargs['getmac']:
+        getmac(dargs['<hostlist>'])
 
 if __name__ == '__main__':
     main()
