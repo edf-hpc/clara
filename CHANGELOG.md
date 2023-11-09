@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20231109] - 2023-11-09
+
+### Fixed
+- images: fix issue with python3.5 print format
+- images: fix issue with scibian distro
+- bin: enforce python3 in the shebang
+
 ## [0.20231003] - 2023-10-03
 
 ### Added
