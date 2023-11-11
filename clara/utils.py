@@ -61,6 +61,49 @@ class Conf:
 # global runtime Conf object
 conf = Conf()
 
+class Colorizer(object):
+
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
+    @staticmethod
+    def colorize(string, color, bold=True, background=True):
+        s_bold = ''
+        if bold:
+            s_bold = '1;'
+        if background:
+            return("\x1b[" + s_bold + "%dm" % (40+color) + string + "\x1b[0m")
+        else:
+            return("\x1b[" + s_bold + "%dm" % (30+color) + string + "\x1b[0m")
+
+    @staticmethod
+    def yellow(string, bold=True, background=True, color=False):
+        if color or string == '':
+            return Colorizer.colorize(string, Colorizer.YELLOW, bold, background)
+        else:
+            return string
+
+    @staticmethod
+    def green(string, bold=True, background=True, color=False):
+        if color or string == '':
+            return Colorizer.colorize(string, Colorizer.GREEN, bold, background)
+        else:
+            return string
+
+    @staticmethod
+    def blue(string, bold=True, background=True, color=False):
+        if color or string == '':
+            return Colorizer.colorize(string, Colorizer.BLUE, bold, background)
+        else:
+            return string
+
+    @staticmethod
+    def red(string, bold=True, background=True, color=False):
+        if color or string == '':
+            return Colorizer.colorize(string, Colorizer.RED, bold, background)
+        else:
+            return string
+
+
 def get_response(url, endpoint, headers, data=None, method=None, verify=False):
     try:
         if data == None and method == None:
