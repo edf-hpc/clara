@@ -36,7 +36,7 @@
 Manages VMs used in a cluster.
 
 Usage:
-    clara virt list [--details] [--host=<host>] [--virt-config=<path>]
+    clara virt list [--details] [--legacy] [--host=<host>] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -49,6 +49,7 @@ Options:
     <vm_names>                  List of VM names (ClusterShell nodeset)
     <host>                      Physical host where the action should be applied
     --details                   Display details (hosts and volumes)
+    --legacy                    Display without pretty table. Default is to print table style!
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -63,6 +64,13 @@ import sys
 import os.path
 import ClusterShell
 from clara import utils
+
+try:
+    from prettytable import PrettyTable as prettytable
+except:
+    print("[WARN] PLS raise 'pip install prettytable' or install 'python3-prettytable' package!")
+    pass
+
 
 # Version 10.2.9 is Debian Jessie
 # earlier versions might work but are not tested.
@@ -87,12 +95,40 @@ from clara.virt.exceptions import VirtConfigurationException
 logger = logging.getLogger(__name__)
 
 
-def do_list(conf, details=False, host_name=None):
-    vm_line = "VM:{0:16} State:{1:12} Host:{2:16}"
-    host_line = "    Host:{0:16} HostState:{1:16}"
-    vol_line = "    Volume:{0:32} Pool:{1:16} Capacity:{2:12}"
+def do_print(table, data, legacy=None):
+    if not len(data): return
+    if legacy:
+        print(table.format(*data))
+    else:
+        try:
+            # try to use prettytable
+            table.add_row(data)
+        except:
+            # drop down prettytable if any issue, falling back to default print
+            print(table.format(*data))
+
+def do_list(conf, details=False, legacy=True, host_name=None):
+    vm_line = "VM:{:16} State:{:12} Host:{:16}"
+    host_line = "    Host:{:16} HostState:{:16}"
+    vol_line = "    Volume:{:32} Pool:{:16} Capacity:{:12}"
     group = NodeGroup(conf)
     vms = group.get_vms()
+
+    if legacy:
+        table = vm_line
+    else:
+        try:
+            table = prettytable()
+            if legacy:
+                data = ['VM', 'State', 'Host']
+            else:
+                if details:
+                    table.field_names = ['VM', 'State', 'Host', 'Volume', 'Pool', 'Capacity']
+                else:
+                    table.field_names = ['VM', 'State', 'Host']
+        except:
+            table = vm_line
+
     for vm in vms.values():
         host_states = vm.get_host_state()
         if len(host_states) == 1:
@@ -100,32 +136,63 @@ def do_list(conf, details=False, host_name=None):
         else:
             host = ''
         vm_name = vm.get_name()
+        vm_state = vm.get_state()
+        data = []
+
+        if legacy:
+            table = vm_line
+
         if host_name:
             if host_name == host:
-                print(vm_line.format(vm_name, vm.get_state(), host))
+                data = [vm_name, vm_state, host]
         else:
-            print(vm_line.format(vm_name, vm.get_state(), host))
+            data = [vm_name, vm_state, host]
+
         if details:
             if host_name:
                 for host, state in host_states.items():
                     if host_name == host:
-                        print("Host:")
-                        print(host_line.format(host, state))
-                        print("  Volumes:")
+                        if legacy:
+                            table += "\n  Hosts:\n%s\n  Volumes:" % host_line
+                            data += [host, state]
+                        else:
+                            data = data[:-1] + ["%s (%s)" % (host, state)]
             else:
-                print("  Hosts:")
+                if legacy:
+                    table += "\n  Hosts:\n"
                 for host, state in host_states.items():
-                    print(host_line.format(host, state))
-                    print("  Volumes:")
+                    if legacy:
+                        table += "%s\n  Volumes:" % host_line
+                        data += [host, state]
+                    else:
+                        data = data[:-1] + ["%s (%s)" % (host, state)]
 
+            if legacy:
+                table += vol_line
             if host_name:
                 for vol in vm.get_volumes():
-                    if vol.get_name() == vm_name+"_system" and host_name==host:
-                        print(vol_line.format(
-                            vol.get_name(),
-                            vol.get_pool().get_name(),
-                            vol.get_capacity()
-                        ))
+                    vol_name = vol.get_name()
+                    if vol_name == vm_name+"_system" and host_name==host:
+                        data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
+            else:
+                count = 1
+                for vol in vm.get_volumes():
+                    vol_name = vol.get_name()
+                    if vol_name == vm_name+"_system":
+                        data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
+                        count = 0
+                if count:
+                    data += ['', '', '']
+
+        if len(data):
+            do_print(table, data, legacy)
+
+    try:
+        if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
+            table.align["VM"] = "l"
+            print(table)
+    except:
+        pass
 
 
 def do_action(conf, params, action):
@@ -228,13 +295,14 @@ def main():
 
     if dargs['list']:
         details = dargs['--details']
-        
+        legacy = dargs['--legacy']
+
         if '--host' in dargs.keys():
             host_name = dargs['--host']
         else:
             host_name = None
 
-        do_list(virt_conf, details, host_name)
+        do_list(virt_conf, details, legacy, host_name)
 
     else:
         params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
