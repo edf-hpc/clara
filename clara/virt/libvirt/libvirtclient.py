@@ -131,8 +131,11 @@ class LibVirtClient:
 
     def get_vm_state(self, vm_name):
         domain = self._get_domain(vm_name)
-        state, reason = domain.state()
-        return LibVirtClient.state_name[state]
+        if domain:
+            state, reason = domain.state()
+            return LibVirtClient.state_name[state]
+        else:
+            return None
 
     def vm_stop(self, vm_name, hard=False):
         domain = self._get_domain(vm_name)
