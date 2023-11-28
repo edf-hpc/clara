@@ -63,6 +63,7 @@ import docopt
 import sys
 import os.path
 import ClusterShell
+import re
 from clara import utils
 
 try:
@@ -119,34 +120,53 @@ def do_list(conf, details=False, legacy=True, host_name=None):
     else:
         try:
             table = prettytable()
-            if legacy:
-                data = ['VM', 'State', 'Host']
-            else:
-                if details:
-                    table.field_names = ['VM', 'State', 'Host', 'Volume', 'Pool', 'Capacity']
-                else:
-                    table.field_names = ['VM', 'State', 'Host']
+            data = ['Host', 'VM', 'State']
+            if details:
+                data += ['Volume', 'Pool', 'Capacity']
+            if not legacy:
+                table.field_names = data
         except:
             table = vm_line
 
+    done = {}
+
     for vm in vms.values():
         host_states = vm.get_host_state()
-        if len(host_states) == 1:
-            host = list(host_states.keys())[0]
-        else:
-            host = ''
         vm_name = vm.get_name()
         vm_state = vm.get_state()
         data = []
+        if len(host_states) == 1:
+            host = list(host_states.keys())[0]
+        elif legacy:
+            host = ''
+        else:
+            host = '__empty__'
 
+
+        # Use somle tricks here to print KVM server host just one time
+        # For slim printing!
+        if host not in done:
+            if not legacy:
+                done[host] = 0
+                data = [host, '', '']
+                if details:
+                    data += ['', '', '']
+                if host != '':
+                    do_print(table, data, legacy)
+
+        data = []
         if legacy:
             table = vm_line
 
         if host_name:
             if host_name == host:
                 data = [vm_name, vm_state, host]
+                if not legacy:
+                    data = ['', vm_name, vm_state ]
         else:
             data = [vm_name, vm_state, host]
+            if not legacy:
+                data = ['', vm_name, vm_state]
 
         if details:
             if host_name:
@@ -155,8 +175,6 @@ def do_list(conf, details=False, legacy=True, host_name=None):
                         if legacy:
                             table += "\n  Hosts:\n%s\n  Volumes:" % host_line
                             data += [host, state]
-                        else:
-                            data = data[:-1] + ["%s (%s)" % (host, state)]
             else:
                 if legacy:
                     table += "\n  Hosts:\n"
@@ -164,9 +182,8 @@ def do_list(conf, details=False, legacy=True, host_name=None):
                     if legacy:
                         table += "%s\n  Volumes:" % host_line
                         data += [host, state]
-                    else:
-                        data = data[:-1] + ["%s (%s)" % (host, state)]
 
+            count = 1
             if legacy:
                 table += vol_line
             if host_name:
@@ -174,15 +191,15 @@ def do_list(conf, details=False, legacy=True, host_name=None):
                     vol_name = vol.get_name()
                     if vol_name == vm_name+"_system" and host_name==host:
                         data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
+                        count = 0
             else:
-                count = 1
                 for vol in vm.get_volumes():
                     vol_name = vol.get_name()
                     if vol_name == vm_name+"_system":
                         data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
                         count = 0
-                if count:
-                    data += ['', '', '']
+            if count and len(data):
+                data += ['', '', '']
 
         if len(data):
             do_print(table, data, legacy)
@@ -190,7 +207,55 @@ def do_list(conf, details=False, legacy=True, host_name=None):
     try:
         if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
             table.align["VM"] = "l"
-            print(table)
+            table.align["Host"] = "r"
+
+            table_txt = ''
+            match_line = 0
+            empty_cell = False
+            pattern = re.compile(r"service|__empty__")
+            # simulate here some tricks not yet supported by prettytable used version!
+            for number, line in enumerate(table.get_string().split('\n')):
+                if number == 0:
+                    horizontal = line
+                elif number == 1:
+                    header = line.replace('Host', '    ')
+                # retrieve second cell content
+                cell = ''.join([l for n, l in enumerate(line.split('|')) if n == 1])
+                # New service node info start here!
+                # before writing service node, insert horizontal line!
+                if pattern.search(cell) and empty_cell:
+                    empty_cell = False
+                    if host_name:
+                        if re.search(host_name, cell):
+                            line = line.replace('__empty__', '         ')
+                            table_txt = '%s%s\n' % (table_txt, horizontal)
+                    else:
+                        table_txt = '%s%s\n' % (table_txt, horizontal)
+                # writing here service node line
+                if pattern.search(cell):
+                    if not re.search('__empty__', line):
+                        if host_name:
+                            if re.search(host_name, cell):
+                                table_txt = '%s%s\n' % (table_txt, line)
+                        else:
+                            table_txt = '%s%s\n' % (table_txt, line)
+                else:
+                    table_txt = '%s%s\n' % (table_txt, line)
+                if pattern.search(cell):
+                    # Now, we are after service node line,
+                    # so we insert separate horizontal line!
+                    empty_cell = False
+                    match_line = number
+                    if not re.search('__empty__', line):
+                        if host_name:
+                            if re.search(host_name, cell):
+                                table_txt = '%s%s\n' % (table_txt, horizontal)
+                        else:
+                            table_txt = '%s%s\n' % (table_txt, horizontal)
+                elif re.search(r"^\s+$", cell):
+                    # we found here second empty cell! Meaning new service start here!
+                    empty_cell = True
+            print(table_txt)
     except:
         pass
 
