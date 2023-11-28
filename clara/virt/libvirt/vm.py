@@ -212,6 +212,9 @@ class VM():
         self.group.vm_define(host, xml_desc)
 
 
+    def get_info(self):
+        return self.group.get_vm_info(self.name)
+
     def get_state(self):
         return self.state
 
