@@ -87,7 +87,7 @@ from clara.virt.exceptions import VirtConfigurationException
 logger = logging.getLogger(__name__)
 
 
-def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
+def do_list(conf, details=False, host_name=None):
     vm_line = "VM:{0:16} State:{1:12} Host:{2:16}"
     host_line = "    Host:{0:16} HostState:{1:16}"
     vol_line = "    Volume:{0:32} Pool:{1:16} Capacity:{2:12}"
@@ -105,7 +105,7 @@ def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
                 print(vm_line.format(vm_name, vm.get_state(), host))
         else:
             print(vm_line.format(vm_name, vm.get_state(), host))
-        if show_hosts:            
+        if details:
             if host_name:
                 for host, state in host_states.items():
                     if host_name == host:
@@ -117,7 +117,7 @@ def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
                 for host, state in host_states.items():
                     print(host_line.format(host, state))
                     print("  Volumes:")
-        if show_volumes:
+
             if host_name:
                 for vol in vm.get_volumes():
                     if vol.get_name() == vm_name+"_system" and host_name==host:
@@ -227,15 +227,14 @@ def main():
     }
 
     if dargs['list']:
-        show_hosts = dargs['--details']
-        show_volumes = dargs['--details']
+        details = dargs['--details']
         
         if '--host' in dargs.keys():
             host_name = dargs['--host']
         else:
             host_name = None
 
-        do_list(virt_conf, show_hosts, show_volumes, host_name)
+        do_list(virt_conf, details, host_name)
 
     else:
         params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
