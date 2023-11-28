@@ -109,11 +109,23 @@ def do_print(table, data, legacy=None):
             print(table.format(*data))
 
 def do_list(conf, details=False, legacy=True, host_name=None):
-    vm_line = "VM:{:16} State:{:12} Host:{:16}"
+
+    # Define print format
+    if details:
+        vm_line = "VM:{:16} State:{:12} Host:{:16} Total:{:4} Cpus:{:3}"
+    else:
+        vm_line = "VM:{:16} State:{:12} Host:{:16}"
     host_line = "    Host:{:16} HostState:{:16}"
     vol_line = "    Volume:{:32} Pool:{:16} Capacity:{:12}"
+
     group = NodeGroup(conf)
     vms = group.get_vms()
+
+    if details:
+        # Retrieve KVM server host memory et CPUs information
+        memory, cpus = group.get_nodeinfo()
+    else:
+        memory = cpus = {}
 
     if legacy:
         table = vm_line
@@ -122,19 +134,32 @@ def do_list(conf, details=False, legacy=True, host_name=None):
             table = prettytable()
             data = ['Host', 'VM', 'State']
             if details:
+                data += ['memory', 'cpus']
+            if details:
                 data += ['Volume', 'Pool', 'Capacity']
             if not legacy:
                 table.field_names = data
         except:
             table = vm_line
 
+    vmname = {}
+    vmstate = {}
+    hoststates = {}
+    vmrole = {}
+    vmhost = {}
+    vm_free = {}
+    vm_usage = {}
     done = {}
+    max_mem = {}
+    vcpus = {}
+    total_mem = {}
+    total_cpu = {}
 
+    # Go through all VMs a first time to retrieve needfull informations like antiaffinity
     for vm in vms.values():
         host_states = vm.get_host_state()
         vm_name = vm.get_name()
         vm_state = vm.get_state()
-        data = []
         if len(host_states) == 1:
             host = list(host_states.keys())[0]
         elif legacy:
@@ -142,15 +167,57 @@ def do_list(conf, details=False, legacy=True, host_name=None):
         else:
             host = '__empty__'
 
+        vmhost[vm] = host
+
+        hoststates[vm] = host_states
+        vmname[vm] = vm_name
+        vmstate[vm] = vm_state
+
+        if vm_state == 'RUNNING':
+            #If VM is UP and RUNNING, we retrieve his memory & CPU usage
+            _, max_mem[vm], _, vcpus[vm], _ = vm.get_info()
+            max_mem[vm] = int(max_mem[vm] / 1024 / 1024)
+            total_mem[host] = total_mem[host] + max_mem[vm] if host in total_mem else max_mem[vm]
+            total_cpu[host] = total_cpu[host] + vcpus[vm] if host in total_cpu else vcpus[vm]
+
+    # Go again one more time through all VMs, but using previously retrieved data!
+    # So we avoid doing job two times!
+    for vm in vms.values():
+        # Retrieve previously collected VM data
+        host_states = hoststates[vm]
+        host = vmhost[vm]
+        vm_name = vmname[vm]
+        vm_state = vmstate[vm]
+
+        _max_mem = _vcpus = ''
+        vm_info = []
+        if details:
+            if vm_state == 'RUNNING':
+                #If VM is UP and RUNNING, we retrieve his memory & CPU usage
+                _max_mem = max_mem[vm]
+                _vcpus = vcpus[vm]
+                vm_info = [_max_mem, _vcpus]
+            else:
+                #Can't figure out a way to retieve simply not RUNNING VM information
+                vm_info = ['', '']
 
         # Use somle tricks here to print KVM server host just one time
         # For slim printing!
         if host not in done:
+            _memory = _cpus = ''
+            if host in total_mem and host in memory and host in cpus and host in total_cpu:
+                # total KVM server host memory
+                _memory = "%s/%s" % (total_mem[host], int(memory[host] / 1024))
+                # number of CPUs of KVM server host
+                _cpus = cpus[host]
+                # KVM server host CPUs usage
+                _cpu_usage = "%s/%s" % (total_cpu[host], _cpus)
+
             if not legacy:
                 done[host] = 0
                 data = [host, '', '']
                 if details:
-                    data += ['', '', '']
+                    data += [ _memory, _cpu_usage, '', '', '']
                 if host != '':
                     do_print(table, data, legacy)
 
@@ -160,13 +227,19 @@ def do_list(conf, details=False, legacy=True, host_name=None):
 
         if host_name:
             if host_name == host:
-                data = [vm_name, vm_state, host]
-                if not legacy:
-                    data = ['', vm_name, vm_state ]
+                if legacy:
+                    data = [vm_name, vm_state, host]
+                    if details:
+                        data += vm_info
+                else:
+                    data = ['', vm_name, vm_state ] + vm_info
         else:
-            data = [vm_name, vm_state, host]
-            if not legacy:
-                data = ['', vm_name, vm_state]
+            if legacy:
+                data = [vm_name, vm_state, host]
+                if details:
+                    data += vm_info
+            else:
+                data = ['', vm_name, vm_state] + vm_info
 
         if details:
             if host_name:
@@ -189,13 +262,13 @@ def do_list(conf, details=False, legacy=True, host_name=None):
             if host_name:
                 for vol in vm.get_volumes():
                     vol_name = vol.get_name()
-                    if vol_name == vm_name+"_system" and host_name==host:
+                    if vol_name == vmname[vm] + "_system" and host_name == host:
                         data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
                         count = 0
             else:
                 for vol in vm.get_volumes():
                     vol_name = vol.get_name()
-                    if vol_name == vm_name+"_system":
+                    if vol_name == vmname[vm] + "_system":
                         data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
                         count = 0
             if count and len(data):
