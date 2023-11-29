@@ -122,7 +122,7 @@ class NodeGroup:
             logger.error("No host found with VM %s", vm_name)
             return False
 
-    def vm_migrate(self, vm_name, dest_host, host=None):
+    def vm_migrate(self, vm_name, dest_host, host=None, dry_run=False):
         if dest_host not in self.clients.keys():
             logger.error("No active connection to destination host %s",
                          dest_host)
@@ -130,9 +130,12 @@ class NodeGroup:
         if host is None:
             host = self.get_vm_host(vm_name)
         if host is not None:
-            status = self.clients[host].vm_migrate(vm_name,
-                                                   self.clients[dest_host])
-            self.refresh()
+            if dry_run:
+                return True
+            else:
+                status = self.clients[host].vm_migrate(vm_name,
+                                                       self.clients[dest_host])
+                self.refresh()
             return status
         else:
             logger.error("No host found with VM %s", vm_name)
