@@ -36,7 +36,7 @@
 Manages VMs used in a cluster.
 
 Usage:
-    clara virt list [--details] [--legacy] [--host=<host>] [--virt-config=<path>]
+    clara virt list [--details] [--legacy] [--color] [--host=<host>] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -50,6 +50,7 @@ Options:
     <host>                      Physical host where the action should be applied
     --details                   Display details (hosts and volumes)
     --legacy                    Display without pretty table. Default is to print table style!
+    --color                     Colorize or not output
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -67,6 +68,7 @@ import re
 from clara import utils
 
 try:
+    import operator
     from prettytable import PrettyTable as prettytable
 except:
     print("[WARN] PLS raise 'pip install prettytable' or install 'python3-prettytable' package!")
@@ -93,8 +95,9 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
-logger = logging.getLogger(__name__)
+from clara.utils import Colorizer
 
+logger = logging.getLogger(__name__)
 
 def do_print(table, data, legacy=None):
     if not len(data): return
@@ -108,8 +111,8 @@ def do_print(table, data, legacy=None):
             # drop down prettytable if any issue, falling back to default print
             print(table.format(*data))
 
-def do_list(conf, details=False, legacy=True, host_name=None):
 
+def do_list(conf, details=False, legacy=False, host_name=None, color=False):
     # Define print format
     if details:
         vm_line = "VM:{:16} State:{:12} Host:{:16} Total:{:4} Cpus:{:3}"
@@ -132,7 +135,7 @@ def do_list(conf, details=False, legacy=True, host_name=None):
     else:
         try:
             table = prettytable()
-            data = ['Host', 'VM', 'State']
+            data = ['Fake', 'Host', 'VM', 'State']
             if details:
                 data += ['memory', 'cpus']
             if details:
@@ -190,6 +193,13 @@ def do_list(conf, details=False, legacy=True, host_name=None):
         vm_state = vmstate[vm]
 
         _max_mem = _vcpus = ''
+
+        # Add some colorization, if --color is used!
+        if vm_state == 'MISSING':
+            vm_state = Colorizer.red(vm_state, color=color)
+        elif vm_state == 'SHUTOFF':
+            vm_state = Colorizer.blue(vm_state, color=color)
+
         vm_info = []
         if details:
             if vm_state == 'RUNNING':
@@ -203,19 +213,30 @@ def do_list(conf, details=False, legacy=True, host_name=None):
 
         # Use somle tricks here to print KVM server host just one time
         # For slim printing!
-        if host not in done:
-            _memory = _cpus = ''
+        if host in done:
+            _host = '__empty__'
+        else:
+            _memory = _cpu_usage = _cpus = ''
+            _host = host
             if host in total_mem and host in memory and host in cpus and host in total_cpu:
                 # total KVM server host memory
-                _memory = "%s/%s" % (total_mem[host], int(memory[host] / 1024))
+                _host_mem = int(memory[host] / 1024)
+                _memory = "%s/%s" % (total_mem[host], _host_mem)
                 # number of CPUs of KVM server host
                 _cpus = cpus[host]
                 # KVM server host CPUs usage
                 _cpu_usage = "%s/%s" % (total_cpu[host], _cpus)
+                if total_cpu[host] > _cpus:
+                    _host = Colorizer.red(host, color=color)
+                    _cpu_usage = Colorizer.red(_cpu_usage, color=color)
+
+                if total_mem[host] > _host_mem:
+                    _host = Colorizer.red(host, color=color)
+                    _memory = Colorizer.red(_memory, color=color)
 
             if not legacy:
                 done[host] = 0
-                data = [host, '', '']
+                data = [host, _host, '', '']
                 if details:
                     data += [ _memory, _cpu_usage, '', '', '']
                 if host != '':
@@ -232,14 +253,14 @@ def do_list(conf, details=False, legacy=True, host_name=None):
                     if details:
                         data += vm_info
                 else:
-                    data = ['', vm_name, vm_state ] + vm_info
+                    data = [host, '', vm_name, vm_state ] + vm_info
         else:
             if legacy:
                 data = [vm_name, vm_state, host]
                 if details:
                     data += vm_info
             else:
-                data = ['', vm_name, vm_state] + vm_info
+                data = [host, '', vm_name, vm_state] + vm_info
 
         if details:
             if host_name:
@@ -287,7 +308,7 @@ def do_list(conf, details=False, legacy=True, host_name=None):
             empty_cell = False
             pattern = re.compile(r"service|__empty__")
             # simulate here some tricks not yet supported by prettytable used version!
-            for number, line in enumerate(table.get_string().split('\n')):
+            for number, line in enumerate(table.get_string(sort_key=operator.itemgetter(0, 1), sortby = "Fake", fields = table.field_names[1:]).split('\n')):
                 if number == 0:
                     horizontal = line
                 elif number == 1:
@@ -434,13 +455,14 @@ def main():
     if dargs['list']:
         details = dargs['--details']
         legacy = dargs['--legacy']
+        color = dargs['--color']
 
         if '--host' in dargs.keys():
             host_name = dargs['--host']
         else:
             host_name = None
 
-        do_list(virt_conf, details, legacy, host_name)
+        do_list(virt_conf, details, legacy, host_name, color)
 
     else:
         params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
