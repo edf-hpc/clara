@@ -456,6 +456,8 @@ def do_action(conf, params, action):
             quiet = params['quiet']
             if params['dest_host']:
                 dest_host = params['dest_host']
+            elif isinstance(params['vm_names'], dict):
+                dest_host = params['vm_names'][vm_name]
             else:
                 dest_host = None
                 message = "Migration needs a destination host, but you haven't provided it!\n"
@@ -557,7 +559,10 @@ def main():
     else:
         params['force'] = dargs['--yes-i-really-really-mean-it']
         if dargs['<vm_names>']:
-            params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
+            try:
+                params['vm_names'] = json.loads(dargs['<vm_names>'])
+            except:
+                params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
             # when VM list had been provided, no default to dry run mode
             # so usage it's as legacy one!
             params['force'] = True
