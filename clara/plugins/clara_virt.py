@@ -41,21 +41,24 @@ Usage:
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
-    clara virt migrate <vm_names> [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
+    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>] [--dry-run] [--quiet] [--yes-i-really-really-mean-it] [--exclude=<exclude>] [--include=<include>]
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
 Options:
-    <vm_names>                  List of VM names (ClusterShell nodeset)
-    <host>                      Physical host where the action should be applied
-    --details                   Display details (hosts and volumes)
-    --legacy                    Display without pretty table. Default is to print table style!
-    --color                     Colorize or not output
-    --wipe                      Wipe the content of the storage volume before starting
-    --hard                      Perform a hard shutdown
-    --dest-host=<dest_host>     Destination host of a migration
-    --template=<template_name>  Use this template instead of the in config
-    --virt-config=<path>        Path of the virt config file [default: /etc/clara/virt.ini]
+    <vm_names>                     List of VM names (ClusterShell nodeset)
+    <host>                         Physical host where the action should be applied
+    --details                      Display details (hosts and volumes)
+    --legacy                       Old School printing
+    --color                        Colorize or not output
+    --wipe                         Wipe the content of the storage volume before starting
+    --hard                         Perform a hard shutdown
+    --dest-host=<dest_host>        Destination host of a migration
+    --template=<template_name>     Use this template instead of the in config
+    --virt-config=<path>           Path of the virt config file [default: /etc/clara/virt.ini]
+    --quiet                        Proceed silencely. Don't ask any question!
+    --dry-run                      Just simulate migrate action! Don't really do anything
+    --yes-i-really-really-mean-it  Force migrate action execution without any further validation
 
 """
 
@@ -391,11 +394,38 @@ def do_action(conf, params, action):
         hard = params['hard']
     else:
         hard = False
-    if 'dest_host' in params.keys():
-        dest_host = params['dest_host']
-    else:
-        dest_host = None
+
     host = params['host']
+    if action == 'migrate':
+        # For live migration, we try to automatically figure out
+        # involved migrate candidate!
+        dry_run = params['dry_run']
+        force = params['force']
+        # we enforce virtual service node have been migrated!
+        exclude = "service"
+        epattern = re.compile(r'%s' % exclude)
+        if 'vm_names' not in params and params['host']:
+            # Use tricks to avoid call twice function vm.get_name()
+            # := operator can be use instead to definite local variable
+            # in list comprehension, bu that need pypthon 3.8+
+            # https://peps.python.org/pep-0572/
+            params['vm_names'] = [vm_name for vm in group.get_vms().values()
+                    for vm_name in [vm.get_name()] if vm_name
+                    for host, state in vm.get_host_state().items()
+                    if state == 'RUNNING' and host == params['host']
+                    and not epattern.search(vm_name)]
+
+            if 'vm_names' in params:
+                if params['vm_names'] == []:
+                    message = "No involved VM(s) can be computed based on provided information\n"
+                    utils.clara_exit(message)
+                else:
+                    message = "Be aware that as you had not provided involved VM(s),\n"
+                    message += "all currently running VM(s) on source host %s will be migrated!\n" % host
+                    logger.warn("%s" % message)
+        if 'vm_names' not in params:
+            utils.clara_exit("Without provided VM to migrate, you need to use --host switch")
+
 
     for vm_name in params['vm_names']:
         logging.info("Action: %s on %s.", action, vm_name)
@@ -412,6 +442,7 @@ def do_action(conf, params, action):
         elif action == 'undefine':
             machine.undefine(host)
         elif action == 'migrate':
+            quiet = params['quiet']
             if params['dest_host']:
                 dest_host = params['dest_host']
             else:
@@ -419,12 +450,24 @@ def do_action(conf, params, action):
                 message = "Migration needs a destination host, but you haven't provided it!\n"
                 logger.warn("%s" % message)
                 message += "We can choose one automatically for you! Let continue ?\n"
-                if yes_or_no(message):
+                if force or quiet or dry_run:
+                    dest_host = group.elect_dest_host(machine)
+                    logger.info("You had chosen automatic election of destination host: %s!\n",
+                                 dest_host)
+                elif yes_or_no(message):
                     dest_host = group.elect_dest_host(machine)
             if dest_host is None:
                 logger.error('Migration needs a destination host. You must provide one!')
                 continue
-            machine.migrate(host=host, dest_host=dest_host)
+            message = "Migration action will be done right now on VM %s" % vm_name
+            if force or (dry_run and quiet):
+                machine.migrate(host=host, dest_host=dest_host, dry_run=dry_run)
+            elif yes_or_no(message):
+                machine.migrate(host=host, dest_host=dest_host, dry_run=dry_run)
+            if dry_run:
+                message = "no action have been really done as dry run mode is enabled!\n"
+                logger.warn("%s" % message)
+
         else:
             logging.error("Action %s not supported.", action)
             exit(1)
@@ -501,7 +544,20 @@ def main():
         do_list(virt_conf, details, legacy, host_name, color)
 
     else:
-        params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
+        params['force'] = dargs['--yes-i-really-really-mean-it']
+        if dargs['<vm_names>']:
+            params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
+            # when VM list had been provided, no default to dry run mode
+            # so usage it's as legacy one!
+            params['force'] = True
+            params['dry_run'] = False
+        elif dargs['migrate']:
+            # when no VM had been provided, use dry run mode
+            params['dry_run'] = False if params['force'] else True
+            if params['dry_run']:
+                message = "migrate action is in dry run mode by default\n"
+                message += "when you had not provided involved VM(s)!\n"
+                logger.warn("%s" % message)
 
         if '--host' in dargs.keys():
             params['host'] = dargs['--host']
@@ -520,6 +576,7 @@ def main():
             params['hard'] = dargs['--hard']
             do_action(virt_conf, params, 'stop')
         elif dargs['migrate']:
+            params['quiet'] = dargs['--quiet']
             params['dest_host'] = dargs['--dest-host']
             do_action(virt_conf, params, 'migrate')
         elif dargs['getmacs']:
