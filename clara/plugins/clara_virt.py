@@ -145,6 +145,11 @@ def do_list(conf, details=False, legacy=False, host_name=None, color=False):
         except:
             table = vm_line
 
+    # simple antiaffinity rule base on VM node role, following bellow scheme:
+    # vm_name = <prefix (any 2 caracters)><role><arbitrar integer digits>
+    # antiaffinity stand for a VM placement relative of carateristics or labels like role
+    pattern = re.compile(r"[a-z]{2}([a-z0-9]*[a-z]+)\d+")
+    antiaffinity = {}
     vmname = {}
     vmstate = {}
     hoststates = {}
@@ -183,6 +188,23 @@ def do_list(conf, details=False, legacy=False, host_name=None, color=False):
             total_mem[host] = total_mem[host] + max_mem[vm] if host in total_mem else max_mem[vm]
             total_cpu[host] = total_cpu[host] + vcpus[vm] if host in total_cpu else vcpus[vm]
 
+        # if host is RUNNING, try to figure out if it's up on same KVM
+        # server host than another VM with same role! Same role stand
+        # of VM with the same <prefix> whitch is arbitrary the first 2
+        # digits
+        if len(host) > 1 and not host == '__empty__':
+            if host not in antiaffinity:
+                antiaffinity[host] = {}
+            match = pattern.search(vm_name);
+            if match and vm_state == 'RUNNING':
+                role = match.group(1)
+                if role != 'service':
+                   vmrole[vm] = role
+                   if role in antiaffinity[host]:
+                       antiaffinity[host][role] += 1
+                   else:
+                       antiaffinity[host][role] = 1
+
     # Go again one more time through all VMs, but using previously retrieved data!
     # So we avoid doing job two times!
     for vm in vms.values():
@@ -199,6 +221,11 @@ def do_list(conf, details=False, legacy=False, host_name=None, color=False):
             vm_state = Colorizer.red(vm_state, color=color)
         elif vm_state == 'SHUTOFF':
             vm_state = Colorizer.blue(vm_state, color=color)
+
+        if vm in vmrole and host in antiaffinity and role in antiaffinity[host]:
+            role = vmrole[vm]
+            if antiaffinity[host][role] > 1:
+                 vm_name = Colorizer.red(vm_name, color=color)
 
         vm_info = []
         if details:
