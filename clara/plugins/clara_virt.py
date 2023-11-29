@@ -59,6 +59,8 @@ Options:
     --quiet                        Proceed silencely. Don't ask any question!
     --dry-run                      Just simulate migrate action! Don't really do anything
     --yes-i-really-really-mean-it  Force migrate action execution without any further validation
+    --exclude=<exclude>            Exclude pattern in VMs [default: service]
+    --include=<include>            Include pattern in VMs
 
 """
 
@@ -402,18 +404,27 @@ def do_action(conf, params, action):
         dry_run = params['dry_run']
         force = params['force']
         # we enforce virtual service node have been migrated!
-        exclude = "service"
+        exclude = "service|%s" % params['exclude'] if 'exclude' in params else 'service'
+        include = params['include'] if 'include' in params else None
         epattern = re.compile(r'%s' % exclude)
+        ipattern = re.compile(r'%s' % include)
         if 'vm_names' not in params and params['host']:
             # Use tricks to avoid call twice function vm.get_name()
             # := operator can be use instead to definite local variable
             # in list comprehension, bu that need pypthon 3.8+
             # https://peps.python.org/pep-0572/
-            params['vm_names'] = [vm_name for vm in group.get_vms().values()
-                    for vm_name in [vm.get_name()] if vm_name
-                    for host, state in vm.get_host_state().items()
-                    if state == 'RUNNING' and host == params['host']
-                    and not epattern.search(vm_name)]
+            if include:
+                params['vm_names'] = [vm_name for vm in group.get_vms().values()
+                        for vm_name in [vm.get_name()] if vm_name
+                        for host, state in vm.get_host_state().items()
+                        if state == 'RUNNING' and host == params['host']
+                        and not epattern.search(vm_name) and ipattern.search(vm_name)]
+            else:
+                params['vm_names'] = [vm_name for vm in group.get_vms().values()
+                        for vm_name in [vm.get_name()] if vm_name
+                        for host, state in vm.get_host_state().items()
+                        if state == 'RUNNING' and host == params['host']
+                        and not epattern.search(vm_name)]
 
             if 'vm_names' in params:
                 if params['vm_names'] == []:
@@ -578,6 +589,8 @@ def main():
         elif dargs['migrate']:
             params['quiet'] = dargs['--quiet']
             params['dest_host'] = dargs['--dest-host']
+            params['exclude'] = dargs['--exclude']
+            params['include'] = dargs['--include']
             do_action(virt_conf, params, 'migrate')
         elif dargs['getmacs']:
             params['template'] = dargs['--template']
