@@ -41,7 +41,7 @@ Usage:
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
-    clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt migrate <vm_names> [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
@@ -95,7 +95,7 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
-from clara.utils import Colorizer
+from clara.utils import Colorizer, yes_or_no
 
 logger = logging.getLogger(__name__)
 
@@ -412,8 +412,17 @@ def do_action(conf, params, action):
         elif action == 'undefine':
             machine.undefine(host)
         elif action == 'migrate':
+            if params['dest_host']:
+                dest_host = params['dest_host']
+            else:
+                dest_host = None
+                message = "Migration needs a destination host, but you haven't provided it!\n"
+                logger.warn("%s" % message)
+                message += "We can choose one automatically for you! Let continue ?\n"
+                if yes_or_no(message):
+                    dest_host = group.elect_dest_host(machine)
             if dest_host is None:
-                logger.error('Migration needs a destination host.')
+                logger.error('Migration needs a destination host. You must provide one!')
                 continue
             machine.migrate(host=host, dest_host=dest_host)
         else:
