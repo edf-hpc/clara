@@ -197,3 +197,14 @@ class NodeGroup:
 
     def get_clients(self):
         return self.clients
+
+    def elect_dest_host(self, vm):
+        try:
+            elect = max({host: len(client.get_vm_list())
+                    for host, client in self.clients.items()
+                    for _host, state in vm.get_host_state().items()
+                    if not host == _host and state == 'RUNNING'
+                    })
+        except:
+            elect = None
+        return elect
