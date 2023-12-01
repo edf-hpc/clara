@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20231201] - 2023-12-01
+
+### Added
+- plugin virt: migrate vm from any to any host
+- plugin virt: add more filter for migrate action
+- plugin virt: automatic VM selection and dry run
+- virt: add support to live migration dry run mode
+- plugin virt: support automatic dest host election
+- virt: add automatic dest host election function
+- utils: introduce yes or not function
+
 ## [0.20231130] - 2023-11-30
 
 ### Added

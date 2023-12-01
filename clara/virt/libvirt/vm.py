@@ -124,10 +124,10 @@ class VM():
                         self.state, self.name)
             return False
 
-    def migrate(self, dest_host, host=None):
+    def migrate(self, dest_host, host=None, dry_run=False):
         """Migrate the virtual machine to dest_host
         """
-        self.group.vm_migrate(self.name, dest_host, host)
+        self.group.vm_migrate(self.name, dest_host, host, dry_run)
 
     def create_volumes(self, template_name, template_dir):
         vol_roles = self.conf.get_template_vol_roles(template_name)

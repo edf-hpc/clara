@@ -103,6 +103,31 @@ class Colorizer(object):
         else:
             return string
 
+def yes_or_no(question, default="no"):
+    """ Ask a yes/no question via input() and return their answer.
+    """
+
+    valid = {"yes": True, "y": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("Invalid default answer: '{0}'".format(default))
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
 
 def get_response(url, endpoint, headers, data=None, method=None, verify=False):
     try:
