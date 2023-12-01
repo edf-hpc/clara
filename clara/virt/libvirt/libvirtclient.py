@@ -122,6 +122,10 @@ class LibVirtClient:
         pool = self._get_storage_pool(pool_name)
         pool.createXML(xml_desc)
 
+
+    def get_nodeinfo(self):
+        return self.conn.getInfo()
+
     def get_vm_list(self):
         self._connect()
         vm_list = []
@@ -131,8 +135,24 @@ class LibVirtClient:
 
     def get_vm_state(self, vm_name):
         domain = self._get_domain(vm_name)
-        state, reason = domain.state()
-        return LibVirtClient.state_name[state]
+        if domain:
+            state, reason = domain.state()
+            return LibVirtClient.state_name[state]
+        else:
+            return None
+
+    def get_vm_info(self, vm_name):
+        domain = self._get_domain(vm_name)
+        if domain:
+            try:
+                stats = domain.memoryStats()
+            except libvirt.libvirtError as err:
+                logger.warning(err)
+                return None
+
+            return domain.info()
+        else:
+            return None
 
     def vm_stop(self, vm_name, hard=False):
         domain = self._get_domain(vm_name)

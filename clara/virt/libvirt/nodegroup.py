@@ -61,6 +61,16 @@ class NodeGroup:
                 self.clients[host] = client
         self.pools = {}
 
+
+    def get_nodeinfo(self):
+        memory = {}
+        cpus = {}
+        for client in self.clients.values():
+            host = client.hostname
+            _, memory[host], cpus[host], _, _, _, _, _ = client.get_nodeinfo()
+
+        return memory, cpus
+
     def refresh(self):
         pool = self.get_pool()
         # Get defined VMs
@@ -143,6 +153,14 @@ class NodeGroup:
             return self.clients[host].get_vm_state(vm_name)
         else:
             return 'MISSING'
+
+    def get_vm_info(self, vm_name, host=None):
+        if host is None:
+            host = self.get_vm_host(vm_name)
+        if host:
+            return self.clients[host].get_vm_info(vm_name)
+        else:
+            return None
 
     def get_vm_host(self, vm_name):
         hosts = self.get_vm_host_list(vm_name)

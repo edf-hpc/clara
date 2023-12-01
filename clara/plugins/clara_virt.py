@@ -36,7 +36,7 @@
 Manages VMs used in a cluster.
 
 Usage:
-    clara virt list [--details] [--host=<host>] [--virt-config=<path>]
+    clara virt list [--details] [--legacy] [--color] [--host=<host>] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -49,6 +49,8 @@ Options:
     <vm_names>                  List of VM names (ClusterShell nodeset)
     <host>                      Physical host where the action should be applied
     --details                   Display details (hosts and volumes)
+    --legacy                    Display without pretty table. Default is to print table style!
+    --color                     Colorize or not output
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -62,7 +64,16 @@ import docopt
 import sys
 import os.path
 import ClusterShell
+import re
 from clara import utils
+
+try:
+    import operator
+    from prettytable import PrettyTable as prettytable
+except:
+    print("[WARN] PLS raise 'pip install prettytable' or install 'python3-prettytable' package!")
+    pass
+
 
 # Version 10.2.9 is Debian Jessie
 # earlier versions might work but are not tested.
@@ -84,48 +95,290 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
+from clara.utils import Colorizer
+
 logger = logging.getLogger(__name__)
 
+def do_print(table, data, legacy=None):
+    if not len(data): return
+    if legacy:
+        print(table.format(*data))
+    else:
+        try:
+            # try to use prettytable
+            table.add_row(data)
+        except:
+            # drop down prettytable if any issue, falling back to default print
+            print(table.format(*data))
 
-def do_list(conf, show_hosts=False, show_volumes=False, host_name=None):
-    vm_line = "VM:{0:16} State:{1:12} Host:{2:16}"
-    host_line = "    Host:{0:16} HostState:{1:16}"
-    vol_line = "    Volume:{0:32} Pool:{1:16} Capacity:{2:12}"
+
+def do_list(conf, details=False, legacy=False, host_name=None, color=False):
+    # Define print format
+    if details:
+        vm_line = "VM:{:16} State:{:12} Host:{:16} Total:{:4} Cpus:{:3}"
+    else:
+        vm_line = "VM:{:16} State:{:12} Host:{:16}"
+    host_line = "    Host:{:16} HostState:{:16}"
+    vol_line = "    Volume:{:32} Pool:{:16} Capacity:{:12}"
+
     group = NodeGroup(conf)
     vms = group.get_vms()
+
+    if details:
+        # Retrieve KVM server host memory et CPUs information
+        memory, cpus = group.get_nodeinfo()
+    else:
+        memory = cpus = {}
+
+    if legacy:
+        table = vm_line
+    else:
+        try:
+            table = prettytable()
+            data = ['Fake', 'Host', 'VM', 'State']
+            if details:
+                data += ['memory', 'cpus']
+            if details:
+                data += ['Volume', 'Pool', 'Capacity']
+            if not legacy:
+                table.field_names = data
+        except:
+            table = vm_line
+
+    # simple antiaffinity rule base on VM node role, following bellow scheme:
+    # vm_name = <prefix (any 2 caracters)><role><arbitrar integer digits>
+    # antiaffinity stand for a VM placement relative of carateristics or labels like role
+    pattern = re.compile(r"[a-z]{2}([a-z0-9]*[a-z]+)\d+")
+    antiaffinity = {}
+    vmname = {}
+    vmstate = {}
+    hoststates = {}
+    vmrole = {}
+    vmhost = {}
+    vm_free = {}
+    vm_usage = {}
+    done = {}
+    max_mem = {}
+    vcpus = {}
+    total_mem = {}
+    total_cpu = {}
+
+    # Go through all VMs a first time to retrieve needfull informations like antiaffinity
     for vm in vms.values():
         host_states = vm.get_host_state()
+        vm_name = vm.get_name()
+        vm_state = vm.get_state()
         if len(host_states) == 1:
             host = list(host_states.keys())[0]
-        else:
+        elif legacy:
             host = ''
-        vm_name = vm.get_name()
+        else:
+            host = '__empty__'
+
+        vmhost[vm] = host
+
+        hoststates[vm] = host_states
+        vmname[vm] = vm_name
+        vmstate[vm] = vm_state
+
+        if vm_state == 'RUNNING':
+            #If VM is UP and RUNNING, we retrieve his memory & CPU usage
+            _, max_mem[vm], _, vcpus[vm], _ = vm.get_info()
+            max_mem[vm] = int(max_mem[vm] / 1024 / 1024)
+            total_mem[host] = total_mem[host] + max_mem[vm] if host in total_mem else max_mem[vm]
+            total_cpu[host] = total_cpu[host] + vcpus[vm] if host in total_cpu else vcpus[vm]
+
+        # if host is RUNNING, try to figure out if it's up on same KVM
+        # server host than another VM with same role! Same role stand
+        # of VM with the same <prefix> whitch is arbitrary the first 2
+        # digits
+        if len(host) > 1 and not host == '__empty__':
+            if host not in antiaffinity:
+                antiaffinity[host] = {}
+            match = pattern.search(vm_name);
+            if match and vm_state == 'RUNNING':
+                role = match.group(1)
+                if role != 'service':
+                   vmrole[vm] = role
+                   if role in antiaffinity[host]:
+                       antiaffinity[host][role] += 1
+                   else:
+                       antiaffinity[host][role] = 1
+
+    # Go again one more time through all VMs, but using previously retrieved data!
+    # So we avoid doing job two times!
+    for vm in vms.values():
+        # Retrieve previously collected VM data
+        host_states = hoststates[vm]
+        host = vmhost[vm]
+        vm_name = vmname[vm]
+        vm_state = vmstate[vm]
+
+        _max_mem = _vcpus = ''
+
+        # Add some colorization, if --color is used!
+        if vm_state == 'MISSING':
+            vm_state = Colorizer.red(vm_state, color=color)
+        elif vm_state == 'SHUTOFF':
+            vm_state = Colorizer.blue(vm_state, color=color)
+
+        if vm in vmrole and host in antiaffinity and role in antiaffinity[host]:
+            role = vmrole[vm]
+            if antiaffinity[host][role] > 1:
+                 vm_name = Colorizer.red(vm_name, color=color)
+
+        vm_info = []
+        if details:
+            if vm_state == 'RUNNING':
+                #If VM is UP and RUNNING, we retrieve his memory & CPU usage
+                _max_mem = max_mem[vm]
+                _vcpus = vcpus[vm]
+                vm_info = [_max_mem, _vcpus]
+            else:
+                #Can't figure out a way to retieve simply not RUNNING VM information
+                vm_info = ['', '']
+
+        # Use somle tricks here to print KVM server host just one time
+        # For slim printing!
+        if host in done:
+            _host = '__empty__'
+        else:
+            _memory = _cpu_usage = _cpus = ''
+            _host = host
+            if host in total_mem and host in memory and host in cpus and host in total_cpu:
+                # total KVM server host memory
+                _host_mem = int(memory[host] / 1024)
+                _memory = "%s/%s" % (total_mem[host], _host_mem)
+                # number of CPUs of KVM server host
+                _cpus = cpus[host]
+                # KVM server host CPUs usage
+                _cpu_usage = "%s/%s" % (total_cpu[host], _cpus)
+                if total_cpu[host] > _cpus:
+                    _host = Colorizer.red(host, color=color)
+                    _cpu_usage = Colorizer.red(_cpu_usage, color=color)
+
+                if total_mem[host] > _host_mem:
+                    _host = Colorizer.red(host, color=color)
+                    _memory = Colorizer.red(_memory, color=color)
+
+            if not legacy:
+                done[host] = 0
+                data = [host, _host, '', '']
+                if details:
+                    data += [ _memory, _cpu_usage, '', '', '']
+                if host != '':
+                    do_print(table, data, legacy)
+
+        data = []
+        if legacy:
+            table = vm_line
+
         if host_name:
             if host_name == host:
-                print(vm_line.format(vm_name, vm.get_state(), host))
+                if legacy:
+                    data = [vm_name, vm_state, host]
+                    if details:
+                        data += vm_info
+                else:
+                    data = [host, '', vm_name, vm_state ] + vm_info
         else:
-            print(vm_line.format(vm_name, vm.get_state(), host))
-        if show_hosts:            
+            if legacy:
+                data = [vm_name, vm_state, host]
+                if details:
+                    data += vm_info
+            else:
+                data = [host, '', vm_name, vm_state] + vm_info
+
+        if details:
             if host_name:
                 for host, state in host_states.items():
                     if host_name == host:
-                        print("Host:")
-                        print(host_line.format(host, state))
-                        print("  Volumes:")
+                        if legacy:
+                            table += "\n  Hosts:\n%s\n  Volumes:" % host_line
+                            data += [host, state]
             else:
-                print("  Hosts:")
+                if legacy:
+                    table += "\n  Hosts:\n"
                 for host, state in host_states.items():
-                    print(host_line.format(host, state))
-                    print("  Volumes:")
-        if show_volumes:
+                    if legacy:
+                        table += "%s\n  Volumes:" % host_line
+                        data += [host, state]
+
+            count = 1
+            if legacy:
+                table += vol_line
             if host_name:
                 for vol in vm.get_volumes():
-                    if vol.get_name() == vm_name+"_system" and host_name==host:
-                        print(vol_line.format(
-                            vol.get_name(),
-                            vol.get_pool().get_name(),
-                            vol.get_capacity()
-                        ))
+                    vol_name = vol.get_name()
+                    if vol_name == vmname[vm] + "_system" and host_name == host:
+                        data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
+                        count = 0
+            else:
+                for vol in vm.get_volumes():
+                    vol_name = vol.get_name()
+                    if vol_name == vmname[vm] + "_system":
+                        data += [vol_name, vol.get_pool().get_name(), vol.get_capacity()]
+                        count = 0
+            if count and len(data):
+                data += ['', '', '']
+
+        if len(data):
+            do_print(table, data, legacy)
+
+    try:
+        if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
+            table.align["VM"] = "l"
+            table.align["Host"] = "r"
+
+            table_txt = ''
+            match_line = 0
+            empty_cell = False
+            pattern = re.compile(r"service|__empty__")
+            # simulate here some tricks not yet supported by prettytable used version!
+            for number, line in enumerate(table.get_string(sort_key=operator.itemgetter(0, 1), sortby = "Fake", fields = table.field_names[1:]).split('\n')):
+                if number == 0:
+                    horizontal = line
+                elif number == 1:
+                    header = line.replace('Host', '    ')
+                # retrieve second cell content
+                cell = ''.join([l for n, l in enumerate(line.split('|')) if n == 1])
+                # New service node info start here!
+                # before writing service node, insert horizontal line!
+                if pattern.search(cell) and empty_cell:
+                    empty_cell = False
+                    if host_name:
+                        if re.search(host_name, cell):
+                            line = line.replace('__empty__', '         ')
+                            table_txt = '%s%s\n' % (table_txt, horizontal)
+                    else:
+                        table_txt = '%s%s\n' % (table_txt, horizontal)
+                # writing here service node line
+                if pattern.search(cell):
+                    if not re.search('__empty__', line):
+                        if host_name:
+                            if re.search(host_name, cell):
+                                table_txt = '%s%s\n' % (table_txt, line)
+                        else:
+                            table_txt = '%s%s\n' % (table_txt, line)
+                else:
+                    table_txt = '%s%s\n' % (table_txt, line)
+                if pattern.search(cell):
+                    # Now, we are after service node line,
+                    # so we insert separate horizontal line!
+                    empty_cell = False
+                    match_line = number
+                    if not re.search('__empty__', line):
+                        if host_name:
+                            if re.search(host_name, cell):
+                                table_txt = '%s%s\n' % (table_txt, horizontal)
+                        else:
+                            table_txt = '%s%s\n' % (table_txt, horizontal)
+                elif re.search(r"^\s+$", cell):
+                    # we found here second empty cell! Meaning new service start here!
+                    empty_cell = True
+            print(table_txt)
+    except:
+        pass
 
 
 def do_action(conf, params, action):
@@ -227,15 +480,16 @@ def main():
     }
 
     if dargs['list']:
-        show_hosts = dargs['--details']
-        show_volumes = dargs['--details']
-        
+        details = dargs['--details']
+        legacy = dargs['--legacy']
+        color = dargs['--color']
+
         if '--host' in dargs.keys():
             host_name = dargs['--host']
         else:
             host_name = None
 
-        do_list(virt_conf, show_hosts, show_volumes, host_name)
+        do_list(virt_conf, details, legacy, host_name, color)
 
     else:
         params['vm_names'] = ClusterShell.NodeSet.NodeSet(dargs['<vm_names>'])
