@@ -70,6 +70,7 @@ import sys
 import os.path
 import ClusterShell
 import re
+import json
 from clara import utils
 
 try:
