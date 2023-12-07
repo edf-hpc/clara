@@ -101,22 +101,9 @@ from clara.virt.conf.virtconf import VirtConf
 from clara.virt.libvirt.nodegroup import NodeGroup
 from clara.virt.exceptions import VirtConfigurationException
 
-from clara.utils import Colorizer, yes_or_no
+from clara.utils import Colorizer, yes_or_no, do_print
 
 logger = logging.getLogger(__name__)
-
-def do_print(table, data, legacy=None):
-    if not len(data): return
-    if legacy:
-        print(table.format(*data))
-    else:
-        try:
-            # try to use prettytable
-            table.add_row(data)
-        except:
-            # drop down prettytable if any issue, falling back to default print
-            print(table.format(*data))
-
 
 def do_list(conf, details=False, legacy=False, host_name=None, color=False):
     # Define print format
