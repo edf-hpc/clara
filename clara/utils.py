@@ -129,6 +129,19 @@ def yes_or_no(question, default="no"):
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
+def do_print(table, data, legacy=None):
+    if not len(data): return
+    if legacy:
+        print(table.format(*data))
+    else:
+        try:
+            # try to use prettytable
+            table.add_row(data)
+        except:
+            # drop down prettytable if any issue, falling back to default print
+            print(table.format(*data))
+
+
 def get_response(url, endpoint, headers, data=None, method=None, verify=False):
     try:
         if data == None and method == None:
