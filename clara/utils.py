@@ -179,7 +179,7 @@ def clush(hosts, cmds):
                                       output.message().decode('utf8')))
 
 
-def run(cmd, exit_on_error=True):
+def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=None):
     """Run a command and check its return code.
 
        Arguments:
@@ -192,7 +192,7 @@ def run(cmd, exit_on_error=True):
     logging.debug("utils/run: {0}".format(" ".join(cmd)))
 
     try:
-        retcode = subprocess.call(cmd)
+        retcode = subprocess.call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
     except OSError as e:
         if (e.errno == errno.ENOENT):
             clara_exit("Binary not found, check your path and/or retry as root. \
