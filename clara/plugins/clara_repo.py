@@ -104,6 +104,27 @@ gpgcheck=1
 
     fcreaterepo.close()
 
+def do_add(package, dest_dir="Packages"):
+    # default to "/srv/repos" distribution base repository
+    repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], "/srv/repos")
+    path_repo = os.path.join(repo_dir, _opt['dist'])
+    if not os.path.isdir(path_repo):
+        message = "There is no configuration for repository %s!\n" % _opt['dist']
+        message += "PLS, run first 'clara repo init <dist>'"
+        clara_exit(message)
+
+    path = os.path.join(path_repo, dest_dir)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    if os.path.isfile(package):
+        logging.info("Adding package %s to repository %s ..." % (package,_opt['dist']))
+        shutil.copy(package, path)
+
+        do_update(path_repo)
+    else:
+        logging.warn("Path %s to package don't exist!" % package)
+
 # Returns a boolean to tell if password derivation can be used with OpenSSL.
 # It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
 # openssl provided in these old distributions.
@@ -423,15 +444,22 @@ def main():
         else:
             do_push()
     elif dargs['add']:
-        for elem in dargs['<file>']:
-            if elem.endswith(".deb"):
-                do_reprepro('includedeb', elem, dargs['--reprepro-flags'])
-            elif elem.endswith(".changes"):
-                do_reprepro('include', elem, dargs['--reprepro-flags'])
-            elif elem.endswith(".dsc"):
-                do_reprepro('includedsc', elem, dargs['--reprepro-flags'])
-            else:
-                clara_exit("File is not a *.deb *.dsc or *.changes")
+        if distro == "debian":
+            for elem in dargs['<file>']:
+                if elem.endswith(".deb"):
+                    do_reprepro('includedeb', elem, dargs['--reprepro-flags'])
+                elif elem.endswith(".changes"):
+                    do_reprepro('include', elem, dargs['--reprepro-flags'])
+                elif elem.endswith(".dsc"):
+                    do_reprepro('includedsc', elem, dargs['--reprepro-flags'])
+                else:
+                    clara_exit("File is not a *.deb *.dsc or *.changes")
+        elif distro == "rhel":
+            for elem in dargs['<file>']:
+                if elem.endswith(".rpm"):
+                    do_add(elem)
+                elif elem.endswith(".src.rpm"):
+                    do_add(elem, dest_dir="SPackages")
         if dargs['<file>'] and not dargs['--no-push']:
             do_push(_opt['dist'])
     elif dargs['del']:
