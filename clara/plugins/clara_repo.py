@@ -448,12 +448,13 @@ def do_reprepro(action, package=None, flags=None, extra=None, table=None):
     os.umask(oldMask)
 
 
-def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild"):
+def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild", distro=None):
 
     if re.search(r"bin-|-binaries", job):
         jobs = [job]
     else:
         jobs  = [job + "-binaries", "bin-" + job]
+        jobs += [job + "-binariesrpm", job + "-binariesrpm2"]
 
     jenkins_dir = get_from_config("repo", "jenkins_dir")
     isok = False
@@ -471,13 +472,26 @@ def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild"):
             if not os.path.isdir(path):
                 continue
 
-            message = "Found job named {} under path:\n{} ..!\n".format(job, path)
-            logging.info(message)
+            if not distro or distro == "debian":
+                for changesfile in glob.glob(path + "/*_%s.changes" % arch):
+                    message = "Found job named {} under path:\n{} ..!\n".format(job, path)
+                    logging.info(message)
 
-            for changesfile in glob.glob(path + "/*_%s.changes" % arch):
-                do_reprepro('include', package=changesfile, flags=flags)
-                isok = True
-                break
+                    do_reprepro('include', package=changesfile, flags=flags)
+                    isok = True
+                    break
+
+            if not distro or distro == "rhel":
+                # rpm specific treatment
+                for f in os.listdir(path):
+                    elem = os.path.join(path+f)
+                    if f.endswith(".src.rpm"):
+                        do_add(elem, dest_dir="SPackages")
+                        isok = True
+                    elif f.endswith(".rpm"):
+                        do_add(elem)
+                        isok = True
+
 
             # if any, continue breaking, are we are in nested break!
             if isok:
@@ -487,7 +501,7 @@ def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild"):
         if isok:
             break
 
-        message  = "No job named {} found! ".format(job)
+        message  = "No job named {} {} found! ".format(distro, job)
         message += "Either is doesn't exist or needs to be built..!"
         logging.debug(message)
 
@@ -631,7 +645,7 @@ def main():
         arch = dargs['--source']
         if arch is None:
             arch = "amd64"
-        copy_jenkins(dargs['<job>'], arch, flags=dargs['--reprepro-flags'], build=build)
+        copy_jenkins(dargs['<job>'], arch, flags=dargs['--reprepro-flags'], build=build, distro=distro)
 
 
 if __name__ == '__main__':
