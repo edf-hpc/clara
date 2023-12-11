@@ -46,7 +46,7 @@ Usage:
     clara repo search <keyword>
     clara repo copy <dist> <package> <from-dist> [--no-push]
     clara repo move <dist> <package> <from-dist> [--no-push]
-    clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...]
+    clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...] [--build=<build>]
     clara repo -h | --help | help
 
 Options:
@@ -296,7 +296,7 @@ def do_reprepro(action, package=None, flags=None, extra=None):
     os.umask(oldMask)
 
 
-def copy_jenkins(job, arch, flags=None):
+def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild"):
 
     if re.search(r"bin-|-binaries", job):
         jobs = [job]
@@ -307,7 +307,7 @@ def copy_jenkins(job, arch, flags=None):
     isok = False
 
     for job in jobs:
-        archive_path = "builds/lastSuccessfulBuild/archive/"
+        archive_path = "builds/%s/archive/" % build
         conf = "configurations/"
         axis_arch = conf + "axis-architecture/%s/" % arch
         paths = [ os.path.join(jenkins_dir, job, archive_path),
@@ -408,10 +408,11 @@ def main():
             do_push(dargs['<from-dist>'])
             do_push(_opt['dist'])
     elif dargs['jenkins']:
+        build = dargs['--build'] if dargs['--build'] else "lastSuccessfulBuild"
         arch = dargs['--source']
         if arch is None:
             arch = "amd64"
-        copy_jenkins(dargs['<job>'], arch, flags=dargs['--reprepro-flags'])
+        copy_jenkins(dargs['<job>'], arch, flags=dargs['--reprepro-flags'], build=build)
 
 
 if __name__ == '__main__':
