@@ -62,6 +62,8 @@ import os
 import sys
 import tempfile
 import configparser
+import re
+import glob
 
 import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf, os_distribution, os_major_version
@@ -296,25 +298,46 @@ def do_reprepro(action, package=None, flags=None, extra=None):
 
 def copy_jenkins(job, arch, flags=None):
 
-    if not job.endswith("-binaries"):
-        job = job + "-binaries"
+    if re.search(r"bin-|-binaries", job):
+        jobs = [job]
+    else:
+        jobs  = [job + "-binaries", "bin-" + job]
 
     jenkins_dir = get_from_config("repo", "jenkins_dir")
-    path = os.path.join(jenkins_dir, job, "builds/lastSuccessfulBuild/archive/")
+    isok = False
 
-    if not os.path.isdir(path):
-        clara_exit("The job {} doesn't exist or needs to be built.".format(job))
+    for job in jobs:
+        archive_path = "builds/lastSuccessfulBuild/archive/"
+        conf = "configurations/"
+        axis_arch = conf + "axis-architecture/%s/" % arch
+        paths = [ os.path.join(jenkins_dir, job, archive_path),
+                  os.path.join(jenkins_dir, job, conf + archive_path),
+                  os.path.join(jenkins_dir, job, axis_arch + archive_path)]
 
-    changesfile = None
+        for path in paths:
 
-    for f in os.listdir(path):
-        if f.endswith("_{0}.changes".format(arch)):
-            changesfile = os.path.join(path+f)
+            if not os.path.isdir(path):
+                continue
 
-    if changesfile is None:
-        clara_exit("Not changes file was found in {0}".format(path))
+            message = "Found job named {} under path:\n{} ..!\n".format(job, path)
+            logging.info(message)
 
-    do_reprepro('include', package=changesfile, flags=flags)
+            for changesfile in glob.glob(path + "/*_%s.changes" % arch):
+                do_reprepro('include', package=changesfile, flags=flags)
+                isok = True
+                break
+
+            # if any, continue breaking, are we are in nested break!
+            if isok:
+                break
+
+        # if any, continue breaking, are we are in nested break!
+        if isok:
+            break
+
+        message  = "No job named {} found! ".format(job)
+        message += "Either is doesn't exist or needs to be built..!"
+        logging.debug(message)
 
 
 
@@ -388,7 +411,7 @@ def main():
         arch = dargs['--source']
         if arch is None:
             arch = "amd64"
-        copy_jenkins(dargs['<job>'], arch, dargs['--reprepro-flags'])
+        copy_jenkins(dargs['<job>'], arch, flags=dargs['--reprepro-flags'])
 
 
 if __name__ == '__main__':
