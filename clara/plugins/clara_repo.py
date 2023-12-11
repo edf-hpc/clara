@@ -64,11 +64,45 @@ import tempfile
 import configparser
 import re
 import glob
+import shutil
 
 import docopt
 from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf, os_distribution, os_major_version
 
 _opt = {'dist': None}
+
+def do_update(path_repo):
+    fnull = open(os.devnull, 'w')
+    cmd = ["/usr/bin/createrepo", "--update", path_repo]
+    run(cmd, stdout=fnull, stderr=fnull)
+    cmd = ["/usr/bin/yum-config-manager", "--enable", _opt['dist']]
+    run(cmd, stdout=fnull, stderr=fnull)
+    fnull.close()
+
+def do_create(dest_dir="Packages"):
+    # default to "/srv/repos" distribution base repository
+    repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], '/srv/repos')
+    path_repo = os.path.join(repo_dir, _opt['dist'])
+
+    if os.path.isdir(path_repo):
+        clara_exit("The repository '{}' already exists!".format(path_repo))
+
+    logging.info("Creating repository {} in directory {} ...".format(_opt['dist'], repo_dir))
+    os.makedirs(os.path.join(path_repo, dest_dir))
+
+    do_update(path_repo)
+
+    createrepo_config = os.path.join("/etc/yum/repos.d/", _opt['dist'] + ".repo")
+    fcreaterepo = open(createrepo_config, 'w')
+    fcreaterepo.write("""[{0}]
+name={0}
+baseurl={1}
+enabled=1
+autorefresh=1
+gpgcheck=1
+""".format(_opt['dist'], "file://" + path_repo))
+
+    fcreaterepo.close()
 
 # Returns a boolean to tell if password derivation can be used with OpenSSL.
 # It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
@@ -141,7 +175,6 @@ def do_key():
 
 
 def do_init():
-    import shutil
     repo_dir = get_from_config("repo", "repo_dir", _opt['dist'])
     reprepro_config = repo_dir + '/conf/distributions'
     mirror_local = get_from_config("repo", "mirror_local", _opt['dist'])
@@ -347,15 +380,37 @@ def main():
 
 
     _opt['dist'] = get_from_config("common", "default_distribution")
+
     if dargs["<dist>"] is not None:
         _opt['dist'] = dargs["<dist>"]
+
     if _opt['dist'] not in get_from_config("common", "allowed_distributions"):
         clara_exit("{0} is not a known distribution".format(_opt['dist']))
+
+    if re.match(r"scibian|calibre", _opt['dist']):
+        distro = 'debian'
+    elif "rpm-hpc" in _opt['dist']:
+        distro = 'rhel'
+    else:
+        pattern = re.compile(r"(?P<distro>[a-z]+)(?P<version>\d+)")
+        match = pattern.match(_opt['dist'])
+        if match:
+            distro = match.group('distro')
+            if distro in ['rhel', 'centos', 'almalinux', 'rocky']:
+                distro = 'rhel'
+        else:
+            # default to "rhel" distribution
+            distro = get_from_config_or("repo", "distro", _opt['dist'], "rhel")
+            if distro not in ['debian', 'rhel']:
+                clara_exit("provided distribution %s not yet supported!" % distro)
 
     if dargs['key']:
         do_key()
     if dargs['init']:
-        do_init()
+        if distro == "debian":
+            do_init()
+        elif distro == "rhel":
+            do_create()
     elif dargs['sync']:
         if dargs['all']:
             do_sync('all')
