@@ -125,6 +125,36 @@ def do_add(package, dest_dir="Packages"):
     else:
         logging.warn("Path %s to package don't exist!" % package)
 
+def do_del(packages, dest_dir="Packages"):
+    # default to "/srv/repos" distribution base repository
+    repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], "/srv/repos")
+    path_repo = os.path.join(repo_dir , _opt['dist'])
+    path = os.path.join(path_repo, dest_dir)
+
+    # default to "x86_64,src,i686,noarch" archs
+    archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
+    for package in packages:
+        elem = package.split(':')
+        cmd = "repoquery -a --show-duplicates --search " + elem[0] + " --archlist=" + archs + " -q --qf='%{location}'"
+        output, _ = run(cmd, shell=True)
+        for line in output.split('\n'):
+            filename = line[7:]
+            if len(elem) == 2:
+                if re.search(elem[1], filename):
+                    if os.path.isfile(filename):
+                        logging.info("removing path {} to package".format(filename, package))
+                        os.remove(filename)
+                    else:
+                        logging.warn("path {} to package {} don't exist!".format(filename, package))
+            else:
+                if os.path.isfile(filename):
+                    logging.info("removing path {} to package".format(filename, package))
+                    os.remove(filename)
+                else:
+                    logging.warn("path {} to package {} don't exist!".format(filename, package))
+
+    do_update(path_repo)
+
 def do_list(dest_dir="Packages", dist=None):
     # default to "x86_64,src,i686,noarch" archs
     archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
@@ -490,11 +520,14 @@ def main():
         if dargs['<file>'] and not dargs['--no-push']:
             do_push(_opt['dist'])
     elif dargs['del']:
-        for elem in dargs['<name>']:
-            do_reprepro('remove', elem)
-            do_reprepro('removesrc', elem)
-        if dargs['<name>'] and not dargs['--no-push']:
-            do_push(_opt['dist'])
+        if distro == "debian":
+            for elem in dargs['<name>']:
+                do_reprepro('remove', elem)
+                do_reprepro('removesrc', elem)
+            if dargs['<name>'] and not dargs['--no-push']:
+                do_push(_opt['dist'])
+        elif distro == "rhel":
+            do_del(dargs['<name>'])
     elif dargs['list']:
         if dargs['all']:
             do_reprepro('dumpreferences')
