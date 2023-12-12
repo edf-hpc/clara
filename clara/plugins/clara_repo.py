@@ -42,8 +42,8 @@ Usage:
     clara repo push [<dist>]
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...] [--no-push]
     clara repo del <dist> <name>... [--no-push]
-    clara repo list (all|<dist>)
     clara repo search <keyword>
+    clara repo list (all|rpm|deb|<dist>)
     clara repo copy <dist> <package> <from-dist> [--no-push]
     clara repo move <dist> <package> <from-dist> [--no-push]
     clara repo jenkins <dist> <job> [--source=<arch>] [--reprepro-flags="list of flags"...] [--build=<build>]
@@ -124,6 +124,33 @@ def do_add(package, dest_dir="Packages"):
         do_update(path_repo)
     else:
         logging.warn("Path %s to package don't exist!" % package)
+
+def do_list(dest_dir="Packages", dist=None):
+    # default to "x86_64,src,i686,noarch" archs
+    archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
+    if dist:
+        cmd = "repoquery --repoid=" + dist + " -a --archlist=" + archs + " --envra --show-duplicates"
+        logging.debug("repo/do_list(repo): {}".format(cmd))
+        output, _ = run(cmd, shell=True)
+        for line in output.split('\n'):
+            lst = line.split('.')
+            tab = lst[0].split('-')
+            package = '-'.join(tab[0:-1]) + ' ' + tab[-1] + '.'
+            version = '.'.join(lst[1:-1])
+            arch = lst[-1]
+            print("{}|rpm|{}: {}{}".format(_opt['dist'], arch, package[2:], version ))
+    else:
+        cmd = "repoquery -a --archlist=" + archs + " --show-duplicates -q --qf='%{repoid} %{location}'"
+        logging.debug("repo/do_list: {}".format(cmd))
+        output, _ = run(cmd, shell=True)
+        for line in output.split('\n'):
+            lst = line.split('/')
+            repo = lst[0].split(' ')[0]
+            idx = lst.index(repo)
+            filename = os.path.basename(line)
+            rpm_os = filename.split('.')
+            fullname = '/'.join(lst[idx + 1:])
+            print("{}|{}|{} {}".format(repo, rpm_os[-1], rpm_os[-2], fullname))
 
 # Returns a boolean to tell if password derivation can be used with OpenSSL.
 # It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
@@ -471,8 +498,16 @@ def main():
     elif dargs['list']:
         if dargs['all']:
             do_reprepro('dumpreferences')
+            do_list()
+        elif dargs['rpm']:
+            do_list()
+        elif dargs['deb']:
+            do_reprepro('dumpreferences')
         else:
-            do_reprepro('list')
+            if distro == "debian":
+                do_reprepro('list')
+            elif distro == "rhel":
+                do_list(dist=_opt['dist'])
     elif dargs['search']:
         do_reprepro('ls', extra=[dargs['<keyword>']])
     elif dargs['copy']:
