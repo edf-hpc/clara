@@ -42,7 +42,7 @@ Usage:
     clara repo push [<dist>]
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...] [--no-push]
     clara repo del <dist> <name>... [--no-push]
-    clara repo search <keyword>
+    clara repo search <keyword> [rpm|deb]
     clara repo list (all|rpm|deb|<dist>)
     clara repo copy <dist> <package> <from-dist> [--no-push]
     clara repo move <dist> <package> <from-dist> [--no-push]
@@ -67,7 +67,13 @@ import glob
 import shutil
 
 import docopt
-from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf, os_distribution, os_major_version
+from clara.utils import clara_exit, run, get_from_config, get_from_config_or, value_from_file, conf, os_distribution, os_major_version, do_print
+
+try:
+    from prettytable import PrettyTable as prettytable
+except:
+    print("[WARN] PLS raise 'pip install prettytable' or install 'python3-prettytable' package!")
+    pass
 
 _opt = {'dist': None}
 
@@ -181,6 +187,31 @@ def do_list(dest_dir="Packages", dist=None):
             rpm_os = filename.split('.')
             fullname = '/'.join(lst[idx + 1:])
             print("{}|{}|{} {}".format(repo, rpm_os[-1], rpm_os[-2], fullname))
+
+def do_search(extra, table):
+    # default to "x86_64,src,i686,noarch" archs
+    archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
+
+    cmd = "repoquery -a --show-duplicates --search " + extra + " --archlist=" + archs + " -q --qf='%{repoid} %{name} %{location}'"
+    output, _ = run(cmd, shell=True)
+    arch = {}
+
+    for line in output.split('\n'):
+        if line == "":
+            continue
+        filename = os.path.basename(line)
+        repoid = line.split(' ')[0]
+        package = line.split(' ')[1]
+        tab = filename[len(package) + 1:].split('.')
+        version = '.'.join(tab[0:-2])
+        key = package + ' ' + version + ' ' + repoid
+        name = tab[-2]
+        if key in arch:
+           arch[key] += ',' + name
+        else:
+           arch[key] = name
+    for key in arch:
+        do_print(table, key.split(' ') + [arch[key]])
 
 # Returns a boolean to tell if password derivation can be used with OpenSSL.
 # It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
@@ -372,7 +403,7 @@ def do_push(dist=''):
             run(push_cmd.split(' '))
 
 
-def do_reprepro(action, package=None, flags=None, extra=None):
+def do_reprepro(action, package=None, flags=None, extra=None, table=None):
     repo_dir = get_from_config("repo", "repo_dir", _opt['dist'])
     reprepro_config = repo_dir + '/conf/distributions'
     mirror_local = get_from_config("repo", "mirror_local", _opt['dist'])
@@ -403,7 +434,17 @@ def do_reprepro(action, package=None, flags=None, extra=None):
 
         if package is not None:
             cmd.append(package)
-    run(cmd)
+
+    if action == 'ls' and table:
+        output, _ = run(' '.join(cmd), shell=True)
+
+        for line in output.split('\n'):
+            if line == "":
+                continue
+            do_print(table, [i.strip() for i in line.split('|')])
+    else:
+        run(cmd)
+
     os.umask(oldMask)
 
 
@@ -542,7 +583,34 @@ def main():
             elif distro == "rhel":
                 do_list(dist=_opt['dist'])
     elif dargs['search']:
-        do_reprepro('ls', extra=[dargs['<keyword>']])
+        try:
+            table = prettytable()
+            table.field_names = ['Packages', 'Version', 'Repository', 'Archs']
+        except:
+            table = "{:20} | {:40} | {:30} | {}"
+
+        if dargs['deb']:
+            do_reprepro('ls', extra=[dargs['<keyword>']], table=table)
+        elif dargs['rpm']:
+            do_search(dargs['<keyword>'], table)
+        else:
+            do_reprepro('ls', extra=[dargs['<keyword>']], table=table)
+            do_search(dargs['<keyword>'], table)
+
+        try:
+            # instead of printing raw table, work a little around it to have
+            # something more intuitive, suppressing redundant information!
+            if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
+                table.align["Packages"] = "l"
+                table.align["Version"] = "r"
+                table.align["Repository"] = "r"
+                table.align["Archs"] = "l"
+                table.sortby = "Repository"
+
+                print(table)
+        except:
+            pass
+
     elif dargs['copy']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
