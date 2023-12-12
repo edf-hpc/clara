@@ -179,7 +179,7 @@ def clush(hosts, cmds):
                                       output.message().decode('utf8')))
 
 
-def run(cmd, exit_on_error=True):
+def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=None, shell=False):
     """Run a command and check its return code.
 
        Arguments:
@@ -189,10 +189,17 @@ def run(cmd, exit_on_error=True):
            function raises an RuntimeError exception.
      """
 
-    logging.debug("utils/run: {0}".format(" ".join(cmd)))
+    logging.debug("utils/run: %s" % cmd if shell else " ".join(cmd))
 
     try:
-        retcode = subprocess.call(cmd)
+        if shell:
+            popen = subprocess.Popen(cmd, shell=True, stdin=stdin,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, error = popen.communicate()
+            retcode = popen.returncode
+
+        else:
+            retcode = subprocess.call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
     except OSError as e:
         if (e.errno == errno.ENOENT):
             clara_exit("Binary not found, check your path and/or retry as root. \
@@ -204,6 +211,8 @@ def run(cmd, exit_on_error=True):
         else:
             raise RuntimeError("Error {0} while running cmd: {1}" \
                                .format(retcode, ' '.join(cmd)))
+    elif shell:
+        return output.rstrip().decode(), error.rstrip().decode()
 
 
 def get_from_config(section, value, dist=''):
