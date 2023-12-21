@@ -39,12 +39,14 @@ Usage:
     clara redfish getmac <hostlist>
     clara redfish [--p=<level>] ping <hostlist>
     clara redfish [--p=<level>] sellist <hostlist>
+    clara redfish [--p=<level>] selclear <hostlist>
     clara redfish [--p=<level>] status <hostlist>
     clara redfish -h | --help
 Alternative:
     clara redfish <hostlist> getmac
     clara redfish [--p=<level>] <hostlist> ping
     clara redfish [--p=<level>] <hostlist> sellist
+    clara redfish [--p=<level>] <hostlist> selclear
     clara redfish [--p=<level>] <hostlist> status
 """
 
@@ -68,6 +70,7 @@ _opts = {'parallel': 1}
 
 urls = {'powerstatus': '',
         'sellist': '/LogServices/SEL/Entries',
+        'selclear': '/LogServices/SEL/Actions/LogService.ClearLog',
        }
 
 def get_authentication():
@@ -199,6 +202,12 @@ def redfish_do(hosts, *cmd):
                     datecreated = dtcreated[0] + "+" + dtcreated[1].replace(':','')
                     datecreated = datetime.strptime(datecreated, '%Y-%m-%dT%H:%M:%S%z')
                     logging.info(f"{mbr['Id']} | {datecreated.strftime(fmt)} | {mbr['SensorType']} | {mbr['Message']} | {mbr['EntryCode']} ")
+        elif value == "selclear":
+            if 'Self' in url:
+                endpoint = endpoint.replace('SEL', 'BIOS')
+            body = {}
+            logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
+            response = get_response(url, endpoint, auth, headers, data=body)
 
 def main():
     logging.debug(sys.argv)
@@ -219,6 +228,8 @@ def main():
         getmac(dargs['<hostlist>'])
     elif dargs['sellist']:
         redfish_do(dargs['<hostlist>'], "sel", "list")
+    elif dargs['selclear']:
+        redfish_do(dargs['<hostlist>'], "sel", "clear")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
 
