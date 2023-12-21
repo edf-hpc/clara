@@ -42,6 +42,10 @@ Usage:
     clara redfish [--p=<level>] sellist <hostlist>
     clara redfish [--p=<level>] selclear <hostlist>
     clara redfish [--p=<level>] status <hostlist>
+    clara redfish [--p=<level>] pxe <hostlist>
+    clara redfish [--p=<level>] dflt <hostlist>
+    clara redfish [--p=<level>] bios <hostlist>
+    clara redfish [--p=<level>] disk <hostlist>
     clara redfish -h | --help
 Alternative:
     clara redfish <hostlist> getmac
@@ -50,6 +54,10 @@ Alternative:
     clara redfish [--p=<level>] <hostlist> sellist
     clara redfish [--p=<level>] <hostlist> selclear
     clara redfish [--p=<level>] <hostlist> status
+    clara redfish [--p=<level>] <hostlist> pxe
+    clara redfish [--p=<level>] <hostlist> dflt
+    clara redfish [--p=<level>] <hostlist> bios
+    clara redfish [--p=<level>] <hostlist> disk
 """
 
 import errno
@@ -76,6 +84,10 @@ urls = {'powerstatus': '',
         'powerreboot': '/Actions/ComputerSystem.Reset',
         'sellist': '/LogServices/SEL/Entries',
         'selclear': '/LogServices/SEL/Actions/LogService.ClearLog',
+        'bootdevpxe': '',
+        'bootdevdflt': '',
+        'bootdevbios': '',
+        'bootdevhdd': '',
        }
 
 def get_authentication():
@@ -224,6 +236,18 @@ def redfish_do(hosts, *cmd):
         elif value == "powerreboot":
             body  = {"ResetType" : "ForceRestart"}
             response = get_response(url, endpoint, auth, headers, data=body)
+        elif value == "bootdevpxe":
+            body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "Pxe"}}
+            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+        elif value == "bootdevdflt":
+            body = {"Boot": { "BootSourceOverrideEnabled": "Disabled", "BootSourceOverrideTarget": "None"}}
+            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+        elif value == "bootdevbios":
+            body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "BiosSetup"}}
+            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+        elif value == "bootdevhdd":
+            body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "Hdd"}}
+            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
 
 def main():
     logging.debug(sys.argv)
@@ -254,6 +278,14 @@ def main():
         redfish_do(dargs['<hostlist>'], "power", "off")
     elif dargs['reboot']:
         redfish_do(dargs['<hostlist>'], "power", "reboot")
+    elif dargs['pxe']:
+        redfish_do(dargs['<hostlist>'], "chassis", "bootdev", "pxe")
+    elif dargs['dflt']:
+        redfish_do(dargs['<hostlist>'], "chassis", "bootdev", "dflt")
+    elif dargs['bios']:
+        redfish_do(dargs['<hostlist>'], "chassis", "bootdev", "bios")
+    elif dargs['disk']:
+        redfish_do(dargs['<hostlist>'], "chassis", "bootdev", "disk")
 
 if __name__ == '__main__':
     main()
