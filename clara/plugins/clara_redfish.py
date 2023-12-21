@@ -38,6 +38,7 @@ Manages and get the status from the nodes of a cluster.
 Usage:
     clara redfish getmac <hostlist>
     clara redfish [--p=<level>] ping <hostlist>
+    clara redfish [--p=<level>] (on|off|reboot) <hostlist>
     clara redfish [--p=<level>] sellist <hostlist>
     clara redfish [--p=<level>] selclear <hostlist>
     clara redfish [--p=<level>] status <hostlist>
@@ -45,6 +46,7 @@ Usage:
 Alternative:
     clara redfish <hostlist> getmac
     clara redfish [--p=<level>] <hostlist> ping
+    clara redfish [--p=<level>] <hostlist> (on|off|reboot)
     clara redfish [--p=<level>] <hostlist> sellist
     clara redfish [--p=<level>] <hostlist> selclear
     clara redfish [--p=<level>] <hostlist> status
@@ -69,6 +71,9 @@ from clara.utils import clara_exit, run, get_from_config, get_from_config_or, ge
 _opts = {'parallel': 1}
 
 urls = {'powerstatus': '',
+        'poweron': '/Actions/ComputerSystem.Reset',
+        'poweroff': '/Actions/ComputerSystem.Reset',
+        'powerreboot': '/Actions/ComputerSystem.Reset',
         'sellist': '/LogServices/SEL/Entries',
         'selclear': '/LogServices/SEL/Actions/LogService.ClearLog',
        }
@@ -208,6 +213,17 @@ def redfish_do(hosts, *cmd):
             body = {}
             logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
             response = get_response(url, endpoint, auth, headers, data=body)
+        elif value == "poweron":
+            body = {"ResetType" : "On"}
+            logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
+            response = get_response(url, endpoint, auth, headers, data=body)
+        elif value == "poweroff":
+            body  = {"ResetType" : "ForceOff"}
+            logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
+            response = get_response(url, endpoint, auth, headers, data=body)
+        elif value == "powerreboot":
+            body  = {"ResetType" : "ForceRestart"}
+            response = get_response(url, endpoint, auth, headers, data=body)
 
 def main():
     logging.debug(sys.argv)
@@ -232,6 +248,12 @@ def main():
         redfish_do(dargs['<hostlist>'], "sel", "clear")
     elif dargs['ping']:
         do_ping(dargs['<hostlist>'])
+    elif dargs['on']:
+        redfish_do(dargs['<hostlist>'], "power", "on")
+    elif dargs['off']:
+        redfish_do(dargs['<hostlist>'], "power", "off")
+    elif dargs['reboot']:
+        redfish_do(dargs['<hostlist>'], "power", "reboot")
 
 if __name__ == '__main__':
     main()
