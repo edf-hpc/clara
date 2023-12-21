@@ -66,8 +66,8 @@ from clara.utils import clara_exit, run, get_from_config, get_from_config_or, ge
 # Global dictionary
 _opts = {'parallel': 1}
 
-urls = {'powerstatus': '/redfish/v1/Chassis/Self',
-        'sellist': '/redfish/v1/Systems/Self/LogServices/BIOS/Entries',
+urls = {'powerstatus': '',
+        'sellist': '/LogServices/SEL/Entries',
        }
 
 def get_authentication():
@@ -90,29 +90,62 @@ def get_authentication():
 
     return imm_user, imm_password
 
+def full_hostname(host):
+    prefix = get_from_config("ipmi", "prefix")
+    suffix = get_from_config_or("ipmi", "suffix", "")
+    return prefix + host + suffix
+
+def get_topurl(hosts, auth):
+    nodeset = ClusterShell.NodeSet.NodeSet(hosts)
+    endpoint = ""
+    host = nodeset[0]
+
+    pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+    if not pat.match(host):
+        host = full_hostname(host)
+
+    url = "https://{0}/redfish/v1/Systems".format(host)
+    response = get_response(url, endpoint, auth)
+    members = [response['Members'] if 'Members' in response else '']
+    members = members[0][0]
+
+    return(members['@odata.id'])
+
+
 def getmac(hosts):
 
     imm_user, imm_password = get_authentication()
-    headers = HTTPBasicAuth(imm_user, imm_password)
+    auth  = HTTPBasicAuth(imm_user, imm_password)
 
-    endpoint = "/redfish/v1/Managers/Self/EthernetInterfaces"
+    topurl = get_topurl(hosts, auth)
+    endpoint = "/EthernetInterfaces"
 
     nodeset = ClusterShell.NodeSet.NodeSet(hosts)
     for host in nodeset:
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        if not pat.match(host):
+            host = full_hostname(host)
 
-        url = "https://{0}".format(host)
+        url = "https://{0}{1}".format(host, topurl)
         logging.debug(f"{url} {endpoint}")
         logging.info("{0}: ".format(host))
+        if "Self" in topurl:
+            url = url.replace('Systems','Managers')
+            response = get_response(url, endpoint + "/eth0", auth)
+            mac_address1 = [response['MACAddress'] if 'MACAddress' in response else '']
+            response = get_response(url, endpoint + "/eth1", auth)
+            mac_address2 = [response['MACAddress'] if 'MACAddress' in response else '']
 
-        response = get_response(url, endpoint + "/eth0", headers)
-        mac_address1 = [response['MACAddress'] if 'MACAddress' in response else '']
-        response = get_response(url, endpoint + "/eth1", headers)
-        mac_address2 = [response['MACAddress'] if 'MACAddress' in response else '']
-
-        logging.info("  eth0's MAC address is {0}\n"
-                     "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
+            logging.info("  eth0's MAC address is {0}\n"
+                         "  eth1's MAC address is {1}".format(mac_address1, mac_address2))
+        else:
+            response = get_response(url, endpoint, auth)
+            nbr = [response['Members@odata.count'] if 'Members@odata.count' in response else 0]
+            for n in range(nbr[0]):
+                response = get_response(url, endpoint + "/" + str(n + 1), auth)
+                mac_address = [response['MACAddress'] if 'MACAddress' in response else '']
+                logging.info( "eth" + str(n) + "'s MAC address is {0} ".format(mac_address[0].replace('-',':')))
 
 def do_ping(hosts):
     nodes = ClusterShell.NodeSet.NodeSet(hosts)
@@ -122,8 +155,10 @@ def do_ping(hosts):
 def redfish_do(hosts, *cmd):
 
     imm_user, imm_password = get_authentication()
-    headers = HTTPBasicAuth(imm_user, imm_password)
+    auth  = HTTPBasicAuth(imm_user, imm_password)
+    headers = {'content-type': 'application/json'}
 
+    topurl = get_topurl(hosts, auth)
     value = ""
     endpoint = ""
     if 'user' in cmd and 'set' in cmd:
@@ -137,21 +172,33 @@ def redfish_do(hosts, *cmd):
     for host in nodeset:
 
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        url = "https://{0}".format(host)
-        logging.info("{0}: ".format(host))
+        if not pat.match(host):
+            host = full_hostname(host)
+
+        url = "https://{0}{1}".format(host, topurl)
 
         if value == "powerstatus":
-            response = get_response(url, endpoint, headers)
+            response = get_response(url, endpoint, auth)
+            logging.debug(f"redfish/redfish_do: {url} {endpoint} {response} {response['PowerState']}")
             redfishtool = [response['PowerState'] if 'PowerState' in response else '']
             logging.debug("redfish/redfish_do: {0}".format(" ".join(redfishtool)))
-            logging.info(f"{cmd} {redfishtool}")
+            logging.info(f"{host} OK: Chassis Power is {redfishtool[0]}")
         elif value == "sellist":
-            response = get_response(url, endpoint, headers)
+            if 'Self' in url:
+                endpoint = endpoint.replace('SEL','BIOS')
+            response = get_response(url, endpoint, auth, headers)
+            logging.info("{0}: ".format(host))
             for mbr in response['Members']:
-                tab = mbr['Message'].split(',')
                 fmt = '%Y/%m/%d | %H:%M:%S'
-                datecreated = datetime.strptime(mbr['Created'], '%Y-%m-%dT%H:%M:%Sz').astimezone()
-                logging.info(f"{mbr['Id']} | {datecreated.strftime(fmt)} | {mbr['SensorType']} | {tab[9].split(':')[1]} | {mbr['EntryCode']} ")
+                if 'Self' in url:
+                    tab = mbr['Message'].split(',')
+                    datecreated = datetime.strptime(mbr['Created'], '%Y-%m-%dT%H:%M:%Sz').astimezone()
+                    logging.info(f"{mbr['Id']} | {datecreated.strftime(fmt)} | {mbr['SensorType']} | {tab[9].split(':')[1]} | {mbr['EntryCode']} ")
+                else:
+                    dtcreated = mbr['Created'].split('+')
+                    datecreated = dtcreated[0] + "+" + dtcreated[1].replace(':','')
+                    datecreated = datetime.strptime(datecreated, '%Y-%m-%dT%H:%M:%S%z')
+                    logging.info(f"{mbr['Id']} | {datecreated.strftime(fmt)} | {mbr['SensorType']} | {mbr['Message']} | {mbr['EntryCode']} ")
 
 def main():
     logging.debug(sys.argv)
