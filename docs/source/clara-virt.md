@@ -11,7 +11,9 @@ clara-virt - manages virtual machines
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
-    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>] [--dry-run] [--quiet] [--yes-i-really-really-mean-it] [--exclude=<exclude>] [--include=<include>]
+    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
+                       [--dry-run] [--quiet] [--yes-i-really-really-mean-it]
+                       [--exclude=<exclude>] [--include=<include>]
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
@@ -36,7 +38,8 @@ Options:
 # DESCRIPTION
 
 *clara virt* provides a simplified interface to manage virtual machines on a group of
-physical hosts using libivirt. It does not support local storage, storage must be shared
+physical hosts using libivirt.\
+It does not support local storage, storage must be shared
 between the hosts (with Ceph RBD for example).
 
 This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
@@ -86,10 +89,11 @@ VM:exp2p1           State:RUNNING      Host:exservice3
 VM:centos7          State:MISSING      Host:
 ```
 
-. If *--details* is provided, bellow additional informations are given:
+If *--details* is provided, bellow additional informations are given:
+
 - where instances are running and storages volumes associated.
 - machines (VMs) allocated memory and cpu.
-- KVM server hosts total memory and cpu and addition \
+- KVM server hosts total memory and cpu and addition
   of memory and cpu on all hosted machines.
 
 For instance, say a server host, exservice1, with 8 cpu and 16 Go of memory,\
@@ -112,9 +116,9 @@ clara virt list --details --host=exservice1
 
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
 
-Define a VM on *host*, the description of the vm is read from a template in the configuration.
-The template is chosen in this order: *--template* argument, name matching in the conf, template
-with the default attribute.
+Define a VM on *host*, the description of the vm is read from a template in the configuration.\
+The template is chosen in this order:\
+*--template* argument, name matching in the conf, template with the default attribute.
 
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
 
@@ -123,27 +127,28 @@ volume.
 
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
 
-Starts a defined VM, if the *--wipe* parameter is passed. The storage volumes are erased before
+Starts a defined VM, if the *--wipe* parameter is passed. The storage volumes are erased before\
 starting the virtual machine. This triggers a PXE boot.
 
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
 
-Stops a running VM by requesting a clean shutdown. If this does not succeed, it is possible to
-use the *--hard* flag to force the shutdown.
+Stops a running VM by requesting a clean shutdown. If this does not succeed,\
+it is possible to use the *--hard* flag to force the shutdown.
 
     clara virt migrate [<vm_names>] [--dest-host=<dest_host>] \
     [--host=<host>] [--virt-config=<path>] [--dry-run] [--quiet] \
     [--yes-i-really-really-mean-it] [--exclude=<exclude>] [--include=<include>]
 
-Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
-bringing down the VM. This command is synchronous and only returns when the migration ends.
+Moves a running VM from a host (*--host*) to another (*--dest-host*). \
+The migration is done without bringing down the VM.\
+This command is synchronous and only returns when the migration ends.
 
 Live migration can been simulated using optional switch *--dry-run*.
 
-In another word, when machines involved in migration have been provided through *<vm_names>*,\
+In another word, when machines involved in migration have been provided through `<vm_names>`,\
 live migration are really done unless switch *--dry-run* have been raised!
 
-Migration source host is, by default, the host on which `clara virt migrate` command \
+Migration source host is, by default, the host on which `clara virt migrate` command\
 have been raised. But you can also raised it from any cluster KVM server host!
 
 At another part, if not provided, destination host, invoked by *--dest-host* switch,\
@@ -176,10 +181,11 @@ clara virt list
 +------------+----------+---------+
 ```
 
-Raising command: `clara virt migrate exbatch2 --dest-host exservice3` would have given same result!
+Raising command: `clara virt migrate exbatch2 --dest-host exservice3`\
+would have given same result!
 
-Machines involved in live migration are optional and when not provided, all running
-machines will be migrated off KVM server on witch command have been raised.
+Machines involved in live migration are optional and when not provided, all running\
+machines will be migrated off KVM server on witch command have been raised.\
 This can be seen as a kind of machines *evacuation*!
 
 For instance, see bellow result when raising *evacuation* of KVM server *exservice3* host:
@@ -206,10 +212,10 @@ clara virt list
 +------------+----------+---------+
 ```
 
-As you could notice, switch *--yes-i-really-really-mean-it* is need to really perform *evacuation*
+As you could notice, switch *--yes-i-really-really-mean-it* is need to really perform *evacuation*\
 Without this option, no action is perform. Default is to raise in dry run mode (*--dry-run*)
 
-Machine can be included with *--include* switch and excluded with *--exclude*.
+Machine can be included with *--include* switch and excluded with *--exclude*.\
 For instance, to migrate all machines ended with number '2' off of *exservice2*:
 
 ```
