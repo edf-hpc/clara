@@ -1,6 +1,6 @@
 % Clara User's Guide
-% Ana Guerrero Lopez
-% October 13, 2016
+% Kwame AMEDODJI
+% January 02, 2024
 
 # What's Clara?
 
@@ -89,6 +89,7 @@ example.
        enc      Interact with encrypted files using configurable methods.
        build    Builds Debian packages.
        virt     Manages virtual machines.
+       show     Show the set of configuration used in config.ini.
 
     See 'clara help <plugin>' for detailed help on a plugin
     and 'clara <plugin> --help' for a quick list of options of a plugin.
