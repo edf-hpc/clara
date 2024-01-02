@@ -11,22 +11,27 @@ clara-virt - manages virtual machines
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
-    clara virt migrate <vm_names> [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
+    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>] [--dry-run] [--quiet] [--yes-i-really-really-mean-it] [--exclude=<exclude>] [--include=<include>]
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
 Options:
 
-    <vm_names>                  List of VM names (ClusterShell nodeset)
-    <host>                      Physical host where the action should be applied
-    --details                   Display details (hosts and volumes)
-    --legacy                    Old School display
-    --color                     Colorize or not output
-    --wipe                      Wipe the content of the storage volume before starting
-    --hard                      Perform a hard shutdown
-    --dest-host=<dest_host>     Destination host of a migration
-    --template=<template_name>  Use this template instead of the in config
-    --virt-config=<path>        Path of the virt config file [default: /etc/clara/virt.ini]
+    <vm_names>                     List of VM names (ClusterShell nodeset)
+    <host>                         Physical host where the action should be applied
+    --details                      Display details (hosts and volumes)
+    --legacy                       Old School display
+    --color                        Colorize or not output
+    --wipe                         Wipe the content of the storage volume before starting
+    --hard                         Perform a hard shutdown
+    --dest-host=<dest_host>        Destination host of a migration
+    --template=<template_name>     Use this template instead of the in config
+    --virt-config=<path>           Path of the virt config file [default: /etc/clara/virt.ini]
+    --quiet                        Proceed silencely. Don't ask any question!
+    --dry-run                      Just simulate migrate action! Don't really do anything
+    --yes-i-really-really-mean-it  Force migrate action execution without any further validation
+    --exclude=<exclude>            Exclude pattern in VMs [default: service]
+    --include=<include>            Include pattern in VMs
 
 # DESCRIPTION
 
@@ -126,16 +131,24 @@ starting the virtual machine. This triggers a PXE boot.
 Stops a running VM by requesting a clean shutdown. If this does not succeed, it is possible to
 use the *--hard* flag to force the shutdown.
 
-    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
+    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] \
+    [--host=<host>] [--virt-config=<path>] [--dry-run] [--quiet] \
+    [--yes-i-really-really-mean-it] [--exclude=<exclude>] [--include=<include>]
 
 Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
 bringing down the VM. This command is synchronous and only returns when the migration ends.
 
-Migration source host is by default host on which `clara virt migrate` command have been raised.
-But you can also raised it from any cluster KVM server host!
+Live migration can been simulated using optional switch *--dry-run*.
 
-At another part, if not provided, destination host, invoked by *--dest-host* switch,
+In another word, when machines involved in migration have been provided through *<vm_names>*,\
+live migration are really done unless switch *--dry-run* have been raised!
+
+Migration source host is, by default, the host on which `clara virt migrate` command \
+have been raised. But you can also raised it from any cluster KVM server host!
+
+At another part, if not provided, destination host, invoked by *--dest-host* switch,\
 can be picked automatically, as the cluster host with lower running VM!
+
 Let's illustrate it with machine *exbatch2* currently running on server *exservice3*:
 
 ```
@@ -164,6 +177,121 @@ clara virt list
 ```
 
 Raising command: `clara virt migrate exbatch2 --dest-host exservice3` would have given same result!
+
+Machines involved in live migration are optional and when not provided, all running
+machines will be migrated off KVM server on witch command have been raised.
+This can be seen as a kind of machines *evacuation*!
+
+For instance, see bellow result when raising *evacuation* of KVM server *exservice3* host:
+
+```
+clara virt migrate --yes-i-really-really-mean-it
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exbatch1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
+|            | exp2p1   | RUNNING |
+|            | exp2p2   | SHUTOFF |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+```
+
+As you could notice, switch *--yes-i-really-really-mean-it* is need to really perform *evacuation*
+Without this option, no action is perform. Default is to raise in dry run mode (*--dry-run*)
+
+Machine can be included with *--include* switch and excluded with *--exclude*.
+For instance, to migrate all machines ended with number '2' off of *exservice2*:
+
+```
+clara virt migrate --include '2*' --yes-i-really-really-mean-it --host exservice2
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exbatch1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exp2p1   | RUNNING |
+|            | exp2p2   | SHUTOFF |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
++------------+----------+---------+
+```
+
+As you can notice, only *RUNNING* machines are involved in live migration.
+
+Let us take another example with *--exclude* switch:
+
+```
+clara virt migrate --exclude 'p2p' --yes-i-really-really-mean-it --host exservice2
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exbatch1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exp2p1   | RUNNING |
+|            | exp2p2   | SHUTOFF |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+```
+
+Finally, involved machines can been provided as *inline* json, as shown by bellow example:
+
+```
+clara virt migrate "{ exbatch1: exservice2, exproxy1: exservice1 }"
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch1 | RUNNING |
+|            | exp2p1   | RUNNING |
+|            | exp2p2   | SHUTOFF |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
++------------+----------+---------+
+```
 
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
 
