@@ -201,13 +201,22 @@ class NodeGroup:
     def get_clients(self):
         return self.clients
 
-    def elect_dest_host(self, vm):
+    def get_dest_host(self, vm):
         try:
-            elect = max({host: len(client.get_vm_list())
-                    for host, client in self.clients.items()
-                    for _host, state in vm.get_host_state().items()
-                    if not host == _host and state == 'RUNNING'
-                    })
+            dest_host = {
+                        host: len(client.get_vm_list())
+                        for host, client in self.clients.items()
+                        for _host, state in vm.get_host_state().items()
+                        if not host == _host and state == 'RUNNING'
+                        }
+            logger.debug("elected destination host: %s" % dest_host)
+            return dest_host
         except:
-            elect = None
-        return elect
+            return None
+
+    def elect_dest_host(self, vm):
+        dest_host = self.get_dest_host(vm)
+        if dest_host:
+            return min(dest_host, key = dest_host.get)
+        else:
+            return None
