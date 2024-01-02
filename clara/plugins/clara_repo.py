@@ -77,7 +77,12 @@ except:
 
 _opt = {'dist': None}
 
-def do_update(path_repo):
+def do_update(path_repo=None):
+    if not path_repo:
+        # default to "/srv/repos" distribution base repository
+        repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], "/srv/repos")
+        path_repo = os.path.join(repo_dir, _opt['dist'])
+
     fnull = open(os.devnull, 'w')
     cmd = ["/usr/bin/createrepo", "--update", path_repo]
     run(cmd, stdout=fnull, stderr=fnull)
@@ -126,8 +131,6 @@ def do_add(package, dest_dir="Packages"):
     if os.path.isfile(package):
         logging.info("Adding package %s to repository %s ..." % (package,_opt['dist']))
         shutil.copy(package, path)
-
-        do_update(path_repo)
     else:
         logging.warn("Path %s to package don't exist!" % package)
 
@@ -513,6 +516,8 @@ def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild", distro=None
                         elif f.endswith(".rpm"):
                             do_add(elem)
                             isok = True
+                    if isok:
+                        do_update()
 
                 if isok:
                     break
@@ -642,6 +647,7 @@ def main():
                     do_add(elem)
                 elif elem.endswith(".src.rpm"):
                     do_add(elem, dest_dir="SPackages")
+            do_update()
         if dargs['<file>'] and not dargs['--no-push']:
             do_push(_opt['dist'])
     elif dargs['del']:
