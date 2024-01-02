@@ -746,7 +746,13 @@ starting the virtual machine. This triggers a PXE boot.
 Stops a running VM by requesting a clean shutdown. If this does not succeed, it is possible to
 use the *--hard* flag to force the shutdown.
 
-    clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt migrate [<vm_names>] --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
 
 Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
 bringing down the VM. This command is synchronous and only returns when the migration ends.
+
+Migration source host is by default host on which `clara virt migrate` command have been raised.\
+But you can also raised it from any cluster KVM server host!
+
+At another part, if not provided, destination host, invoked by *--dest-host* switch,
+can be picked automatically, as the cluster host with lower running VM!

@@ -11,7 +11,7 @@ clara-virt - manages virtual machines
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
     clara virt stop <vm_names> [--host=<host>] [--hard] [--virt-config=<path>]
-    clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt migrate <vm_names> [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
     clara virt -h | --help | help
 
@@ -126,10 +126,44 @@ starting the virtual machine. This triggers a PXE boot.
 Stops a running VM by requesting a clean shutdown. If this does not succeed, it is possible to
 use the *--hard* flag to force the shutdown.
 
-    clara virt migrate <vm_names> --dest-host=<dest_host> [--host=<host>] [--virt-config=<path>]
+    clara virt migrate [<vm_names>] [--dest-host=<dest_host>] [--host=<host>] [--virt-config=<path>]
 
 Moves a running VM from a host (*--host*) to another (*--dest-host*). The migration is done without
 bringing down the VM. This command is synchronous and only returns when the migration ends.
+
+Migration source host is by default host on which `clara virt migrate` command have been raised.
+But you can also raised it from any cluster KVM server host!
+
+At another part, if not provided, destination host, invoked by *--dest-host* switch,
+can be picked automatically, as the cluster host with lower running VM!
+Let's illustrate it with machine *exbatch2* currently running on server *exservice3*:
+
+```
+clara virt migrate exbatch2
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exbatch1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exp2p2   | SHUTOFF |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+| exservice3 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
+|            | exp2p1   | RUNNING |
++------------+----------+---------+
+```
+
+Raising command: `clara virt migrate exbatch2 --dest-host exservice3` would have given same result!
 
     clara virt getmacs <vm_names> [--template=<template_name>] [--virt-config=<path>]
 
