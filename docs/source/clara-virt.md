@@ -6,7 +6,7 @@ clara-virt - manages virtual machines
 
 # SYNOPSIS
 
-    clara virt list [--details] [--virt-config=<path>]
+    clara virt list [--details] [--legacy] [--color] [--host=<host>] [--virt-config=<path>]
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
     clara virt undefine <vm_names> [--host=<host>] [--virt-config=<path>]
     clara virt start <vm_names> [--host=<host>] [--wipe] [--virt-config=<path>]
@@ -16,9 +16,12 @@ clara-virt - manages virtual machines
     clara virt -h | --help | help
 
 Options:
+
     <vm_names>                  List of VM names (ClusterShell nodeset)
     <host>                      Physical host where the action should be applied
     --details                   Display details (hosts and volumes)
+    --legacy                    Old School display
+    --color                     Colorize or not output
     --wipe                      Wipe the content of the storage volume before starting
     --hard                      Perform a hard shutdown
     --dest-host=<dest_host>     Destination host of a migration
@@ -35,10 +38,72 @@ This plugins requires LibVirt >= 10.2.9 (version in Debian 8).
 
 # OPTIONS
 
-    clara virt list [--details] [--virt-config=<path>]
+    clara virt list [--details] [--legacy] [--color] \
+                    [--host=<host>] [--virt-config=<path>]
 
-List the machines. If *--details* is provided: where instances are running and storages
-volumes associated.
+List the KVM cluster machines in two way.\
+The first one as *table*, as show bellow:
+
+```
+clara virt list
++------------+----------+---------+
+|       Host | VM       |  State  |
++------------+----------+---------+
+| centos7    |          | MISSING |
++------------+----------+---------+
+| exservice1 |          |         |
++------------+----------+---------+
+|            | exadmin1 | RUNNING |
+|            | exbatch1 | RUNNING |
++------------+----------+---------+
+| exservice2 |          |         |
++------------+----------+---------+
+|            | exbatch2 | RUNNING |
+|            | exp2p2   | SHUTOFF |
+|            | exproxy1 | RUNNING |
++------------+----------+---------+
+| exservice3 |          |         |
++------------+----------+---------+
+|            | exp2p1   | RUNNING |
++------------+----------+---------+
+```
+
+The second way is available through switch *--legacy*:
+
+```
+clara virt list --legacy
+VM:exadmin1         State:RUNNING      Host:exservice1
+VM:exbatch1         State:RUNNING      Host:exservice1
+VM:exbatch2         State:RUNNING      Host:exservice2
+VM:exp2p2           State:SHUTOFF      Host:exservice2
+VM:exproxy1         State:RUNNING      Host:exservice2
+VM:exp2p1           State:RUNNING      Host:exservice3
+VM:centos7          State:MISSING      Host:
+```
+
+. If *--details* is provided, bellow additional informations are given:
+- where instances are running and storages volumes associated.
+- machines (VMs) allocated memory and cpu.
+- KVM server hosts total memory and cpu and addition \
+  of memory and cpu on all hosted machines.
+
+For instance, say a server host, exservice1, with 8 cpu and 16 Go of memory,\
+with two machines:
+
+    exadmin1: 4 allocated cpus and 4 Go of memory
+    exbatch1: 6 cpus and 8 Go of memory
+
+```
+clara virt list --details --host=exservice1
++------------+----------+---------+---------+-------+-----------------+----------+----------+
+|       Host | VM       |  State  |  memory |  cpus |        Volume   |   Pool   | Capacity |
++------------+----------+---------+---------+-------+-----------------+----------+----------+
+| exservice1 |          |         |  12/8   | 10/8  |                 |          |          |
++------------+----------+---------+---------+-------+-----------------+----------+----------+
+|            | exadmin1 | RUNNING |    4    |   4   | exadmin1_system | rbd-pool | 40.0 GB  |
+|            | exbatch1 | RUNNING |    8    |   6   | exbatch1_system | rbd-pool | 100.0 GB |
++------------+----------+---------+---------+-------+-----------------+----------+----------+
+```
 
     clara virt define <vm_names> --host=<host> [--template=<template_name>] [--virt-config=<path>]
 
