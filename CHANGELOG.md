@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240102] - 2024-01-02
+
+### Added
+- docs: add support to redhat-like repositories
+- add a bunch of new lines for clarity
+
+### Fixed
+- plugin repo: fix with multiple unneed createrepo
+
 ## [0.20240101] - 2024-01-01
 
 ### Added
