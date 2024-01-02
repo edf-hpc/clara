@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240101] - 2024-01-01
+
+### Added
+- docs: add support to redhat-like repositories
+- docs: automatic VM live migrate and dry run mode
+- docs: migrate to automatic pick destination host
+- docs: enhanced virt plugin with cpu/mem details
+- docs: add forgotten show plugin
+- virt: new function to retrieve possible dest host
+- plugin repo: support jenkins jobs list
+- plugin repo: support rpm packages jenkins job
+
+### Fixed
+- virt: fix bad migrate destination host issue
+
 ## [0.20231201] - 2023-12-01
 
 ### Added
