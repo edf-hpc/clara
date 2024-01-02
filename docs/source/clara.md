@@ -26,8 +26,8 @@ as plugins that can be added or removed independently.
 
 Clara provides the following plugins:
 
-    repo     Creates, updates and synchronizes local Debian repositories.
     ipmi     Manages and get the status from the nodes of a cluster.
+    repo     Creates, updates and synchronizes local Debian and RedHat like repositories.
     slurm    Performs tasks using SLURM's controller.
     images   Creates and updates the images of installation of a cluster.
     chroot   Creates and updates a chroot. 
