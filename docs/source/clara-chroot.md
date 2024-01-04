@@ -61,4 +61,4 @@ To edit the chroot
 
 # SEE ALSO
 
-clara(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1), clara-images(1)
+clara(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1), clara-images(1), clara-redfish(1)
