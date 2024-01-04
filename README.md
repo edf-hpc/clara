@@ -16,7 +16,7 @@ Clara provides the following plugins:
 * [enc](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-enc.md)     interact with encrypted files using configurable methods
 * [build](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md)     builds Debian packages
 * [virt](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-virt.md)     manages virtual machines
-
+* [redfish](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-redfish.md)    manages the nodes of a cluster like ipmi to eventually replace it
 Read the full [user's guide](http://edf-hpc.github.io/clara/).
 
 ## Release
