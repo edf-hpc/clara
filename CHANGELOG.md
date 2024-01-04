@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240104] - 2024-01-04
+
+### Added
+- plugin redfish: add boot param functions
+- plugin redfish: add functions to reboot, stop and start node
+- plugin redfish: add function clear log
+- plugin redfish: adapt for different version of firmware redfish
+- config: add support to redhat-like repositories
+
 ## [0.20240102] - 2024-01-02
 
 ### Added
