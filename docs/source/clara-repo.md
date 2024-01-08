@@ -7,7 +7,7 @@ clara-repo - creates, updates and synchronizes local Debian or RedHat like repos
 # SYNOPSIS
 
     clara repo key
-    clara repo init <dist>
+    clara repo init <dist> [--force]
     clara repo sync (all|<dist> [<suites>...])
     clara repo push [<dist>]
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...] [--no-push]
