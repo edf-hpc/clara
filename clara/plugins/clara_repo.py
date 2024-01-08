@@ -37,7 +37,7 @@ Creates, updates and synchronizes local Debian repositories.
 
 Usage:
     clara repo key
-    clara repo init <dist>
+    clara repo init <dist> [--force]
     clara repo sync (all|<dist> [<suites>...])
     clara repo push [<dist>]
     clara repo add <dist> <file>... [--reprepro-flags="list of flags"...] [--no-push]
@@ -93,16 +93,19 @@ def do_update(dist, path_repo=None, makecache=True):
         run(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
-def do_create(dest_dir="Packages"):
+def do_create(dest_dir="Packages", force=False):
     # default to "/srv/repos" distribution base repository
     repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], '/srv/repos')
     path_repo = os.path.join(repo_dir, _opt['dist'])
 
     if os.path.isdir(path_repo):
-        clara_exit("The repository '{}' already exists!".format(path_repo))
-
-    logging.info("Creating repository {} in directory {} ...".format(_opt['dist'], repo_dir))
-    os.makedirs(os.path.join(path_repo, dest_dir))
+        if not force:
+            message = "The repository '{}' already exists!\n".format(path_repo)
+            message += "              - If need, add switch --force to recreate it!"
+            clara_exit(message)
+    else:
+        logging.info("Creating repository {} in directory {} ...".format(_opt['dist'], repo_dir))
+        os.makedirs(os.path.join(path_repo, dest_dir))
 
     do_update(_opt['dist'], path_repo, makecache=False)
 
@@ -621,7 +624,7 @@ def main():
         if distro == "debian":
             do_init()
         elif distro == "rhel":
-            do_create()
+            do_create(force=dargs['--force'])
     elif dargs['sync']:
         if dargs['all']:
             do_sync('all')
