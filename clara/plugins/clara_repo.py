@@ -228,6 +228,59 @@ def do_search(extra, table):
     for key in arch:
         do_print(table, key.split(' ') + [arch[key]])
 
+def do_copy(from_dist, package, move=False):
+    # default to "x86_64,src,i686,noarch" archs
+    archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
+
+    version = None
+    if ':' in package:
+        package, version = package.split(':')
+    cmd = "repoquery -a --show-duplicates --search " + package + " --archlist=" + archs + " -q --qf='%{repoid} %{name} %{location}'"
+    output, _ = run(cmd, shell=True)
+    packages = {}
+    done = {}
+
+    for line in output.split('\n'):
+        if line == "":
+            continue
+        repoid, name, filename = line.replace('file://','').split(' ')
+        basename = os.path.basename(filename)
+        if (version == None and name == package) or (version and basename.startswith(package + '-' + version)):
+            if not os.path.isfile(filename):
+                logging.debug("repo/do_copy: file %s don't exist!" % filename)
+                continue
+            if repoid == _opt['dist']:
+                # package already exist in destination dist!
+                done[basename] = ''
+                continue
+            elif repoid == from_dist:
+                # consider only package from needfull dist!
+                packages[filename] = ''
+
+    count = 0
+    if len(packages):
+        for elem in packages:
+            if os.path.basename(elem) in done:
+                continue
+            count += 1
+            if elem.endswith(".rpm"):
+                do_add(elem)
+            elif elem.endswith(".src.rpm"):
+                do_add(elem, dest_dir="SPackages")
+            if move:
+                logging.debug("repo/do_copy: removing package %s from dist %s!" % (package, from_dist))
+                os.remove(elem)
+
+        if count:
+            do_update(_opt['dist'])
+            if move:
+                do_update(from_dist)
+        else:
+            logging.info("repo/do_copy: package %s already exist in dist %s!" % (package, _opt['dist']))
+    else:
+        message = " (version: %s)" % version if version else ""
+        logging.info("repo/do_copy: no package %s%s exist in dist %s!" % (package, message, from_dist))
+
 # Returns a boolean to tell if password derivation can be used with OpenSSL.
 # It is disabled on Debian < 10 (eg. in stretch) because it is not supported by
 # openssl provided in these old distributions.
@@ -716,15 +769,21 @@ def main():
     elif dargs['copy']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
-        do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
+        if distro == "debian":
+            do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
+        elif distro == "rhel":
+            do_copy(dargs['<from-dist>'], dargs['<package>'])
         if not dargs['--no-push']:
             do_push(_opt['dist'])
     elif dargs['move']:
         if dargs['<from-dist>'] not in get_from_config("common", "allowed_distributions"):
             clara_exit("{0} is not a known distribution".format(dargs['<from-dist>']))
-        do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
-        do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
-        do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
+        if distro == "debian":
+            do_reprepro('copy', extra=[_opt['dist'], dargs['<from-dist>'], dargs['<package>']])
+            do_reprepro('remove', extra=[dargs['<from-dist>'], dargs['<package>']])
+            do_reprepro('removesrc', extra=[dargs['<from-dist>'], dargs['<package>']])
+        elif distro == "rhel":
+            do_copy(dargs['<from-dist>'], dargs['<package>'], move=True)
         if not dargs['--no-push']:
             do_push(dargs['<from-dist>'])
             do_push(_opt['dist'])
