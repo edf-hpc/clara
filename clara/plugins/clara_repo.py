@@ -176,14 +176,20 @@ def do_list(dest_dir="Packages", dist=None):
     if dist:
         cmd = "repoquery --repoid=" + dist + " -a --archlist=" + archs + " --envra --show-duplicates"
         logging.debug("repo/do_list(repo): {}".format(cmd))
-        output, _ = run(cmd, shell=True)
-        for line in output.split('\n'):
-            lst = line.split('.')
-            tab = lst[0].split('-')
-            package = '-'.join(tab[0:-1]) + ' ' + tab[-1] + '.'
-            version = '.'.join(lst[1:-1])
-            arch = lst[-1]
-            print("{}|rpm|{}: {}{}".format(_opt['dist'], arch, package[2:], version ))
+        output, error = run(cmd, shell=True)
+        if len(error):
+            logging.error("repo/do_list(repo): {}".format(error))
+        else:
+            for line in output.split('\n'):
+                if len(line):
+                    lst = line.split('.')
+                    tab = lst[0].split('-')
+                    package = '-'.join(tab[0:-1]) + ' ' + tab[-1] + '.'
+                    version = '.'.join(lst[1:-1])
+                    arch = lst[-1]
+                    print("{}|rpm|{}: {}{}".format(_opt['dist'], arch, package[2:], version ))
+                else:
+                    logging.warn("repo/do_list: no package yet added to repository {}!".format(_opt['dist']))
     else:
         cmd = "repoquery -a --archlist=" + archs + " --show-duplicates -q --qf='%{repoid} %{location}'"
         logging.debug("repo/do_list: {}".format(cmd))
