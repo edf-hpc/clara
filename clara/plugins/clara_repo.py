@@ -77,7 +77,7 @@ except:
 
 _opt = {'dist': None}
 
-def do_update(dist, path_repo=None):
+def do_update(dist, path_repo=None, makecache=True):
     if not path_repo:
         # default to "/srv/repos" distribution base repository
         repo_dir = get_from_config_or("repo", "repo_rpm", dist, "/srv/repos")
@@ -88,6 +88,9 @@ def do_update(dist, path_repo=None):
     run(cmd, stdout=fnull, stderr=fnull)
     cmd = ["/usr/bin/yum-config-manager", "--enable", dist]
     run(cmd, stdout=fnull, stderr=fnull)
+    if makecache:
+        cmd = ["/usr/bin/yum", "makecache", "--disablerepo=*", "--enablerepo=%s" % dist]
+        run(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
 def do_create(dest_dir="Packages"):
@@ -101,7 +104,7 @@ def do_create(dest_dir="Packages"):
     logging.info("Creating repository {} in directory {} ...".format(_opt['dist'], repo_dir))
     os.makedirs(os.path.join(path_repo, dest_dir))
 
-    do_update(_opt['dist'], path_repo)
+    do_update(_opt['dist'], path_repo, makecache=False)
 
     createrepo_config = os.path.join("/etc/yum/repos.d/", _opt['dist'] + ".repo")
     fcreaterepo = open(createrepo_config, 'w')
