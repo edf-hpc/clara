@@ -74,12 +74,14 @@ the possibility of making mirror of remote Debian repositories locally.
 
         Copy to the given distribution a package from another distribution.
         Note that both repositories must be handled by clara.
+        For Redhat-like repository, package version can be add through <package>:<version>
 
     clara repo move <dist> <package> <from-dist>
 
         Copy to the given distribution a package from another distribution
         and remove the package from the origin repository.
         Note that both repositories must be handled by clara.
+        For Redhat-like repository, package version can be add through <package>:<version>
 
     clara repo jenkins (list|<dist>) <job> [--source=<arch>] [--reprepro-flags="list of flags"...] [--build=<build>]
 
