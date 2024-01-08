@@ -77,16 +77,16 @@ except:
 
 _opt = {'dist': None}
 
-def do_update(path_repo=None):
+def do_update(dist, path_repo=None):
     if not path_repo:
         # default to "/srv/repos" distribution base repository
-        repo_dir = get_from_config_or("repo", "repo_rpm", _opt['dist'], "/srv/repos")
-        path_repo = os.path.join(repo_dir, _opt['dist'])
+        repo_dir = get_from_config_or("repo", "repo_rpm", dist, "/srv/repos")
+        path_repo = os.path.join(repo_dir, dist)
 
     fnull = open(os.devnull, 'w')
     cmd = ["/usr/bin/createrepo", "--update", path_repo]
     run(cmd, stdout=fnull, stderr=fnull)
-    cmd = ["/usr/bin/yum-config-manager", "--enable", _opt['dist']]
+    cmd = ["/usr/bin/yum-config-manager", "--enable", dist]
     run(cmd, stdout=fnull, stderr=fnull)
     fnull.close()
 
@@ -101,7 +101,7 @@ def do_create(dest_dir="Packages"):
     logging.info("Creating repository {} in directory {} ...".format(_opt['dist'], repo_dir))
     os.makedirs(os.path.join(path_repo, dest_dir))
 
-    do_update(path_repo)
+    do_update(_opt['dist'], path_repo)
 
     createrepo_config = os.path.join("/etc/yum/repos.d/", _opt['dist'] + ".repo")
     fcreaterepo = open(createrepo_config, 'w')
@@ -162,7 +162,7 @@ def do_del(packages, dest_dir="Packages"):
                 else:
                     logging.warn("path {} to package {} don't exist!".format(filename, package))
 
-    do_update(path_repo)
+    do_update(_opt['dist'], path_repo)
 
 def do_list(dest_dir="Packages", dist=None):
     # default to "x86_64,src,i686,noarch" archs
@@ -517,7 +517,7 @@ def copy_jenkins(job, arch, flags=None, build="lastSuccessfulBuild", distro=None
                             do_add(elem)
                             isok = True
                     if isok:
-                        do_update()
+                        do_update(_opt['dist'])
 
                 if isok:
                     break
@@ -647,7 +647,7 @@ def main():
                     do_add(elem)
                 elif elem.endswith(".src.rpm"):
                     do_add(elem, dest_dir="SPackages")
-            do_update()
+            do_update(_opt['dist'])
         if dargs['<file>'] and not dargs['--no-push']:
             do_push(_opt['dist'])
     elif dargs['del']:
