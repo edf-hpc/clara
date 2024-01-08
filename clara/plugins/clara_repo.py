@@ -157,7 +157,7 @@ def do_del(packages, dest_dir="Packages"):
             if len(elem) == 2:
                 if re.search(elem[1], filename):
                     if os.path.isfile(filename):
-                        logging.info("removing path {} to package".format(filename, package))
+                        logging.info("removing path {} to repository {}".format(filename, _opt['dist']))
                         os.remove(filename)
                     else:
                         logging.warn("path {} to package {} don't exist!".format(filename, package))
