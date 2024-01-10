@@ -139,7 +139,10 @@ For example, a portion from the Clara's configuration file is copied:
     ; String: Version number of your debian derivative
     version=8.0.0
     ; Path: Directory containing all the configuration files for the local repository
+    ; It's only used for Debian
     repo_dir=/srv/clara/calibre8/local-mirror
+    ; repo_dir equivalent for Redhat-like distribution
+    ;repo_rpm=/srv/repos
 
 
 The lines starting with a semi-colon are commentaries and they're ignored.
