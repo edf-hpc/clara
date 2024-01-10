@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240110] - 2024-01-10
+
+### Added
+- docs: introduce repo_rpm for redhat-like repo
+- docs: add copy/move for redhat-like repo
+- docs: fix force existing repo to be create again
+- plugin repo: add copy/move for redhat-like repo
+- docs: describes new redfish plugin
+- add into README.md new commands for redfish plugin
+
+### Fixed
+- utils: make optionnal requests need by redfish
+- plugin repo: fix issue with empty/unexistent repo
+- plugin repo: fix issue with removing path repo
+- plugin repo: force existing repo creation again
+- plugin repo: no raise makecache at repo creation
+- plugin repo: support arbitrar repository update
+
 ## [0.20240104] - 2024-01-04
 
 ### Added
