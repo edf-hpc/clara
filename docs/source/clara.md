@@ -27,6 +27,7 @@ as plugins that can be added or removed independently.
 Clara provides the following plugins:
 
     ipmi     Manages and get the status from the nodes of a cluster.
+    redfish  Manages the nodes of a cluster like ipmi, to eventually replace it.
     repo     Creates, updates and synchronizes local Debian and RedHat like repositories.
     slurm    Performs tasks using SLURM's controller.
     images   Creates and updates the images of installation of a cluster.
@@ -38,4 +39,4 @@ Clara provides the following plugins:
 
 # SEE ALSO
 
-clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1), clara-chroot(1), clara-show(1)
+clara-images(1), clara-ipmi(1), clara-p2p(1), clara-repo(1), clara-slurm(1), clara-enc(1), clara-build(1), clara-virt(1), clara-chroot(1), clara-show(1), clara-redfish(1)
