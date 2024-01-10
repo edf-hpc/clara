@@ -45,8 +45,12 @@ import ClusterShell.NodeSet
 import ClusterShell.Task
 
 import json
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-import requests
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    import requests
+except:
+    print("[WARN] PLS raise 'pip install requests' or install 'python3-requests' package, need by redfish!")
+    pass
 
 import distutils
 from distutils import util
