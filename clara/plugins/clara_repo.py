@@ -189,19 +189,26 @@ def do_list(dest_dir="Packages", dist=None):
                     arch = lst[-1]
                     print("{}|rpm|{}: {}{}".format(_opt['dist'], arch, package[2:], version ))
                 else:
-                    logging.warn("repo/do_list: no package yet added to repository {}!".format(_opt['dist']))
+                    message = "repo/do_list: no package yet added to repository {}!\n".format(_opt['dist'])
+                    message += "                - you probably need to initilize existing repository manually created!"
+                    logging.warn(message)
     else:
         cmd = "repoquery -a --archlist=" + archs + " --show-duplicates -q --qf='%{repoid} %{location}'"
         logging.debug("repo/do_list: {}".format(cmd))
         output, _ = run(cmd, shell=True)
         for line in output.split('\n'):
-            lst = line.split('/')
-            repo = lst[0].split(' ')[0]
-            idx = lst.index(repo)
-            filename = os.path.basename(line)
-            rpm_os = filename.split('.')
-            fullname = '/'.join(lst[idx + 1:])
-            print("{}|{}|{} {}".format(repo, rpm_os[-1], rpm_os[-2], fullname))
+            if len(line):
+                lst = line.split('/')
+                repo = lst[0].split(' ')[0]
+                idx = lst.index(repo)
+                filename = os.path.basename(line)
+                rpm_os = filename.split('.')
+                fullname = '/'.join(lst[idx + 1:])
+                print("{}|{}|{} {}".format(repo, rpm_os[-1], rpm_os[-2], fullname))
+            else:
+                message = "repo/do_list: no yet known rpm repository!\n"
+                message += "                - you probably need to initilize existing repository manually created!"
+                logging.warn(message)
 
 def do_search(extra, table):
     # default to "x86_64,src,i686,noarch" archs
