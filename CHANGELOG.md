@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+
+## [0.20240111] - 2024-01-11
+
+### Fixed
+- plugin repo: fix issue with not yet created repo
+
 ## [0.20240110] - 2024-01-10
 
 ### Added
