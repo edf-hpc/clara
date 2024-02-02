@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 
+## [0.20240202] - 2024-02-02
+
+### Fixed
+- plugin repo: fix issue with unwanted pkg deletion
+
 ## [0.20240111] - 2024-01-11
 
 ### Fixed
