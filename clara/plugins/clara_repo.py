@@ -149,24 +149,25 @@ def do_del(packages, dest_dir="Packages"):
     # default to "x86_64,src,i686,noarch" archs
     archs = get_from_config_or("repo", "archs_rpm", _opt['dist'], default="x86_64,src,i686,noarch")
     for package in packages:
-        elem = package.split(':')
-        cmd = "repoquery -a --show-duplicates --search " + elem[0] + " --archlist=" + archs + " -q --qf='%{location}'"
+        version = None
+        if ':' in package:
+            package, version = package.split(':')
+        cmd = "repoquery -a --show-duplicates --search " + package + " --archlist=" + archs + " -q --qf='%{repoid} %{name} %{location}'"
         output, _ = run(cmd, shell=True)
+
         for line in output.split('\n'):
-            filename = line[7:]
-            if len(elem) == 2:
-                if re.search(elem[1], filename):
-                    if os.path.isfile(filename):
-                        logging.info("removing path {} to repository {}".format(filename, _opt['dist']))
-                        os.remove(filename)
-                    else:
-                        logging.warn("path {} to package {} don't exist!".format(filename, package))
-            else:
-                if os.path.isfile(filename):
-                    logging.info("removing path {} to package".format(filename, package))
-                    os.remove(filename)
-                else:
-                    logging.warn("path {} to package {} don't exist!".format(filename, package))
+            if line == "":
+                continue
+            repoid, name, filename = line.replace('file://','').split(' ')
+            if not repoid == _opt['dist']:
+                continue
+            basename = os.path.basename(filename)
+            if (version == None and name == package) or (version and basename.startswith(package + '-' + version)):
+                if not os.path.isfile(filename):
+                    logging.debug("repo/do_copy: path {} of package {} don't exist in repository {}!".format(filename, package, _opt['dist']))
+                    continue
+                logging.info("removing package {} path {} in repository {}".format(package, filename, _opt['dist']))
+                os.remove(filename)
 
     do_update(_opt['dist'], path_repo)
 
