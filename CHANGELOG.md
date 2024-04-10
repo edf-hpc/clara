@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240410] - 2024-04-10
+
+### Fixed
+- virt: Don't crash when adding a volume
 
 ## [0.20240202] - 2024-02-02
 
