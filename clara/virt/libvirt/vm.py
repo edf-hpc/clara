@@ -142,7 +142,7 @@ class VM():
             if vol_exists:
                 logger.info("Volume %s for VM %s already exists.",
                             volume.get_name(), self.name)
-                return
+                continue
 
             vol_name = pool.get_volume_name(self.name, vol_role)
 
