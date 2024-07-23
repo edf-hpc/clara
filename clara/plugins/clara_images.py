@@ -718,7 +718,8 @@ def geninitrd(path, work_dir, dist):
             intitrd_opts = ["-o", "/tmp/initrd-" + kver, kver]
         if dists[ID]['bootstrapper'] == "dnf":
             opts = ["-y", "--nobest"]
-            intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver]
+            intitrd_opts = ["--force", "--add", "livenet", "-v", "/tmp/initrd-"+ kver, "--kver", kver,
+                            "--no-early-microcode"]
         opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
         run_chroot(opts, work_dir)
 
