@@ -85,7 +85,10 @@ def do_update(dist, path_repo=None, makecache=True):
 
     fnull = open(os.devnull, 'w')
     cmd = ["/usr/bin/createrepo", "--update", path_repo]
+    # Temporarily change umask to create directories and files
+    umask = os.umask(0o022)
     run(cmd, stdout=fnull, stderr=fnull)
+    os.umask(umask)  # Restore umask
     cmd = ["/usr/bin/yum-config-manager", "--enable", dist]
     run(cmd, stdout=fnull, stderr=fnull)
     if makecache:
