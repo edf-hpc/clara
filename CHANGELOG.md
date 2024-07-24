@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20240724] - 2024-07-24
+
+### Fixed
+- plugin images: fix rhel 8.10 hang initrd issue
+- plugin repo: enforce umask to fix repodata right
+
 ## [0.20240410] - 2024-04-10
 
 ### Fixed
