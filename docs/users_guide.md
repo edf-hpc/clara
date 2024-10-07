@@ -1,6 +1,6 @@
 % Clara User's Guide
 % Kwame AMEDODJI
-% January 02, 2024
+% October 07, 2024
 
 # What's Clara?
 
@@ -63,6 +63,8 @@ The remaining dependencies, listed by plugin, are:
 
 + virt: [libvirt](http://libvirt.org/), [jinja2](http://jinja.pocoo.org/)
 
++ easybuild: [easybuild](http://easybuild.io/)
+
 # Getting started
 
 Clara itself is not a tool, but rather provides a common interface to several
@@ -82,16 +84,16 @@ example.
         --config=<file>    Provide a configuration file
 
     Clara provides the following plugins:
-       repo     Creates, updates and synchronizes local Debian repositories.
-       ipmi     Manages and get the status from the nodes of a cluster.
-       slurm    Performs tasks using SLURM's controller.
-       images   Creates and updates the images of installation of a cluster.
-       chroot   Creates and updates a chroot.
-       p2p      Makes torrent images and seeds them via BitTorrent.
-       enc      Interact with encrypted files using configurable methods.
-       build    Builds Debian packages.
-       virt     Manages virtual machines.
-       show     Show the set of configuration used in config.ini.
+       repo        Creates, updates and synchronizes local Debian repositories.
+       ipmi        Manages and get the status from the nodes of a cluster.
+       slurm       Performs tasks using SLURM's controller.
+       images      Creates and updates the images of installation of a cluster.
+       chroot      Creates and updates a chroot.
+       p2p         Makes torrent images and seeds them via BitTorrent.
+       enc         Interact with encrypted files using configurable methods.
+       build       Builds Debian packages.
+       virt        Manages virtual machines.
+       easybuild   Manage package installation via easybuild
 
     See 'clara help <plugin>' for detailed help on a plugin
     and 'clara <plugin> --help' for a quick list of options of a plugin.
@@ -872,3 +874,138 @@ can be picked automatically, as the cluster host with lower running VM!
 Machines involved in live migration are optional and when not provided, all running
 machines will be migrated off KVM server on witch command have been raised.
 This can be seen as a kind of machines *evacuation*!
+
+## Plugin 'easybuild'
+
+*clara easybuild* is a wrapper arround easybuild. It's provide a way to install software\
+with easybuild, backup this software, and all it's neefull dependencies, as tar archive.\
+This last one can be used to clone installation in another cluster!
+
+This plugins requires python3-docopt and python3-prettytable (optional)
+
+### Synopsis
+
+    clara easybuild install <software> [--force] [--rebuild] [options]
+    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
+    clara easybuild restore <software> [--force] [--source=<source>] [options]
+    clara easybuild delete  <software> [options]
+    clara easybuild search  <software> [--width=<width>] [options]
+    clara easybuild show    <software> [options]
+    clara easybuild -h | --help | help
+
+Options:
+
+    <software>                       software name, either like <name>-<version> or <name>/<version>
+    --eb=<ebpath>                    easybuild binary path
+    --basedir=<basedir>              easybuild custom repository directory
+    --prefix=<prefix>                easybuild installation prefix directory
+    --extension=<extension>          tar backup extension, like bz2, gz or xz [default: gz]
+    --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
+    --dereference                    add symbolic and hard links to the tar archive. Default: False
+    --force                          Force install/backup/restore of existing software/archive
+    --requirement-only               Only retrieve software dependencies
+    --quiet                          Proceed silencely. Don't ask any question!
+    --dry-run                        Just simulate migrate action! Don't really do anything
+    --width=<width>                  Found easyconfigs files max characters per line [default: 100]
+
+### Options
+
+    clara easybuild show <software> [options]
+
+        Show easybuild software <software> infomartion
+
+    clara easybuild search <software> [--width=<width>] [options]
+
+        Search and retrieve all software retated to <software>
+        print <width> characters per line
+
+    clara easybuild delete <software> [options]
+
+        Delete easybuild software <software>
+
+    clara easybuild install <software> [--force] [--rebuild] [options]
+
+        Add packages to the local easybuildsitory.
+        <file> can be one or more *.(deb|rpm) binaries, *.changes files or *.dsc files.
+        For the --reprepro-flags, check the documentation of reprepro.
+
+    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
+
+        Remove package to the local easybuildsitory.
+        <name> is the package to remove, if the package is a source name, it'll also
+        remove all the associated binaries.
+
+    clara easybuild restore <software> [--force] [--source=<source>] [options]
+
+        Lists all the contents of every easybuildsitory with the argument "all", or only
+        rpm easybuildsitory, or deb one, or only the content of a given distribution.
+
+Easybuild software <software> must follow either <name>-<version> or <name>/<version>\
+name scheme. <version> is optional and trailing ".eb" suffix can be optionally added.
+
+### Examples
+
+To show software HelloWorld module information
+
+    clara easybuild show HelloWorld
+    clara easybuild show HelloWorld/0.0.1
+
+```
+--------------------------------------------- ~/.local/easybuild/modules/tools ---------------------------------------------
+   HelloWorld/0.0.1 (D)
+
+--------------------------------------------- ~/.local/easybuild/modules/base ----------------------------------------------
+   HelloWorld/0.0.1
+
+  Où:
+   D:  Default Module
+
+Utilisez "module spider" pour trouver tous les modules possibles.
+Utilisez "module keyword key1 key2 ..." pour chercher tous les modules possibles qui correspondent à l'une des clés (key1, key2).
+```
+
+To search all easyconfigs file related to software HelloWorld
+
+    clara easybuild search HelloWorld/0.0.1
+
+```
++---------------------------------------------------+
+| easyconfig files                                  |
++---------------------------------------------------+
+| ~/repository/edf-easybuild/o/OpenMPI |
++---------------------------------------------------+
+| openmpi-5.0.5.eb                                  |
++---------------------------------------------------+
+```
+
+    clara easybuild search openmpi-4.1.5
+
+```
++---------------------------------------------------------------------------------------------------+
+| easyconfig files                                                                                  |
++---------------------------------------------------------------------------------------------------+
+| ~/repository/edf-easybuild/o/OpenMPI                                                 |
++---------------------------------------------------------------------------------------------------+
+| openmpi-4.1.5.eb                                                                                  |
++---------------------------------------------------------------------------------------------------+
+| ~/.local/easybuild/software/EasyBuild/4.9.2/easybuild/easyconfigs/o/OpenMPI          |
++---------------------------------------------------------------------------------------------------+
+| OpenMPI-4.1.5-GCC-12.2.0.eb OpenMPI-4.1.5-GCC-12.3.0.eb OpenMPI-4.1.5-intel-compilers-2023.1.0.eb |
++---------------------------------------------------------------------------------------------------+
+```
+
+To delete easybuild software HelloWorld
+
+    clara easybuild delete HelloWorld/0.0.1
+
+To install easybuild software HelloWorld
+
+    clara easybuild install HelloWorld/0.0.1
+
+To backup easybuild software HelloWorld
+
+    clara easybuild backup HelloWorld/0.0.1
+
+To restore easybuild software HelloWorld
+
+    clara easybuild restore HelloWorld/0.0.1
