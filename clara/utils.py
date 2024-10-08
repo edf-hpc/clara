@@ -45,6 +45,8 @@ import ClusterShell.NodeSet
 import ClusterShell.Task
 
 import json
+import shlex
+
 try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
     import requests
@@ -373,3 +375,39 @@ def makedirs_mode(path, mode):
 def clara_exit(msg):
     logging.error(msg)
     sys.exit(1)
+
+def module(command, *arguments, **kwargs):
+    """
+    Execute a regular Lmod command and apply environment changes to
+    the current Python environment (i.e. os.environ).
+
+    In case len(arguments) == 1 the string will be split on whitespace into
+    separate arguments. Pass a list of strings to avoid this.
+
+    Raises an exception in case Lmod execution returned a non-zero
+    exit code.
+
+    Use with keyword argument show_environ_updates=True to show the actual
+    changes made to os.environ (mostly for debugging).
+
+    Examples:
+    module('list')
+    module('load', 'gcc')
+    module('load', 'gcc cmake')
+    module('load', 'gcc cmake', show_environ_updates=True)
+    """
+    numArgs = len(arguments)
+    A = ['/usr/share/lmod/lmod/libexec/lmod', 'python', command]
+    if (numArgs == 1):
+        A += arguments[0].split()
+    else:
+        A += list(arguments)
+
+    try:
+        stdout, stderr = run(shlex.join(A), shell=True)
+    except:
+        stdout, stderr = run(" ".join(A), shell=True)
+    if (os.environ.get('LMOD_REDIRECT','no') != 'no'):
+        stdout = stderr
+
+    return stdout, stderr
