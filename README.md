@@ -17,6 +17,7 @@ Clara provides the following plugins:
 * [build](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-build.md)     builds Debian packages
 * [virt](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-virt.md)     manages virtual machines
 * [redfish](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-redfish.md)    manages the nodes of a cluster like ipmi to eventually replace it
+* [easybuild](https://github.com/edf-hpc/clara/blob/master/docs/source/clara-easybuild.md)    manages package installation via easybuild
 Read the full [user's guide](http://edf-hpc.github.io/clara/).
 
 ## Release
