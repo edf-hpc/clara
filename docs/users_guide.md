@@ -94,6 +94,7 @@ example.
        build       Builds Debian packages.
        virt        Manages virtual machines.
        easybuild   Manage package installation via easybuild
+       redfish     Manages the nodes of a cluster like ipmi to eventually replace it
 
     See 'clara help <plugin>' for detailed help on a plugin
     and 'clara <plugin> --help' for a quick list of options of a plugin.
