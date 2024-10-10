@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241010] - 2024-10-10
+
+### Fixed
+- docs: add redfish plugin in all plugins list
+
+### Added
+- README: add support to easybuild
+- bin: introduce easybuild plugin
+- plugin easybuild: first working support!
+- utils: introduce custom Lmod module with output
+- docs: add easybuild plugin
+
 ## [0.20240724] - 2024-07-24
 
 ### Fixed
