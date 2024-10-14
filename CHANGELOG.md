@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241014] - 2024-10-14
+
+### Fixed
+- plugin images: fix bug of bdb_ro for rhel 9
+
 ## [0.20241010] - 2024-10-10
 
 ### Fixed
