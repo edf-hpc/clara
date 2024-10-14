@@ -496,6 +496,10 @@ def system_install(work_dir, dist):
             logging.warning("group_pkgs hasn't be set in the config.ini")
         else:
             group_pkgs = group_pkgs.split(",")
+            if VERSION_ID == "9":
+               run_chroot(["chroot", work_dir, "restorecon", "-Rv", distrib["rpm_lib"]], work_dir)
+               run_chroot(["chroot", work_dir, "rpmdb", "--rebuilddb"], work_dir)
+
             run_chroot(["chroot", work_dir, distrib["pkgManager"], "groupinstall", "-y", "--nobest"] + group_pkgs, work_dir)
             # Remove original repo as we are in air-gapped environment and so haven't outside internet access!
             remove_original_repos(src_list, ID[1:])
