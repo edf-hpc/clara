@@ -261,7 +261,7 @@ def tar(software, prefix, data, backupdir, extension, compresslevel, dereference
     if not re.match(r'^/\w+', prefix):
         logging.debug(f"unsupported prefix {prefix}!")
         return
-    packages_dir = f"{backupdir}/kwame"
+    packages_dir = f"{backupdir}/packages"
     if not os.path.isdir(packages_dir):
         os.mkdir(packages_dir)
     tarball = f"{packages_dir}/{software}.tar.{extension}"
@@ -318,7 +318,7 @@ def replace_in_file(name, source, prefix):
 def restore(software, source, backupdir, prefix, extension):
     _module = software.replace("-","/").replace(".eb","")
     _software = software.replace("/","-")
-    packages_dir = f"{backupdir}/kwame"
+    packages_dir = f"{backupdir}/packages"
     tarball = f"{packages_dir}/{_software}.tar.{extension}"
     if os.path.isfile(tarball):
         logging.info(f"restore tarball {tarball}\nunder prefix {prefix}")
@@ -352,12 +352,12 @@ def restore(software, source, backupdir, prefix, extension):
             for member in members:
                 # replace in lua file prefix by destination prefi_x
                 if member.name.endswith(f"{_module}.lua"):
-                    #tf.extract(member, _prefix)
+                    tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
                     logging.info(f"working on file {_name} ...")
-                    #replace_in_file(_name, source, prefix)
+                    replace_in_file(_name, source, prefix)
                 elif member.name.endswith("requirements.txt"):
-                    #tf.extract(member, _prefix)
+                    tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
                     logging.info(f"working on file {_name} ...")
                     if os.path.isfile(_name):
