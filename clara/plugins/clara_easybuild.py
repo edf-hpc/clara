@@ -442,7 +442,7 @@ def delete(software, prefix):
         logging.error("can't suppress many software/module at same time!")
 
 def main():
-    global dry_run, eb
+    global dry_run, eb, force
 
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
