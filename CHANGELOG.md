@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241017] - 2024-10-17
+
+### Fixed
+- plugin redfish: fix unused response headers issue
+- plugin easybuild: fix bunch symbolic link issue
+- plugin easybuild: do some cosmetic cleanup/reorg
+- plugin easybuild: fix issue with list prefix
+- plugin easybuild: set unique default prefix
+
+### Added
+- plugin easybuild: add support to hidden module
+- plugin easybuild: add back all modules in path
+- plugin easybuild: add time for backup directory
+
 ## [0.20241014] - 2024-10-14
 
 ### Fixed
