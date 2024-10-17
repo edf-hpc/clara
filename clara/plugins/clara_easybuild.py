@@ -98,7 +98,13 @@ def module_path(prefix):
     else:
         clara_exit("prefix must be either string, or list!")
 
+    # add back all modules in path
+    if isinstance(prefix, str):
+        modulepath = f"{modulepath}:{prefix}/modules/all"
+    else:
+        modulepath = modulepath + ":" + ":".join([f"{x}/modules/all" for x in prefix])
     os.environ["MODULEPATH"] = modulepath
+    logging.debug(f"MODULEPATH:\n{modulepath}")
 
 def module_avail(name, prefix):
 
