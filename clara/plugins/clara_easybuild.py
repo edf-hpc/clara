@@ -194,7 +194,8 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
             _deplist = [name for name in match if name not in dependencies]
             if len(_deplist):
                 dependencies += _deplist
-                return list(itertools.chain(*[get_dependencies(_software, prefix, rebuild, dependencies) for _software, _ in _deplist]))
+                return list(itertools.chain(*[get_dependencies(_software, prefix, basedir, rebuild, dependencies)
+                            for _software, _ in _deplist]))
             else:
                 return dependencies
     else:
@@ -218,7 +219,6 @@ def install(software, prefix, basedir, rebuild, requirement_only):
             sys.setrecursionlimit(150)
             # retrieve software potential dependencies
             dependencies = get_dependencies(_software, prefix, basedir, rebuild)
-
             # suppress duplicates
             dependencies = list(dict.fromkeys(dependencies))
             if len(dependencies):
