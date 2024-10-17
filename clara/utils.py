@@ -214,6 +214,8 @@ def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=Non
     if retcode != 0:
         if exit_on_error:
             clara_exit(' '.join(cmd))
+        elif shell:
+            return cmd, retcode
         else:
             raise RuntimeError("Error {0} while running cmd: {1}" \
                                .format(retcode, ' '.join(cmd)))
@@ -404,9 +406,9 @@ def module(command, *arguments, **kwargs):
         A += list(arguments)
 
     try:
-        stdout, stderr = run(shlex.join(A), shell=True)
+        stdout, stderr = run(shlex.join(A), shell=True, exit_on_error=False)
     except:
-        stdout, stderr = run(" ".join(A), shell=True)
+        stdout, stderr = run(" ".join(A), shell=True, exit_on_error=False)
     if (os.environ.get('LMOD_REDIRECT','no') != 'no'):
         stdout = stderr
 
