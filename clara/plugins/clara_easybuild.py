@@ -126,7 +126,7 @@ def show(software, prefix):
     if match:
         print(output)
     else:
-        logging.debug(f"No software {name} installed under prefix {prefix}!")
+        logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
 def search(software, basedir, width):
     cmd = [eb, '--hook', f'{basedir}/pre_fetch_hook.py',
