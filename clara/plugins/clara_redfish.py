@@ -176,7 +176,6 @@ def redfish_do(hosts, *cmd):
 
     imm_user, imm_password = get_authentication()
     auth  = HTTPBasicAuth(imm_user, imm_password)
-    headers = {'content-type': 'application/json'}
 
     topurl = get_topurl(hosts, auth)
     value = ""
@@ -206,7 +205,7 @@ def redfish_do(hosts, *cmd):
         elif value == "sellist":
             if 'Self' in url:
                 endpoint = endpoint.replace('SEL','BIOS')
-            response = get_response(url, endpoint, auth, headers)
+            response = get_response(url, endpoint, auth)
             logging.info("{0}: ".format(host))
             for mbr in response['Members']:
                 fmt = '%Y/%m/%d | %H:%M:%S'
@@ -224,30 +223,30 @@ def redfish_do(hosts, *cmd):
                 endpoint = endpoint.replace('SEL', 'BIOS')
             body = {}
             logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
-            response = get_response(url, endpoint, auth, headers, data=body)
+            response = get_response(url, endpoint, auth, data=body)
         elif value == "poweron":
             body = {"ResetType" : "On"}
             logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
-            response = get_response(url, endpoint, auth, headers, data=body)
+            response = get_response(url, endpoint, auth, data=body)
         elif value == "poweroff":
             body  = {"ResetType" : "ForceOff"}
             logging.debug(f"redfish/redfish_do: {url} {endpoint} {body}")
-            response = get_response(url, endpoint, auth, headers, data=body)
+            response = get_response(url, endpoint, auth, data=body)
         elif value == "powerreboot":
             body  = {"ResetType" : "ForceRestart"}
-            response = get_response(url, endpoint, auth, headers, data=body)
+            response = get_response(url, endpoint, auth, data=body)
         elif value == "bootdevpxe":
             body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "Pxe"}}
-            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+            response = get_response(url, endpoint, auth, data=body, method="PATCH")
         elif value == "bootdevdflt":
             body = {"Boot": { "BootSourceOverrideEnabled": "Disabled", "BootSourceOverrideTarget": "None"}}
-            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+            response = get_response(url, endpoint, auth, data=body, method="PATCH")
         elif value == "bootdevbios":
             body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "BiosSetup"}}
-            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+            response = get_response(url, endpoint, auth, data=body, method="PATCH")
         elif value == "bootdevhdd":
             body = {"Boot": { "BootSourceOverrideEnabled": "Continuous", "BootSourceOverrideTarget": "Hdd"}}
-            response = get_response(url, endpoint, auth, headers, data=body, method="PATCH")
+            response = get_response(url, endpoint, auth, data=body, method="PATCH")
 
 def main():
     logging.debug(sys.argv)
