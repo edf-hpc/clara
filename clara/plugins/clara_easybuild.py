@@ -80,6 +80,7 @@ from clara.utils import clara_exit, run, get_from_config_or, conf, module, yes_o
 
 from pprint import pprint, pformat
 from textwrap import fill
+from datetime import datetime
 
 try:
     from prettytable import PrettyTable as prettytable
@@ -377,7 +378,8 @@ def restore(software, source, backupdir, prefix, extension):
                     try:
                         if not os.path.isdir(backupdir):
                             os.mkdir(backupdir)
-                        _backupdir = f"{backupdir}/{_module.split('/')[0]}"
+                        time = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        _backupdir = f"{backupdir}/{time}/{_module.split('/')[0]}"
                         if not os.path.isdir(_backupdir):
                             os.mkdir(_backupdir)
                         shutil.move(installpath, _backupdir)
