@@ -474,10 +474,7 @@ def main():
     # set default directory to install easybuild software
     # we have go with three ways to provide this prefix
     if prefix is None:
-        if dargs['delete'] or dargs['restore']:
-                prefix = '/software/shared/easybuild'
-        else:
-            prefix = f"{homedir}/.local/easybuild"
+        prefix = '/software/shared/easybuild'
     prefix = get_from_config_or("easybuild", "prefix", default=prefix)
 
     # set default easybuild custom configs base directory
