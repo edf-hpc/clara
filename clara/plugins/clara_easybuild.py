@@ -112,7 +112,13 @@ def module_avail(name, prefix):
     module_path(prefix)
 
     _name = name.replace("-","/").replace(".eb","")
-    output, error = module(f"avail {_name}")
+    output, error = module(f"--show_hidden avail {_name}")
+
+    if not re.search(_name, error) and not re.search(r"\/\.", _name):
+    # support also hidden module!
+        _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in _name.split("/")])
+        logging.debug(f"search hidden module {_name}")
+        output, error = module(f"--show_hidden avail {_name}")
     return _name, re.search(_name, error), error
 
 def show(software, prefix):
@@ -202,7 +208,8 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
 def install(software, prefix, basedir, rebuild, requirement_only):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
-    _software = f"{name.replace('/','-')}.eb"
+    _software = re.sub(r'/(\.)?', '-', name)
+    _software = f"{_software}.eb"
     if match:
         if rebuild:
             # module already exist under prefix
@@ -254,7 +261,7 @@ def module_versions(name, prefix):
     if not match:
         clara_exit(f"no module named {_name} under prefix {prefix}!")
 
-    output, error = module(f"spider {_name}")
+    output, error = module(f"--show_hidden spider {_name}")
 
     pattern = re.compile(r': module load (.*)\n\n|Versions:\n(.*)\n\n-', re.DOTALL)
     match = pattern.findall(error)
@@ -284,6 +291,8 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
     # generate module, and it's eventuals dependencies, archives (under directory backupdir)
     if versions is None:
         _software, versions = module_versions(software, prefix)
+    else:
+        _software = software
     match = None
     if len(versions) == 0:
         clara_exit(f"No software {_software} installed! PLS, build it first!")
@@ -327,12 +336,13 @@ def restore(software, source, backupdir, prefix, extension):
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
     tarball = f"{packages_dir}/{_software}.tar.{extension}"
+
     if os.path.isfile(tarball):
         logging.info(f"restore tarball {tarball}\nunder prefix {prefix}")
         total_bytes = os.stat(tarball).st_size
         with tarfile.open(tarball, f"r:{extension}") as tf:
             members = [member for member in tf.getmembers()]
-            # for hidden module, we need to remove first dot on module mervsion!
+            # for hidden module, we need to remove first dot on module version!
             _module_ = "/".join([re.sub(r"^\.","",x) for x in _module.split("/")])
             basepath = "".join([member.name for member in members
                        if os.path.normpath(member.name).lower().endswith(_module_)
