@@ -305,6 +305,9 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
             data = [i.strip() for x in match for i in ''.join(x).split('\n')]
             _software = versions[0].replace("/","-")
             software = "".join([name for name in data if name.endswith(".lua")])
+            if os.path.islink(software):
+                # replace if need trail /fs<cluster> prefix and add link real path to tar archive
+                data.insert(0, re.sub(r'^(\/fs\w+)', '', os.path.realpath(software)))
             # retrieve automatically dependency software prefix
             _prefix = os.path.commonpath(data)
             logging.debug(f"software: {_software}\ndata: {data}\nprefix: {_prefix}\nbackupdir: {backupdir}\n")
@@ -336,6 +339,7 @@ def restore(software, source, backupdir, prefix, extension):
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
     tarball = f"{packages_dir}/{_software}.tar.{extension}"
+    umask = os.umask(0o022)
 
     if os.path.isfile(tarball):
         logging.info(f"restore tarball {tarball}\nunder prefix {prefix}")
@@ -357,7 +361,7 @@ def restore(software, source, backupdir, prefix, extension):
                 _tmpname = next(tempfile._get_candidate_names())
                 _prefix = f"{prefix}/{_tmpname}"
                 _installpath = f"{_prefix}/{basepath}"
-                os.mkdir(_prefix)
+                os.makedirs(_installpath)
                 if not force:
                     if not yes_or_no(message):
                         logging.error("Abort software {software} installation!")
@@ -369,10 +373,21 @@ def restore(software, source, backupdir, prefix, extension):
             for member in members:
                 # replace in lua file prefix by destination prefi_x
                 if member.name.endswith(f"{_module}.lua"):
-                    tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
-                    logging.info(f"working on file {_name} ...")
-                    replace_in_file(_name, source, prefix)
+                    if member.issym():
+                        if os.path.islink(_name) and not os.path.exists(_name):
+                            clara_exit(f"symbolic link {_name} is probably broken!")
+                        link = member.linkname.replace(source, prefix)
+                        logging.info(f"creating symbolic link {link} to file {_name}")
+                        _parent = os.path.dirname(_name)
+                        if not os.path.isdir(_parent):
+                            os.makedirs(_parent)
+                        if not os.path.islink(_name):
+                            os.symlink(link, _name)
+                    else:
+                        logging.info(f"working on file {_name} ...")
+                        tf.extract(member, _prefix)
+                        replace_in_file(_name, source, prefix)
                 elif member.name.endswith("requirements.txt"):
                     tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
@@ -386,23 +401,26 @@ def restore(software, source, backupdir, prefix, extension):
                 else:
                     tf.extract(member, _prefix)
 
-            return
+            os.umask(umask)  # Restore umask
             if os.path.isdir(installpath) and _installpath is not None:
                 if os.path.isdir(_installpath):
                     backupdir = f"{prefix}/backups"
                     logging.info(f"backup previously installed in directory\n{_installpath} to {backupdir}!")
                     try:
+                        umask = os.umask(0o022)
                         if not os.path.isdir(backupdir):
                             os.mkdir(backupdir)
                         time = datetime.now().strftime("%Y%m%d_%H%M%S")
                         _backupdir = f"{backupdir}/{time}/{_module.split('/')[0]}"
                         if not os.path.isdir(_backupdir):
-                            os.mkdir(_backupdir)
+                            os.makedirs(_backupdir)
+                        os.umask(umask)  # Restore umask
+                        logging.info(f"moving current install directory {installpath}\nto {_backupdir}!")
                         shutil.move(installpath, _backupdir)
                     except EnvironmentError:
                         logging.error("Unable to move previously installed directory")
                     else:
-                        logging.info(f"moving temporary install directory {_installpath}\nto {installpath}!")
+                        logging.info(f"moving temporary restore directory {_installpath}\nto {installpath}!")
                         try:
                             shutil.move(_installpath, installpath)
                         except EnvironmentError:
@@ -410,9 +428,9 @@ def restore(software, source, backupdir, prefix, extension):
                         else:
                             logging.info(f"module {_module} successfully restored in {installpath}!")
                     finally:
-                        if os.path.isdir(_installpath):
-                            logging.info(f"remove temporary installed directory {_installpath}")
-                            shutil.rmtree(_installpath)
+                        if re.match(rf"{prefix}/\w+", _prefix) and os.path.isdir(_prefix):
+                            logging.info(f"suppress temporary installed directory {_prefix}")
+                            shutil.rmtree(_prefix)
                 else:
                     logging.info(f"directory {_installpath} don't exist!")
 
@@ -435,11 +453,16 @@ def delete(software, prefix):
                 return
             logging.debug(f"delete software {versions[0]}")
             data = [i.strip() for x in match for i in ''.join(x).split('\n')]
-            #_prefix = os.path.commonpath(data)
             for name in data:
                 if name.endswith(".lua"):
-                    logging.info(f"suppressing file {name}")
                     if os.path.isfile(name):
+                        if os.path.islink(name):
+                            _name = os.path.realpath(name)
+                            logging.info(f"suppressing link source file {_name}")
+                            os.unlink(_name)
+                            logging.info(f"suppressing symbolic link {name}")
+                        else:
+                            logging.info(f"suppressing file {name}")
                         os.unlink(name)
                     else:
                         logging.info(f"no file {name}!")
