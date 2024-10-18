@@ -50,7 +50,7 @@ Options:
     --basedir=<basedir>              easybuild custom repository directory
     --prefix=<prefix>                easybuild installation prefix directory
     --extension=<extension>          tar backup extension, like bz2, gz or xz [default: gz]
-    --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
+    --compresslevel=<compresslevel>  tar compression level, with max 9 [default: 6]
     --dereference                    add symbolic and hard links to the tar archive. Default: False
     --force                          Force install/backup/restore of existing software/archive
     --requirement-only               Only retrieve software dependencies
@@ -281,9 +281,14 @@ def tar(software, prefix, data, backupdir, extension, compresslevel, dereference
     tarball = f"{packages_dir}/{software}.tar.{extension}"
     if not os.path.isfile(tarball) or force:
         logging.info(f"generate tarball {tarball}")
-        with tarfile.open(tarball, f"w:{extension}", compresslevel=compresslevel, dereference=dereference) as tf:
-            for name in data:
-                tf.add(name, arcname=name.replace(f"{prefix}/",''))
+        if extension == "xz":
+            with tarfile.open(tarball, f"w:{extension}", preset=compresslevel, dereference=dereference) as tf:
+                for name in data:
+                    tf.add(name, arcname=name.replace(f"{prefix}/",''))
+        else:
+            with tarfile.open(tarball, f"w:{extension}", compresslevel=compresslevel, dereference=dereference) as tf:
+                for name in data:
+                    tf.add(name, arcname=name.replace(f"{prefix}/",''))
     else:
         logging.warn(f"[WARN]\ntarball {tarball} already exist!\nUse --force to regenerate it!")
 
