@@ -38,7 +38,7 @@ Manage software installation via easybuild
 Usage:
     clara easybuild install <software> [--force] [--rebuild] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
-    clara easybuild restore <software> [--force] [--source=<source>] [options]
+    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [options]
     clara easybuild delete  <software> [options]
     clara easybuild search  <software> [--width=<width>] [options]
     clara easybuild show    <software> [options]
@@ -554,7 +554,7 @@ EOF
 
     backupdir =  dargs['--backupdir']
     if backupdir is None and dargs['restore']:
-        backupdir = f"{prefix}/packages"
+        backupdir = prefix
     backupdir = get_from_config_or("easybuild", "backupdir", default=backupdir)
 
     if eb:
