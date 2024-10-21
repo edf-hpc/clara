@@ -361,7 +361,7 @@ def restore(software, source, backupdir, prefix, extension):
                 clara_exit(f"Can't find module {_module} in tarball {tarball}")
 
             if os.path.isdir(installpath):
-                message = f"Module {_module} already installed under {installpath}!"
+                message = f"Module {_module} is already installed under {installpath}!"
                 message = f"{message}\nDo you want to install it again!?!"
                 _tmpname = next(tempfile._get_candidate_names())
                 _prefix = f"{prefix}/{_tmpname}"
