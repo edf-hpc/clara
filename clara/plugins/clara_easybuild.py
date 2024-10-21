@@ -92,10 +92,11 @@ except:
 def module_path(prefix):
     if isinstance(prefix, str):
         modulepath = ":".join([ f"{prefix}/modules/{f.name}"
-                     for f in os.scandir(f"{prefix}/modules") if f.is_dir() and not f.name=="all" ])
+                     for f in os.scandir(f"{prefix}/modules") if f.is_dir() and not f.name=="all"
+                     and os.path.isdir(f"{prefix}/modules")])
     elif isinstance(prefix, list):
-        modulepath = ":".join([f"{x}/modules/{f.name}" for x in prefix
-                     for f in os.scandir(f"{x}/modules") if f.is_dir() and not f.name=="all" ])
+        modulepath = ":".join([f"{x}/modules/{f.name}" for x in prefix if os.path.isdir(f"{x}/modules")
+                     for f in os.scandir(f"{x}/modules") if f.is_dir() and not f.name=="all"])
     else:
         clara_exit("prefix must be either string, or list!")
 
