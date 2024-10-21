@@ -36,7 +36,7 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild install <software> [--force] [--rebuild] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [options]
     clara easybuild delete  <software> [options]
@@ -57,6 +57,7 @@ Options:
     --quiet                          Proceed silencely. Don't ask any question!
     --dry-run                        Just simulate migrate action! Don't really do anything
     --width=<width>                  Found easyconfigs files max characters per line [default: 100]
+    --url=<url>                      easybuild hook url to locally fetch source files
 """
 
 import logging
@@ -539,19 +540,39 @@ def main():
     if basedir is None:
         basedir = f'{homedir}/easybuild'
     basedir = get_from_config_or("easybuild", "basedir", default=basedir)
-    _path = f"{basedir}/pre_fetch_hook.py"
-    if not (os.path.isdir(basedir) and os.path.isfile(_path)):
-        message = f"""\nyou must use either switch --basedir nor config file
+    hook = f"{basedir}/pre_fetch_hook.py"
+    if dargs['install']:
+        if os.path.isdir(basedir):
+            if not os.path.isfile(hook):
+                logging.warn(f"file {hook} don't exist! Do you want us")
+                message = f"to create for you default file {hook}?"
+                if yes_or_no(message):
+                    url = get_from_config_or("easybuild", "url", default=dargs['--url'])
+                    if url is None:
+                        message = "You must use switch --url to provide hook url\n"
+                        message += f"or create file {hook} manually!"
+                        clara_exit(message)
+                    with open(hook, "w") as f:
+                        f.write(f"""def pre_fetch_hook(self):
+    "add custom url for source vua of pre-fetch hook"
+    url = '{url}'
+    path = '%(nameletterlower)s/%(name)s'
+    self.log.info("[pre-fetch hook] add url %s !" % url)
+    self.cfg['source_urls'] = self.cfg['source_urls'] + ['%s/%s' % (url, x) for x in ['', path, '%s/extensions' % path]]
+                        \n""")
+                else:
+                    clara_exit("You must create it manually!")
+        else:
+            message = f"""\nyou must use either switch --basedir nor config file
 Indeed, either base directory {basedir}
-or file {_path} don't exist!
 It's recommended to create your own config file with:
 basedir=<your base dir here>
-cat <<EOF>> ~/.config/easybuild.ini
+cat <<EOF>> {config}
 basedir=$basedir
 EOF
-~/.config/easybuild.ini it's the default config file. So no need to use --config!
-                  """
-        clara_exit(message)
+{config} it's the default config file. So no need to use --config!
+                      """
+            clara_exit(message)
 
     pythonpath = os.environ.get("PYTHONPATH",'')
     modulepath = os.environ.get("MODULEPATH",'')
