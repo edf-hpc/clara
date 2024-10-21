@@ -601,7 +601,7 @@ EOF
             if os.path.isdir(f"{_path}/modules"):
                 modulepath += f":{_path}/modules/all"
                 break
-    else:
+    elif dargs['install'] or dargs['search']:
         if shutil.which('eb'):
             eb = 'eb'
         else:
