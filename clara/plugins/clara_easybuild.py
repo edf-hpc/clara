@@ -374,6 +374,7 @@ def restore(software, source, backupdir, prefix, extension):
             else:
                 _installpath = None
                 _prefix = prefix
+                _tmpname = None
 
             for member in members:
                 # replace in lua file prefix by destination prefi_x
@@ -433,7 +434,10 @@ def restore(software, source, backupdir, prefix, extension):
                         else:
                             logging.info(f"module {_module} successfully restored in {installpath}!")
                     finally:
-                        if re.match(rf"{prefix}/\w+", _prefix) and os.path.isdir(_prefix):
+                        # ensure _prefix is directory stricly under prefix!
+                        # we recall here previously declared _prefix value, for clarity!
+                        _prefix = f"{prefix}/{_tmpname}"
+                        if not _tmpname == None and re.match(rf"{prefix}/\w+", _prefix) and os.path.isdir(_prefix):
                             logging.info(f"suppress temporary installed directory {_prefix}")
                             shutil.rmtree(_prefix)
                 else:
@@ -522,6 +526,8 @@ def main():
     if prefix is None:
         prefix = '/software/shared/easybuild'
     prefix = get_from_config_or("easybuild", "prefix", default=prefix)
+    # ensure prefix is real path to enforce security and safety!
+    prefix = os.path.realpath(prefix)
 
     # set default easybuild custom configs base directory
     # standfor for copy of easybuid config file from example repository:
