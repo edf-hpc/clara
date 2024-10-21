@@ -509,9 +509,12 @@ def main():
     homedir = os.environ["HOME"]
 
     # set default config file
-    _path = os.path.abspath(f"{homedir}/.config/easybuild.ini")
-    if conf.config is None and os.path.isfile(_path):
-        conf.config = _path
+    if os.geteuid() == 0:
+        config = '/etc/clara/config.ini'
+    else:
+        config = os.path.abspath(f"{homedir}/.config/easybuild.ini")
+    if conf.config is None and os.path.isfile(config):
+        conf.config = config
 
     eb = dargs['--eb']
     eb = get_from_config_or("easybuild", "binary", default=eb)
