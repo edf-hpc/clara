@@ -394,7 +394,8 @@ def restore(software, source, backupdir, prefix, extension):
                     else:
                         logging.info(f"working on file {_name} ...")
                         tf.extract(member, _prefix)
-                        replace_in_file(_name, source, prefix)
+                        if not source == prefix:
+                            replace_in_file(_name, source, prefix)
                 elif member.name.endswith("requirements.txt"):
                     tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
