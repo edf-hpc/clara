@@ -526,6 +526,9 @@ def main():
     compresslevel = int(dargs['--compresslevel'])
     dereference = dargs['--dereference']
 
+    if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service)", os.uname()[1]):
+        clara_exit("easybuild deployment or deletion is only supported on admin or service nodes!")
+
     homedir = os.environ["HOME"]
 
     # set default config file
