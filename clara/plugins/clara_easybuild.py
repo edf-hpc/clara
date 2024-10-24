@@ -39,8 +39,8 @@ Usage:
     clara easybuild install <software> [--force] [--rebuild] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [options]
-    clara easybuild search  <software> [--width=<width>] [options]
     clara easybuild delete  <software> [--force] [options]
+    clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
     clara easybuild -h | --help | help
 
@@ -135,51 +135,63 @@ def show(software, prefix):
         logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
 def search(software, basedir, width):
-    cmd = [eb, '--hook', f'{basedir}/pre_fetch_hook.py',
-            '--robot', basedir, '--search', software]
-    output, _ = run(' '.join(cmd), shell=True)
-    pattern = re.compile(r' \* ([^ ]*\.eb)', re.DOTALL)
-    match = pattern.findall(output)
-    easyconfig = {}
+    if re.search(r"/", software):
+        message = "searching easybuild software including '/' won't work!"
+        message += "\nAre you sure you want to proceed any way?"
+        if not force:
+            if not yes_or_no(message):
+                return
+    match = re.search(r"(\w+[-\.\d]*)[\.eb]*", software.split("/")[-1])
     if match:
-        for x in match:
-            CFGS, path = os.path.dirname(x), os.path.basename(x)
-            if CFGS in easyconfig:
-                easyconfig[CFGS].append(path)
-            else:
-                easyconfig[CFGS] = [path]
+        _software = match.group()
+        cmd = [eb, '--hook', f'{basedir}/pre_fetch_hook.py',
+                '--robot', basedir, '--search', _software,
+                '--detect-loaded-modules=ignore', '--check-ebroot-env-vars=ignore']
+        output, _ = run(' '.join(cmd), shell=True)
+        pattern = re.compile(r' \* ([^ ]*\.eb)', re.DOTALL)
+        match = pattern.findall(output)
+        easyconfig = {}
+        if match:
+            for x in match:
+                CFGS, path = os.path.dirname(x), os.path.basename(x)
+                if CFGS in easyconfig:
+                    easyconfig[CFGS].append(path)
+                else:
+                    easyconfig[CFGS] = [path]
 
-        try:
-            table = prettytable()
-            table.field_names = ["easyconfig files"]
-        except:
-            table = f":{width}"
+            try:
+                table = prettytable()
+                table.field_names = ["easyconfig files"]
+            except:
+                table = f":{width}"
 
-        for CFGS, paths in easyconfig.items():
-            do_print(table, [CFGS])
-            do_print(table, [fill(" ".join(paths), width=width)])
+            for CFGS, paths in easyconfig.items():
+                do_print(table, [CFGS])
+                do_print(table, [fill(" ".join(paths), width=width)])
 
-        try:
-            if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
-                table.align["easyconfig files"] = "l"
-                count = 0
-                table_txt = ''
-                # simulate here some tricks not yet supported by prettytable used version!
-                for number, line in enumerate(table.get_string().split('\n')):
-                    if number == 0:
-                        horizontal = line
-                    if re.search(r'\/', line):
-                        if count:
-                            table_txt = '%s%s\n%s\n%s\n' % (table_txt, horizontal, line, horizontal)
+            try:
+                if table._get_rows({'oldsortslice': False,'start': 0, 'end': 1, 'sortby': False}):
+                    table.align["easyconfig files"] = "l"
+                    count = 0
+                    table_txt = ''
+                    # simulate here some tricks not yet supported by prettytable used version!
+                    for number, line in enumerate(table.get_string().split('\n')):
+                        if number == 0:
+                            horizontal = line
+                        if re.search(r'\/', line):
+                            if count:
+                                table_txt = '%s%s\n%s\n%s\n' % (table_txt, horizontal, line, horizontal)
+                            else:
+                                count += 1
+                                table_txt = '%s%s\n%s\n' % (table_txt, line, horizontal)
                         else:
-                            count += 1
-                            table_txt = '%s%s\n%s\n' % (table_txt, line, horizontal)
-                    else:
-                        table_txt = '%s%s\n' % (table_txt, line)
-            # print transformed table!
-            print(table_txt)
-        except:
-            print(table)
+                            table_txt = '%s%s\n' % (table_txt, line)
+                # print transformed table!
+                print(table_txt)
+            except:
+                print(table)
+        else:
+            logging.warn(f"no easyconfig file for software {software}!")
     else:
         logging.warn(f"no easyconfig file for software {software}!")
 
