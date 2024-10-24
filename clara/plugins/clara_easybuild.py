@@ -113,7 +113,7 @@ def module_avail(name, prefix):
     # set MODULEPATH environment variable
     module_path(prefix)
 
-    _name = name.replace("-","/").replace(".eb","")
+    _name = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", name)
     output, error = module(f"--show_hidden avail {_name}")
 
     if not re.search(_name, error) and not re.search(r"\/\.", _name):
@@ -121,7 +121,11 @@ def module_avail(name, prefix):
         _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in _name.split("/")])
         logging.debug(f"search hidden module {_name}")
         output, error = module(f"--show_hidden avail {_name}")
-    return _name, re.search(_name, error), error
+
+    match = re.search(rf"{_name}[^ ]*", error)
+    _name = match.group() if match else _name
+
+    return _name, match, error
 
 def show(software, prefix):
     name, match, output = module_avail(software, prefix)
