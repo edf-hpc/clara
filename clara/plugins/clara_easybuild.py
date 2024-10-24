@@ -39,8 +39,8 @@ Usage:
     clara easybuild install <software> [--force] [--rebuild] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [options]
-    clara easybuild delete  <software> [options]
     clara easybuild search  <software> [--width=<width>] [options]
+    clara easybuild delete  <software> [--force] [options]
     clara easybuild show    <software> [options]
     clara easybuild -h | --help | help
 
@@ -454,12 +454,15 @@ def delete(software, prefix):
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
         match = pattern.findall(error)
         if match:
-            message = f"Are you sure you want to remove software {_software},\nunder prefix {prefix} ?"
-            if not yes_or_no(message):
-                logging.error(f"You choose to no more removed software {_software}!")
-                return
-            logging.debug(f"delete software {versions[0]}")
             data = [i.strip() for x in match for i in ''.join(x).split('\n')]
+            _data = '\n'.join(data)
+            message = "\nAre you sure you want to remove bellow files/directory "
+            message += "of software {}:\n\n{}\n\n".format(_software, _data)
+            if not force:
+                if not yes_or_no(message):
+                    logging.info(f"You choose to no more removed software {_software}!")
+                    return
+            logging.debug(f"suppressing software {versions[0]} under path\n{_data}")
             for name in data:
                 if name.endswith(".lua"):
                     if os.path.isfile(name):
