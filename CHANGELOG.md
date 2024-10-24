@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241024] - 2024-10-24
+
+### Fixed
+plugin easybuild: fix restore module name issue
+plugin easybuild: remove word start with /fs
+plugin easybuild: enforce module name detection
+plugin easybuild: ensure module directory exist
+plugin easybuild: fix issue with xz compression
+plugin easybuild: replace in file only if need
+plugin easybuild: eb only need for install/search
+plugin easybuild: tune default config selection!
+plugin easybuild: set root default config file!
+plugin easybuild: ensure safely defined _prefix!
+plugin easybuild: fix typo adding is in message
+plugin easybuild: fix bad default backupdir issue
+plugin easybuild: fix xz compress level issue
+
+### Added
+bin: support easybuild plugin only on admin nodes
+plugin easybuild: ensure Lmod 4 install or delete
+plugin easybuild: support eb only on admin nodes
+plugin easybuild: support force software search
+plugin easybuild: support unattended deletion
+
 ## [0.20241017] - 2024-10-17
 
 ### Fixed
