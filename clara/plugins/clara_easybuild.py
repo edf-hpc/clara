@@ -320,7 +320,7 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
         match = pattern.findall(error)
         if match:
-            data = [i.strip() for x in match for i in ''.join(x).split('\n')]
+            data = [re.sub(r'^(\/fs\w+)', '', os.path.realpath(i.strip())) for x in match for i in ''.join(x).split('\n')]
             _software = versions[0].replace("/","-")
             software = "".join([name for name in data if name.endswith(".lua")])
             if os.path.islink(software):
