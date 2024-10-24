@@ -353,7 +353,7 @@ def replace_in_file(name, source, prefix):
         f.write(data)
 
 def restore(software, source, backupdir, prefix, extension):
-    _module = software.replace("-","/").replace(".eb","")
+    _module = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", software)
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
     tarball = f"{packages_dir}/{_software}.tar.{extension}"
@@ -364,8 +364,11 @@ def restore(software, source, backupdir, prefix, extension):
         total_bytes = os.stat(tarball).st_size
         with tarfile.open(tarball, f"r:{extension}") as tf:
             members = [member for member in tf.getmembers()]
+            # support module like A1/A2/.../An, splitting it only per first and
+            # last componant. For instance, intel compilers related modules.
             # for hidden module, we need to remove first dot on module version!
-            _module_ = "/".join([re.sub(r"^\.","",x) for x in _module.split("/")])
+            _list = _module.split("/")
+            _module_ = "/".join([re.sub(r"^\.","",x) for x in _list[::len(_list)-1]])
             basepath = "".join([member.name for member in members
                        if os.path.normpath(member.name).lower().endswith(_module_)
                        or member.name.endswith(_module_)])
@@ -382,7 +385,7 @@ def restore(software, source, backupdir, prefix, extension):
                 os.makedirs(_installpath)
                 if not force:
                     if not yes_or_no(message):
-                        logging.error("Abort software {software} installation!")
+                        logging.error(f"Abort software {software} installation!")
                         return
             else:
                 _installpath = None
