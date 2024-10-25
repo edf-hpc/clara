@@ -134,7 +134,7 @@ def show(software, prefix):
     else:
         logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
-def search(software, basedir, width):
+def search(software, basedir, width, force):
     if re.search(r"/", software):
         message = "searching easybuild software including '/' won't work!"
         message += "\nAre you sure you want to proceed any way?"
@@ -224,7 +224,7 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
         #
         return dependencies
 
-def install(software, prefix, basedir, rebuild, requirement_only):
+def install(software, prefix, basedir, rebuild, requirement_only, force):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
     _software = re.sub(r'/(\.)?', '-', name)
@@ -352,7 +352,7 @@ def replace_in_file(name, source, prefix):
     with open(name, 'w') as f:
         f.write(data)
 
-def restore(software, source, backupdir, prefix, extension):
+def restore(software, source, backupdir, prefix, extension, force):
     _module = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", software)
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
@@ -420,7 +420,7 @@ def restore(software, source, backupdir, prefix, extension):
                             for _software in [line.rstrip() for line in f]:
                                 logging.info(f"restore  software {_software} ...")
                                 _software = _software.replace("/","-")
-                                restore(_software, source, backupdir, prefix, extension)
+                                restore(_software, source, backupdir, prefix, extension, force)
                 else:
                     tf.extract(member, _prefix)
 
@@ -463,7 +463,7 @@ def restore(software, source, backupdir, prefix, extension):
     else:
         logging.warn(f"tarball {tarball} don't exist!")
 
-def delete(software, prefix):
+def delete(software, prefix, force):
     _software, versions = module_versions(software, prefix)
     match = None
     if len(versions) == 0:
@@ -512,7 +512,7 @@ def delete(software, prefix):
         logging.error("can't suppress many software/module at same time!")
 
 def main():
-    global dry_run, eb, force
+    global dry_run, eb
 
     logging.debug(sys.argv)
     dargs = docopt.docopt(__doc__)
@@ -638,17 +638,17 @@ EOF
     os.environ["PYTHONPATH"] = pythonpath
 
     if dargs['search']:
-        search(software, basedir, width)
+        search(software, basedir, width, force)
     elif dargs['show']:
         show(software, ["/software/shared/easybuild", f"{homedir}/.local/easybuild"])
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, requirement_only)
+        install(software, prefix, basedir, rebuild, requirement_only, force)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force)
     elif dargs['restore']:
-        restore(software, source, backupdir, prefix, extension)
+        restore(software, source, backupdir, prefix, extension, force)
     elif dargs['delete']:
-        delete(software, prefix)
+        delete(software, prefix, force)
 
 if __name__ == '__main__':
     main()
