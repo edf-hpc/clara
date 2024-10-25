@@ -123,7 +123,7 @@ def module_avail(name, prefix):
         logging.debug(f"search hidden module {_name}")
         output, error = module(f"--show_hidden avail {_name}")
 
-    match = re.search(rf"{_name}[^ ]*", error)
+    match = re.search(rf"{_name}[^\n ]*", error)
     _name = match.group() if match else _name
 
     return _name, match, error
