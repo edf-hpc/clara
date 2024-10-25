@@ -38,7 +38,7 @@ Manage software installation via easybuild
 Usage:
     clara easybuild install <software> [--force] [--rebuild] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
-    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [options]
+    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
@@ -52,12 +52,13 @@ Options:
     --extension=<extension>          tar backup extension, like bz2, gz or xz [default: gz]
     --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
     --dereference                    add symbolic and hard links to the tar archive. Default: False
-    --force                          Force install/backup/restore of existing software/archive
+    --force                          Force (non recursive) backup/restore of existing software/archive
     --requirement-only               Only retrieve software dependencies
     --quiet                          Proceed silencely. Don't ask any question!
     --dry-run                        Just simulate migrate action! Don't really do anything
     --width=<width>                  Found easyconfigs files max characters per line [default: 100]
     --url=<url>                      easybuild hook url to locally fetch source files
+    --yes-i-really-really-mean-it    Force recursive restore. Use only if you known what you are doing!
 """
 
 import logging
@@ -224,7 +225,7 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
         #
         return dependencies
 
-def install(software, prefix, basedir, rebuild, requirement_only, force):
+def install(software, prefix, basedir, rebuild, requirement_only, force, recurse):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
     _software = re.sub(r'/(\.)?', '-', name)
@@ -305,7 +306,7 @@ def tar(software, prefix, data, backupdir, extension, compresslevel, dereference
     else:
         logging.warn(f"[WARN]\ntarball {tarball} already exist!\nUse --force to regenerate it!")
 
-def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force):
+def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force, recurse):
     # generate module, and it's eventuals dependencies, archives (under directory backupdir)
     if versions is None:
         _software, versions = module_versions(software, prefix)
@@ -337,7 +338,7 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
                 with open(f"{installpath}/requirements.txt", 'r') as f:
                     for _software in [line.rstrip() for line in f]:
                         logging.info(f"working on dependency {_software} ...")
-                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, force)
+                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse)
         else:
             print([])
     else:
@@ -352,7 +353,7 @@ def replace_in_file(name, source, prefix):
     with open(name, 'w') as f:
         f.write(data)
 
-def restore(software, source, backupdir, prefix, extension, force):
+def restore(software, source, backupdir, prefix, extension, force, recurse):
     _module = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", software)
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
@@ -420,7 +421,7 @@ def restore(software, source, backupdir, prefix, extension, force):
                             for _software in [line.rstrip() for line in f]:
                                 logging.info(f"restore  software {_software} ...")
                                 _software = _software.replace("/","-")
-                                restore(_software, source, backupdir, prefix, extension, force)
+                                restore(_software, source, backupdir, prefix, extension, force, recurse)
                 else:
                     tf.extract(member, _prefix)
 
@@ -519,6 +520,7 @@ def main():
 
     dry_run = dargs['--dry-run']
     force = dargs['--force']
+    recurse = dargs['--yes-i-really-really-mean-it']
     width = int(dargs['--width'])
     rebuild = dargs['--rebuild']
     requirement_only = dargs['--requirement-only']
@@ -642,11 +644,11 @@ EOF
     elif dargs['show']:
         show(software, ["/software/shared/easybuild", f"{homedir}/.local/easybuild"])
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, requirement_only, force)
+        install(software, prefix, basedir, rebuild, requirement_only, force, recurse)
     elif dargs['backup']:
-        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force)
+        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse)
     elif dargs['restore']:
-        restore(software, source, backupdir, prefix, extension, force)
+        restore(software, source, backupdir, prefix, extension, force, recurse)
     elif dargs['delete']:
         delete(software, prefix, force)
 
