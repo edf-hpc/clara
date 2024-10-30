@@ -381,7 +381,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse):
                 message = f"Module {_module} is already installed under {installpath}!"
                 message = f"{message}\nDo you want to install it again!?!"
                 _tmpname = next(tempfile._get_candidate_names())
-                _prefix = f"{prefix}/{_tmpname}"
+                _prefix = f"{prefix}/tmp/{_tmpname}"
                 _installpath = f"{_prefix}/{basepath}"
                 os.makedirs(_installpath)
                 if not force:
@@ -454,8 +454,8 @@ def restore(software, source, backupdir, prefix, extension, force, recurse):
                     finally:
                         # ensure _prefix is directory stricly under prefix!
                         # we recall here previously declared _prefix value, for clarity!
-                        _prefix = f"{prefix}/{_tmpname}"
-                        if not _tmpname == None and re.match(rf"{prefix}/\w+", _prefix) and os.path.isdir(_prefix):
+                        _prefix = f"{prefix}/tmp/{_tmpname}"
+                        if not _tmpname == None and re.match(rf"{prefix}/tmp/\w+", _prefix) and os.path.isdir(_prefix):
                             logging.info(f"suppress temporary installed directory {_prefix}")
                             shutil.rmtree(_prefix)
                 else:
