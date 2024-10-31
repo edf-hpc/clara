@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241031] - 2024-10-31
+
+### Fixed
+plugin easybuild: fix bunch recurse issues!
+plugin easybuild: fix dependencies only issue
+plugin easybuild: fix bad restore software issue
+plugin easybuild: fix requirements.txt file issue
+plugin easybuild: fix issue with module retrieving
+plugin easybuild: no more use force as global var
+
+### Added
+plugin easybuild: support suffix tarball name
+plugin easybuild: create dedicated tmp directory
+plugin easybuild: introduce recurce force action
+
 ## [0.20241024] - 2024-10-24
 
 ### Fixed
