@@ -59,6 +59,8 @@ Options:
     --width=<width>                  Found easyconfigs files max characters per line [default: 100]
     --url=<url>                      easybuild hook url to locally fetch source files
     --yes-i-really-really-mean-it    Force recursive restore. Use only if you known what you are doing!
+    --suffix=<suffix>                Add suffix word in tarball name
+    --no-suffix                      No suffix in tarball name
 """
 
 import logging
@@ -290,14 +292,19 @@ def module_versions(name, prefix):
     else:
         return _name, []
 
-def tar(software, prefix, data, backupdir, extension, compresslevel, dereference, force):
+def get_tarball(path, software, extension, suffix):
+    if not suffix == "":
+        suffix = f"-{suffix}"
+    return f"{path}/{software}{suffix}.tar.{extension}"
+
+def tar(software, prefix, data, backupdir, extension, compresslevel, dereference, force, suffix):
     if not re.match(r'^/\w+', prefix):
         logging.debug(f"unsupported prefix {prefix}!")
         return
     packages_dir = f"{backupdir}/packages"
     if not os.path.isdir(packages_dir):
         os.mkdir(packages_dir)
-    tarball = f"{packages_dir}/{software}.tar.{extension}"
+    tarball = get_tarball(packages_dir, software, extension, suffix)
     if not os.path.isfile(tarball) or force:
         logging.info(f"generate tarball {tarball}")
         with tarfile.open(tarball, f"w:{extension}", compresslevel=compresslevel, dereference=dereference) as tf:
@@ -306,7 +313,7 @@ def tar(software, prefix, data, backupdir, extension, compresslevel, dereference
     else:
         logging.warn(f"[WARN]\ntarball {tarball} already exist!\nUse --force to regenerate it!")
 
-def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force, recurse):
+def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force, recurse, suffix):
     # generate module, and it's eventuals dependencies, archives (under directory backupdir)
     if versions is None:
         _software, versions = module_versions(software, prefix)
@@ -332,13 +339,13 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
             logging.debug(f"software: {_software}\ndata: {data}\nprefix: {_prefix}\nbackupdir: {backupdir}\n")
             if backupdir is None:
                 backupdir = _prefix
-            tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force)
+            tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force, suffix)
             installpath = "".join([name for name in data if not name.endswith(".lua")])
             if os.path.isfile(f"{installpath}/.__requirements.txt"):
                 with open(f"{installpath}/.__requirements.txt", 'r') as f:
                     for _software in [line.rstrip() for line in f]:
                         logging.info(f"working on dependency {_software} ...")
-                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse)
+                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse, suffix)
         else:
             print([])
     else:
@@ -353,11 +360,11 @@ def replace_in_file(name, source, prefix):
     with open(name, 'w') as f:
         f.write(data)
 
-def restore(software, source, backupdir, prefix, extension, force, recurse):
+def restore(software, source, backupdir, prefix, extension, force, recurse, suffix):
     _module = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", software)
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
-    tarball = f"{packages_dir}/{_software}.tar.{extension}"
+    tarball = get_tarball(packages_dir, _software, extension, suffix)
     umask = os.umask(0o022)
 
     if os.path.isfile(tarball):
@@ -421,7 +428,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse):
                             for _software in [line.rstrip() for line in f]:
                                 logging.info(f"restore  software {_software} ...")
                                 _software = _software.replace("/","-")
-                                restore(_software, source, backupdir, prefix, extension, force, recurse)
+                                restore(_software, source, backupdir, prefix, extension, force, recurse, suffix)
                 else:
                     tf.extract(member, _prefix)
 
@@ -544,6 +551,24 @@ def main():
     if conf.config is None and os.path.isfile(config):
         conf.config = config
 
+    suffix = "" if dargs['--no-suffix'] else None
+    if suffix is None:
+        suffix = dargs['--suffix']
+    if suffix is None:
+        # default is to retrieve host name!
+        suffix=os.uname()[1]
+        try:
+            # default is to retrieve host domain name!
+            with open("/etc/resolv.conf", 'r') as f:
+                for line in f.read().splitlines(True):
+                    match = re.search(r"^search\s+([^\.]+)", line)
+                    if match:
+                        suffix = match.group().replace("search ","")
+        except:
+            pass
+
+    suffix = get_from_config_or("easybuild", "suffix", default=suffix)
+
     eb = dargs['--eb']
     eb = get_from_config_or("easybuild", "binary", default=eb)
 
@@ -646,9 +671,9 @@ EOF
     elif dargs['install']:
         install(software, prefix, basedir, rebuild, requirement_only, force, recurse)
     elif dargs['backup']:
-        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse)
+        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix)
     elif dargs['restore']:
-        restore(software, source, backupdir, prefix, extension, force, recurse)
+        restore(software, source, backupdir, prefix, extension, force, recurse, suffix)
     elif dargs['delete']:
         delete(software, prefix, force)
 
