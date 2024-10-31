@@ -272,7 +272,7 @@ def install(software, prefix, basedir, rebuild, requirement_only, force, recurse
                 data = [i.strip() for x in match for i in ''.join(x).split('\n')]
                 logging.info(error)
                 installpath = "".join([name for name in data if not name.endswith(".lua")])
-                with open(f"{installpath}/requirements.txt", 'w') as f:
+                with open(f"{installpath}/.__requirements.txt", 'w') as f:
                     f.write('\n'.join(_modules))
 
 def module_versions(name, prefix):
@@ -334,8 +334,8 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
                 backupdir = _prefix
             tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force)
             installpath = "".join([name for name in data if not name.endswith(".lua")])
-            if os.path.isfile(f"{installpath}/requirements.txt"):
-                with open(f"{installpath}/requirements.txt", 'r') as f:
+            if os.path.isfile(f"{installpath}/.__requirements.txt"):
+                with open(f"{installpath}/.__requirements.txt", 'r') as f:
                     for _software in [line.rstrip() for line in f]:
                         logging.info(f"working on dependency {_software} ...")
                         backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse)
@@ -412,7 +412,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse):
                         tf.extract(member, _prefix)
                         if not source == prefix:
                             replace_in_file(_name, source, prefix)
-                elif member.name.endswith("requirements.txt"):
+                elif member.name.endswith(f"{_module_}/.__requirements.txt"):
                     tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
                     logging.info(f"working on file {_name} ...")
