@@ -53,7 +53,7 @@ Options:
     --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
     --dereference                    add symbolic and hard links to the tar archive. Default: False
     --force                          Force (non recursive) backup/restore of existing software/archive
-    --requirement-only               Only retrieve software dependencies
+    --only-dependencies              Only retrieve software dependencies
     --quiet                          Proceed silencely. Don't ask any question!
     --dry-run                        Just simulate migrate action! Don't really do anything
     --width=<width>                  Found easyconfigs files max characters per line [default: 100]
@@ -227,23 +227,25 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
         #
         return dependencies
 
-def install(software, prefix, basedir, rebuild, requirement_only, force, recurse):
+def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
     _software = re.sub(r'/(\.)?', '-', name)
     _software = f"{_software}.eb"
     if match:
-        if rebuild:
+        if rebuild or only_dependencies:
             # module already exist under prefix
             # rewrite needful syntax for eb software
             # ensure infinite recursive loop!
             sys.setrecursionlimit(150)
             # retrieve software potential dependencies
-            dependencies = get_dependencies(_software, prefix, basedir, rebuild)
+            dependencies = get_dependencies(_software, prefix, basedir, rebuild or only_dependencies)
             # suppress duplicates
             dependencies = list(dict.fromkeys(dependencies))
-            if len(dependencies):
+            if len(dependencies) > 1:
                 logging.info(f"software {_software} need following dependencies:\n{dependencies}")
+            else:
+                logging.info(f"software {_software} dont have any dependency!")
         else:
             message = f"\nsoftware {_software} already exist under {prefix}!"
             message += f"\nuse switch --rebuild to install it again!"
@@ -254,7 +256,7 @@ def install(software, prefix, basedir, rebuild, requirement_only, force, recurse
         logging.debug(f"No software {name} installed under prefix {prefix}!")
     #
     if not dry_run:
-        if not requirement_only:
+        if not only_dependencies:
             cmd = [eb ,'--robot', basedir, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
             if rebuild:
                 cmd += ['--rebuild']
@@ -272,9 +274,11 @@ def install(software, prefix, basedir, rebuild, requirement_only, force, recurse
             _modules = [x for _, x in dependencies if not x.startswith(name.split("/")[0])]
             if match and len(_modules):
                 data = [i.strip() for x in match for i in ''.join(x).split('\n')]
-                logging.info(error)
+                if not only_dependencies:
+                    logging.info(error)
                 installpath = "".join([name for name in data if not name.endswith(".lua")])
-                with open(f"{installpath}/.__requirements.txt", 'w') as f:
+                logging.debug(f"Create dependencies file {installpath}/.__dependencies.txt")
+                with open(f"{installpath}/.__dependencies.txt", 'w') as f:
                     f.write('\n'.join(_modules))
 
 def module_versions(name, prefix):
@@ -341,8 +345,8 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
                 backupdir = _prefix
             tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force, suffix)
             installpath = "".join([name for name in data if not name.endswith(".lua")])
-            if os.path.isfile(f"{installpath}/.__requirements.txt"):
-                with open(f"{installpath}/.__requirements.txt", 'r') as f:
+            if os.path.isfile(f"{installpath}/.__dependencies.txt"):
+                with open(f"{installpath}/.__dependencies.txt", 'r') as f:
                     for _software in [line.rstrip() for line in f]:
                         logging.info(f"working on dependency {_software} ...")
                         backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse, suffix)
@@ -421,7 +425,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                         tf.extract(member, _prefix)
                         if not source == prefix:
                             replace_in_file(_name, source, prefix)
-                elif member.name.endswith(f"{_module_}/.__requirements.txt"):
+                elif member.name.endswith(f"{_module_}/.__dependencies.txt"):
                     tf.extract(member, _prefix)
                     _name = f"{_prefix}/{member.name}"
                     logging.info(f"working on file {_name} ...")
@@ -532,7 +536,7 @@ def main():
     recurse = dargs['--yes-i-really-really-mean-it']
     width = int(dargs['--width'])
     rebuild = dargs['--rebuild']
-    requirement_only = dargs['--requirement-only']
+    only_dependencies = dargs['--only-dependencies']
     extension = dargs['--extension']
     compresslevel = int(dargs['--compresslevel'])
     dereference = dargs['--dereference']
@@ -671,7 +675,7 @@ EOF
     elif dargs['show']:
         show(software, ["/software/shared/easybuild", f"{homedir}/.local/easybuild"])
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, requirement_only, force, recurse)
+        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix)
     elif dargs['restore']:
