@@ -230,7 +230,9 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
 def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
-    _software = re.sub(r'/(\.)?', '-', name)
+    if re.search(r"/|-", name) is None:
+        clara_exit(f"Bad software name: {name}. PLS software must follow scheme <name>/<version>")
+    software = re.sub(r'/(\.)?', '-', name)
     _software = f"{_software}.eb"
     if match:
         if rebuild or only_dependencies:
