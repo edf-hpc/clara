@@ -730,10 +730,11 @@ def main():
                     clara_exit("You must create it manually!")
         else:
             message = f"""\nyou must use either switch --basedir nor config file
-Indeed, either base directory {basedir}
+Indeed, either base directory {basedir} (custom git clone of easybuild configs)
 It's recommended to create your own config file with:
 basedir=<your base dir here>
-cat <<EOF>> {config}
+cat <<EOF> {config}
+[easybuild]
 basedir=$basedir
 EOF
 {config} it's the default config file. So no need to use --config!
