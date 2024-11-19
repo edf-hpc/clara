@@ -526,9 +526,11 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                     else:
                         logging.info(f"working on file {_name} ...")
                         tf.extract(member, _prefix, set_attrs=False)
+                        os.chmod(_name, member.mode)
                         replace_in_file(_name, source, prefix)
                 elif not f"{version}/easybuild" in member.name or devel:
                     tf.extract(member, _prefix, set_attrs=False)
+                    os.chmod(_name, member.mode)
 
                 if not f"{version}/easybuild" in member.name or devel:
                     try:
