@@ -36,13 +36,14 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild install <software> [--force] [--rebuild] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--inject-checksums] [--url=<url>] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
     clara easybuild hide    <software> [options]
+    clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -62,6 +63,7 @@ Options:
     --yes-i-really-really-mean-it    Force recursive restore. Use only if you known what you are doing!
     --suffix=<suffix>                Add suffix word in tarball name
     --no-suffix                      No suffix in tarball name
+    --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
 """
 
 import logging
@@ -277,7 +279,27 @@ def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
         #
         return dependencies
 
-def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse):
+def fetch(software, basedir, checksums):
+    software = re.sub(r'/(\.)?', '-', software)
+    if not software.endswith(".eb"):
+        software = f"{software}.eb"
+
+    _dry_run = '--dry-run' if dry_run and not checksums else ''
+    cmd = [eb ,'--robot', basedir, _dry_run, '--hook',
+           f'{basedir}/pre_fetch_hook.py', software, '--fetch']
+    if checksums:
+        cmd += ['--inject-checksums', '--force']
+
+    output, retcode = run(' '.join(cmd), shell=True, exit_on_error=False)
+    if isinstance(retcode, int) and not retcode == 0:
+        logging.debug(output)
+        clara_exit(f"fail to fetch source of software {software} :-( !")
+    else:
+        logging.info(f"successfully fetch software {software} source archive")
+        logging.debug(f"output:\n{output}")
+        return output
+
+def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
     if re.search(r"/|-", name) is None:
@@ -319,6 +341,10 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
             run(cmd)
         # if need, retrieve newly installed software path
         if len(dependencies):
+
+    if not only_dependencies:
+        fetch(_software, basedir, checksums)
+
             output, error = module(f"show {name}")
             pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
             match = pattern.findall(error)
@@ -600,6 +626,7 @@ def main():
     extension = dargs['--extension']
     compresslevel = int(dargs['--compresslevel'])
     dereference = dargs['--dereference']
+    checksums = dargs['--inject-checksums']
 
     if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service)", os.uname()[1]):
         clara_exit("easybuild deployment or deletion is only supported on admin or service nodes!")
@@ -719,7 +746,7 @@ EOF
             if os.path.isdir(f"{_path}/modules"):
                 modulepath += f":{_path}/modules/all"
                 break
-    elif dargs['install'] or dargs['search']:
+    elif dargs['install'] or dargs['search'] or dargs['fetch']:
         if shutil.which('eb'):
             eb = 'eb'
         else:
@@ -734,8 +761,10 @@ EOF
         search(software, basedir, width, force)
     elif dargs['show']:
         show(software, ["/software/shared/easybuild", f"{homedir}/.local/easybuild"])
+    elif dargs['fetch']:
+        fetch(software, basedir, checksums)
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse)
+        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix)
     elif dargs['restore']:
