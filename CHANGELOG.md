@@ -6,6 +6,38 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241119] - 2024-11-19
+
+### Fixed
+plugin easybuild: split prefix with or instead
+plugin easybuild: fix restore mode setting issue
+utils: fix return decode error when shell=True
+plugin easybuild: show modules from arbitrar path
+plugin easybuild: retrieve easybuild binary path
+plugin easybuild: fix generate config ini file
+plugin easybuild: fix not installed/hidden delete
+plugin easybuild: rewrite restore for recurse
+plugin easybuild: fix unwanted /fs<cluster> issue
+plugin easybuild: suppress redundancy backup
+plugin easybuild: rewrite recusive install
+plugin easybuild: fix unexistant module issue
+plugin easybuild: fix module name version format
+plugin easybuild: fix unhide retrieve module name
+plugin easybuild: enforce module naming scheme
+
+### Added
+docs: support default module setting
+plugin easybuild: support default module setting
+docs: add a bunch docs regarding easybuild
+utils: add support to Lmod provided as module
+utils: support optional debug logging
+plugin easybuild: support restore/delete on login
+plugin easybuild: dft no more restore devel files
+plugin easybuild: add support to restore as root
+plugin easybuild: support eb install step skip
+plugin easybuild: introduce source archive fetch
+plugin easybuild: add advanced hidden module
+
 ## [0.20241031] - 2024-10-31
 
 ### Fixed
