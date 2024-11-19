@@ -517,11 +517,11 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                             os.symlink(link, _name)
                     else:
                         logging.info(f"working on file {_name} ...")
-                        tf.extract(member, _prefix)
+                        tf.extract(member, _prefix, set_attrs=False)
                         if not source == prefix:
                             replace_in_file(_name, source, prefix)
                 elif member.name.endswith(f"{version}/.__dependencies.txt"):
-                    tf.extract(member, _prefix)
+                    tf.extract(member, _prefix, set_attrs=False)
                     _name = f"{_prefix}/{member.name}"
                     if os.path.isfile(_name) and recurse:
                         logging.info(f"working on dependencies file {_name} ...")
@@ -530,7 +530,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                                 logging.info(f"restore  software {_software} ...")
                                 restore(_software, source, backupdir, prefix, extension, force, recurse, suffix)
                 else:
-                    tf.extract(member, _prefix)
+                    tf.extract(member, _prefix, set_attrs=False)
 
             os.umask(umask)  # Restore umask
             if os.path.isdir(installpath) and _installpath is not None:
