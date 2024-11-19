@@ -120,6 +120,10 @@ def module_avail(name, prefix):
         name = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", name)
     output, error = module(f"--show_hidden avail {name}")
 
+    if isinstance(error, int) and not error == 0:
+        logging.warn(f"fail to get avail modules of software {name} :-( !")
+        return name, None, error
+
     _name = name
     if not re.search(name, error) and not re.search(r"\/\.", name):
     # support also hidden module!
