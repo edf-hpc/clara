@@ -754,6 +754,9 @@ EOF
         backupdir = prefix
     backupdir = get_from_config_or("easybuild", "backupdir", default=backupdir)
 
+    if not eb:
+        eb = shutil.which('eb')
+
     if eb:
         if not (os.path.isfile(eb) and os.access(eb, os.X_OK)):
             clara_exit(f"easybuild binary {eb} isn't executable!")
@@ -769,10 +772,7 @@ EOF
                 modulepath += f":{_path}/modules/all"
                 break
     elif dargs['install'] or dargs['search'] or dargs['fetch']:
-        if shutil.which('eb'):
-            eb = 'eb'
-        else:
-            clara_exit("no easybuild binary found in your path. PLS provide one with --eb switch")
+        clara_exit("no easybuild binary found in your path. PLS raise: module EasyBuild or provide easybuild binary via --eb switch")
     _path = shutil.which('python3')
     if _path:
         os.environ["EB_PYTHON"] = _path
