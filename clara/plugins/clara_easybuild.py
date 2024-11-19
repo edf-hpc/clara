@@ -189,7 +189,7 @@ def show(software, prefix):
     if match:
         print(output)
     else:
-        logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
+        logging.info(f"No software {name} installed under prefix {' or '.join(prefix)}!")
 
 def search(software, basedir, width, force):
     if re.search(r"/", software):
