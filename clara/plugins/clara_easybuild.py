@@ -649,7 +649,7 @@ def main():
     skip = dargs['--skip']
     elapse = int(dargs['--elapse'])
 
-    if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service)", os.uname()[1]):
+    if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service|login)", os.uname()[1]):
         clara_exit("easybuild deployment or deletion is only supported on admin or service nodes!")
 
     if (dargs['install'] or dargs['delete']) and not (os.path.isfile("/usr/share/lmod/lmod/libexec/lmod")):
