@@ -185,7 +185,7 @@ def clush(hosts, cmds):
                                       output.message().decode('utf8')))
 
 
-def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=None, shell=False):
+def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=None, shell=False, debug=True):
     """Run a command and check its return code.
 
        Arguments:
@@ -195,7 +195,8 @@ def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=Non
            function raises an RuntimeError exception.
      """
 
-    logging.debug("utils/run: %s" % cmd if shell else " ".join(cmd))
+    if debug:
+        logging.debug("utils/run: %s" % cmd if shell else " ".join(cmd))
 
     try:
         if shell:
