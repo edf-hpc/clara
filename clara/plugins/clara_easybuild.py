@@ -119,16 +119,18 @@ def module_avail(name, prefix):
     _name = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", name)
     output, error = module(f"--show_hidden avail {_name}")
 
-    if not re.search(_name, error) and not re.search(r"\/\.", _name):
+    _name = name
+    if not re.search(name, error) and not re.search(r"\/\.", name):
     # support also hidden module!
-        _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in _name.split("/")])
+        _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in name.split("/")])
         logging.debug(f"search hidden module {_name}")
         output, error = module(f"--show_hidden avail {_name}")
 
     match = re.search(rf"{_name}[^\n ]*", error)
-    _name = match.group() if match else _name
+    name = match.group() if match else name
 
-    return _name, match, error
+    return name, match, error
+
 
 def show(software, prefix):
     name, match, output = module_avail(software, prefix)
@@ -286,7 +288,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
 def module_versions(name, prefix):
     _name, match, _ = module_avail(name, prefix)
     if not match:
-        clara_exit(f"no module named {_name} under prefix {prefix}!")
+        clara_exit(f"no module named {name} under prefix {prefix}!")
 
     output, error = module(f"--show_hidden spider {_name}")
 
