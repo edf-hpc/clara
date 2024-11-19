@@ -216,7 +216,7 @@ def run(cmd, exit_on_error=True, stdin=None, input=None, stdout=None, stderr=Non
         if exit_on_error:
             clara_exit(' '.join(cmd))
         elif shell:
-            return cmd, retcode
+            return error.decode(), retcode
         else:
             raise RuntimeError("Error {0} while running cmd: {1}" \
                                .format(retcode, ' '.join(cmd)))
