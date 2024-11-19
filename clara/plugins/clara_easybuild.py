@@ -44,6 +44,7 @@ Usage:
     clara easybuild show    <software> [options]
     clara easybuild hide    <software> [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
+    clara easybuild default <software> [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -140,6 +141,38 @@ def module_avail(name, prefix):
     name = match.group() if match else name
 
     return name, match, error
+
+def default(software, prefix):
+
+    name, match, output = module_avail(software, prefix)
+    if match:
+        output, error = module(f"show {name}")
+        if error == 1:
+            clara_exit(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
+        pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):', re.DOTALL)
+        match = pattern.findall(error)
+
+        if len(match) == 1:
+            modulelua = "".join(match)
+            path = os.path.dirname(modulelua)
+            defaultlua = f"{path}/default"
+            if os.path.islink(defaultlua):
+                logging.debug(f"suppressing existent link default {defaultlua} ...")
+                os.unlink(defaultlua)
+            elif os.path.isfile(defaultlua):
+                logging.debug(f"suppressing existent file default {defaultlua} ...")
+                os.remove(defaultlua)
+
+            try:
+                os.symlink(modulelua, defaultlua)
+            except:
+                clara_exit(f"fail to set software {name} as default under {prefix}!")
+            else:
+                logging.info(f"successfully set software {name} as default under {prefix}!")
+                show(name.split("/")[0], prefix)
+
+    else:
+        logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
 def hide(software, prefix):
     output, error = module("--version")
@@ -797,6 +830,8 @@ EOF
         delete(software, prefix, force)
     elif dargs['hide']:
         hide(software, prefix)
+    elif dargs['default']:
+        default(software, prefix)
 
 if __name__ == '__main__':
     main()
