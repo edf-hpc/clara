@@ -503,8 +503,16 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
 
             for member in members:
                 # replace in lua file prefix by destination prefi_x
-                if member.name.endswith(f"{_module}.lua"):
-                    _name = f"{_prefix}/{member.name}"
+                _name = f"{_prefix}/{member.name}"
+                if member.name.endswith(f"{version}/.__dependencies.txt"):
+                    tf.extract(member, _prefix, set_attrs=False)
+                    if os.path.isfile(_name) and recurse:
+                        logging.info(f"working on dependencies file {_name} ...")
+                        with open(_name, 'r') as f:
+                            for _software in [line.rstrip() for line in f]:
+                                logging.info(f"restore  software {_software} ...")
+                                restore(_software, source, backupdir, prefix, extension, force, recurse, suffix)
+                elif member.name.endswith(f"{_module}.lua"):
                     if member.issym():
                         if os.path.islink(_name) and not os.path.exists(_name):
                             clara_exit(f"symbolic link {_name} is probably broken!")
@@ -518,17 +526,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                     else:
                         logging.info(f"working on file {_name} ...")
                         tf.extract(member, _prefix, set_attrs=False)
-                        if not source == prefix:
-                            replace_in_file(_name, source, prefix)
-                elif member.name.endswith(f"{version}/.__dependencies.txt"):
-                    tf.extract(member, _prefix, set_attrs=False)
-                    _name = f"{_prefix}/{member.name}"
-                    if os.path.isfile(_name) and recurse:
-                        logging.info(f"working on dependencies file {_name} ...")
-                        with open(_name, 'r') as f:
-                            for _software in [line.rstrip() for line in f]:
-                                logging.info(f"restore  software {_software} ...")
-                                restore(_software, source, backupdir, prefix, extension, force, recurse, suffix)
+                        replace_in_file(_name, source, prefix)
                 else:
                     tf.extract(member, _prefix, set_attrs=False)
 
