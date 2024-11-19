@@ -250,27 +250,24 @@ def search(software, basedir, width, force):
     else:
         logging.warn(f"no easyconfig file for software {software}!")
 
-def get_dependencies(software, prefix, basedir, rebuild, dependencies=[]):
+def get_dependencies(software, prefix, basedir, rebuild):
     cmd = [eb ,'--robot', basedir, '--dry-run', '--hook',
             f'{basedir}/pre_fetch_hook.py', software]
 
-    output, _ = run(' '.join(cmd), shell=True)
-    if rebuild:
-        pattern = re.compile(r' \* \[[\sx]\] ([^ ]*\.eb) \(module: ([^\)]*)\)', re.DOTALL)
+    output, retcode = run(' '.join(cmd), shell=True, exit_on_error=False)
+    if isinstance(retcode, int) and not retcode == 0:
+        clara_exit(f"fail to get dependencies of software {software} :-( !")
     else:
-        pattern = re.compile(r' \* \[ \] ([^ ]*\.eb) \(module: ([^\)]*)\)', re.DOTALL)
+        logging.debug(output)
+
+    pattern = re.compile(r' \* \[([\sx])\] ([^ ]*\.eb) \(module: ([^\)]*)\)', re.DOTALL)
     # retrieve dependencies as (software path, module name) list
     match = pattern.findall(output)
 
     if match:
-        if software not in dependencies:
-            _deplist = [name for name in match if name not in dependencies]
-            if len(_deplist):
-                dependencies += _deplist
-                return list(itertools.chain(*[get_dependencies(_software, prefix, basedir, rebuild, dependencies)
-                            for _software, _ in _deplist]))
-            else:
-                return dependencies
+        dependencies = [(True if state == 'x' else False,module,version)
+                        for state,module,version in match if software not in module]
+        return dependencies
     else:
         if len(dependencies) == 0:
             _software = software.replace(".eb","")
@@ -305,59 +302,61 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
     if re.search(r"/|-", name) is None:
         clara_exit(f"Bad software name: {name}. PLS software must follow scheme <name>/<version>")
     software = re.sub(r'/(\.)?', '-', name)
-    _software = f"{_software}.eb"
-    if match:
-        if rebuild or only_dependencies:
-            # module already exist under prefix
-            # rewrite needful syntax for eb software
-            # ensure infinite recursive loop!
-            sys.setrecursionlimit(150)
-            # retrieve software potential dependencies
-            dependencies = get_dependencies(_software, prefix, basedir, rebuild or only_dependencies)
-            # suppress duplicates
-            dependencies = list(dict.fromkeys(dependencies))
-            if len(dependencies) > 1:
-                logging.info(f"software {_software} need following dependencies:\n{dependencies}")
-            else:
-                logging.info(f"software {_software} dont have any dependency!")
-        else:
-            message = f"\nsoftware {_software} already exist under {prefix}!"
-            message += f"\nuse switch --rebuild to install it again!"
-            logging.info(message)
-            return
+    _software = f"{software}.eb"
+    if match and not rebuild:
+        message = f"\nsoftware {_software} already exist under {prefix}!"
+        message += f"\nuse switch --rebuild to install it again!"
+        logging.info(message)
+        return
     else:
-        dependencies = []
-        logging.debug(f"No software {name} installed under prefix {prefix}!")
-    #
-    if not dry_run:
-        if not only_dependencies:
-            cmd = [eb ,'--robot', basedir, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
-            if rebuild:
-                cmd += ['--rebuild']
-            # enforce installation only in specified prefix directory
-            # For instance to ensure no direct installation in prod
-            # target destination path installation can be safely deploy later!
-            os.environ["EASYBUILD_PREFIX"] = prefix
-            run(cmd)
-        # if need, retrieve newly installed software path
-        if len(dependencies):
+        # retrieve software potential dependencies
+        dependencies = get_dependencies(_software, prefix, basedir, rebuild or only_dependencies)
+
+    # if need, retrieve newly installed software path
+    for installed, _, software in dependencies:
+        if not installed or rebuild:
+            install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
 
-            output, error = module(f"show {name}")
-            pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
-            match = pattern.findall(error)
+    _dry_run = '--dry-run' if dry_run and not checksums else ''
+    if not only_dependencies:
+        cmd = [eb ,'--robot', basedir, _dry_run, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
+        if rebuild:
+            cmd += ['--rebuild']
+        # enforce installation only in specified prefix directory
+        # For instance to ensure no direct installation in prod
+        # target destination path installation can be safely deploy later!
+        os.environ["EASYBUILD_PREFIX"] = prefix
+        output, retcode = run(' '.join(cmd), shell=True, exit_on_error=False)
+        if isinstance(retcode, int) and not retcode == 0:
+            logging.debug(output)
+            clara_exit(f"fail to install software {_software} :-( !")
+        else:
+            logging.debug(output)
 
-            _modules = [x for _, x in dependencies if not x.startswith(name.split("/")[0])]
-            if match and len(_modules):
-                data = [i.strip() for x in match for i in ''.join(x).split('\n')]
-                if not only_dependencies:
-                    logging.info(error)
-                installpath = "".join([name for name in data if not name.endswith(".lua")])
-                logging.debug(f"Create dependencies file {installpath}/.__dependencies.txt")
-                with open(f"{installpath}/.__dependencies.txt", 'w') as f:
-                    f.write('\n'.join(_modules))
+    if len(dependencies):
+        logging.info(f"\nsoftware {name} need following dependencies:\n{dependencies}")
+        if not dry_run:
+            output, error = module(f"show {name}")
+            if error == 1:
+                logging.debug(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
+            else:
+                pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
+                match = pattern.findall(error)
+
+                _modules = [x for _, _, x in dependencies]
+                if match and len(_modules):
+                    data = [i.strip() for x in match for i in ''.join(x).split('\n')]
+                    if not only_dependencies:
+                        logging.debug(error)
+                    installpath = "".join([name for name in data if not name.endswith(".lua")])
+                    logging.info(f"Create dependencies file {installpath}/.__dependencies.txt")
+                    with open(f"{installpath}/.__dependencies.txt", 'w') as f:
+                        f.write('\n'.join(_modules))
+    else:
+        logging.info(f"software {name} dont have any dependency!")
 
 def module_versions(name, prefix):
     _name, match, _ = module_avail(name, prefix)
