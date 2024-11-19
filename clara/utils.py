@@ -400,7 +400,8 @@ def module(command, *arguments, **kwargs):
     module('load', 'gcc cmake', show_environ_updates=True)
     """
     numArgs = len(arguments)
-    A = ['/usr/share/lmod/lmod/libexec/lmod', 'python', command]
+
+    A = [f"{os.environ.get('EBROOTLMOD','/usr/share')}/lmod/lmod/libexec/lmod", 'python', command]
     if (numArgs == 1):
         A += arguments[0].split()
     else:
