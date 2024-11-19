@@ -42,6 +42,7 @@ Usage:
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
+    clara easybuild hide    <software> [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -136,6 +137,48 @@ def module_avail(name, prefix):
 
     return name, match, error
 
+def hide(software, prefix):
+    output, error = module("--version")
+    match = re.search(r': Version ([\.\w]+)', error)
+    if not match:
+        clara_exit("can't figure out current module version :-( !")
+
+    try:
+        from packaging.version import Version
+    except ModuleNotFoundError:
+        _module = "packaging"
+        logging.error("PLS raise 'pip install %s' or install 'python3-%s' software!" % (_module, _module))
+
+        clara_exit("PLS, install package python3-packaging")
+    if Version(match.group(1)) < Version("8.7.53"):
+        clara_exit("Advanced module hidden need Lmod version greater than 8.7.53. Try \"module load Lmod\"!")
+
+    name, match, output = module_avail(software, prefix)
+    if match:
+        output, error = module(f"show {name}")
+        if error == 1:
+            clara_exit(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
+        pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):', re.DOTALL)
+        match = pattern.findall(error)
+
+        if len(match) == 1:
+            path = os.path.dirname("".join(match))
+            modulerc = f"{path}/.modulerc.lua"
+            if os.path.isfile(modulerc):
+                logging.info(f"software {name} under {prefix} was already hidden!")
+            else:
+                try:
+
+                    with open(path, "w") as f:
+                        f.write(f"""name={name}
+                        \n""")
+                except:
+                    clara_exit(f"fail to hide software {name} under {prefix}!")
+                else:
+                    show(software, prefix)
+
+    else:
+        logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
 def show(software, prefix):
     name, match, output = module_avail(software, prefix)
@@ -699,6 +742,8 @@ EOF
         restore(software, source, backupdir, prefix, extension, force, recurse, suffix)
     elif dargs['delete']:
         delete(software, prefix, force)
+    elif dargs['hide']:
+        hide(software, prefix)
 
 if __name__ == '__main__':
     main()
