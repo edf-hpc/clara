@@ -782,7 +782,7 @@ EOF
     if dargs['search']:
         search(software, basedir, width, force)
     elif dargs['show']:
-        show(software, ["/software/shared/easybuild", f"{homedir}/.local/easybuild"])
+        show(software, [prefix, f"{homedir}/.local/easybuild"])
     elif dargs['fetch']:
         fetch(software, basedir, checksums)
     elif dargs['install']:
