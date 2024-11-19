@@ -116,8 +116,9 @@ def module_avail(name, prefix):
     # set MODULEPATH environment variable
     module_path(prefix)
 
-    _name = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", name)
-    output, error = module(f"--show_hidden avail {_name}")
+    if not re.match(r"[^-]+-[^\/]+\/", name):
+        name = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", name)
+    output, error = module(f"--show_hidden avail {name}")
 
     _name = name
     if not re.search(name, error) and not re.search(r"\/\.", name):
@@ -374,7 +375,7 @@ def replace_in_file(name, source, prefix):
         f.write(data)
 
 def restore(software, source, backupdir, prefix, extension, force, recurse, suffix):
-    _module = re.sub(r"([^-]+-\d+)(.*)\.eb", r"\1/\2", software)
+    _module = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", software)
     if re.search(r"/|-", _module) is None:
         clara_exit(f"Bad software name: {_module}. PLS software must follow scheme <name>/<version>")
     _software = software.replace("/","-")
@@ -395,10 +396,10 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list[::len(_list)-1]])
             else:
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list])
-            version = _list[-1]
+            version = re.search(r"([\d\.]+)", _module_.split("/")[-1]).group(1)
             basepath = "".join([member.name for member in members
-                       if os.path.normpath(member.name).lower().endswith(_module_)
-                       or member.name.endswith(_module_)])
+                       if os.path.normpath(member.name).lower().endswith(version)
+                       or member.name.endswith(version)])
             installpath = f"{prefix}/{basepath}"
             if basepath == '':
                 clara_exit(f"Can't find module {_module_} in tarball {tarball}")
