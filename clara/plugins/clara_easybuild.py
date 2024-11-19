@@ -36,9 +36,9 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [options]
     clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
+    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
@@ -455,7 +455,7 @@ def replace_in_file(name, source, prefix):
     with open(name, 'w') as f:
         f.write(data)
 
-def restore(software, source, backupdir, prefix, extension, force, recurse, suffix):
+def restore(software, source, backupdir, prefix, extension, force, recurse, suffix, devel):
     _module = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", software)
     if re.search(r"/|-", _module) is None:
         clara_exit(f"Bad software name: {_module}. PLS software must follow scheme <name>/<version>")
@@ -511,7 +511,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                         with open(_name, 'r') as f:
                             for _software in [line.rstrip() for line in f]:
                                 logging.info(f"restore  software {_software} ...")
-                                restore(_software, source, backupdir, prefix, extension, force, recurse, suffix)
+                                restore(_software, source, backupdir, prefix, extension, force, recurse, suffix, devel)
                 elif member.name.endswith(f"{_module}.lua"):
                     if member.issym():
                         if os.path.islink(_name) and not os.path.exists(_name):
@@ -527,10 +527,18 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                         logging.info(f"working on file {_name} ...")
                         tf.extract(member, _prefix, set_attrs=False)
                         replace_in_file(_name, source, prefix)
-                else:
+                elif not f"{version}/easybuild" in member.name or devel:
                     tf.extract(member, _prefix, set_attrs=False)
 
+                if not f"{version}/easybuild" in member.name or devel:
+                    try:
+                        cmd = f"/bin/chmod go=u-w {_name}"
+                        output, retcode = run(cmd, shell=True, exit_on_error=False, debug=False)
+                    except:
+                        logging.debug(output)
+
             os.umask(umask)  # Restore umask
+
             if os.path.isdir(installpath) and _installpath is not None:
                 if os.path.isdir(_installpath):
                     backupdir = f"{prefix}/backups"
@@ -565,6 +573,8 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                             shutil.rmtree(_prefix)
                 else:
                     logging.info(f"directory {_installpath} don't exist!")
+            else:
+                logging.info(f"module {_module} successfully installed in {installpath}!")
 
     else:
         logging.warn(f"tarball {tarball} don't exist!")
@@ -632,6 +642,7 @@ def main():
     extension = dargs['--extension']
     compresslevel = int(dargs['--compresslevel'])
     dereference = dargs['--dereference']
+    devel = dargs['--devel']
     checksums = dargs['--inject-checksums']
     skip = dargs['--skip']
     elapse = int(dargs['--elapse'])
@@ -776,7 +787,7 @@ EOF
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
-        restore(software, source, backupdir, prefix, extension, force, recurse, suffix)
+        restore(software, source, backupdir, prefix, extension, force, recurse, suffix, devel)
     elif dargs['delete']:
         delete(software, prefix, force)
     elif dargs['hide']:
