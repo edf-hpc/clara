@@ -36,9 +36,9 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [options]
     clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
@@ -65,6 +65,7 @@ Options:
     --no-suffix                      No suffix in tarball name
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
     --skip                           Installing additional extensions when combined with --rebuild
+    --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
 """
 
 import logging
@@ -381,7 +382,7 @@ def get_tarball(path, software, extension, suffix):
         suffix = f"-{suffix}"
     return f"{path}/{software}{suffix}.tar.{extension}"
 
-def tar(software, prefix, data, backupdir, extension, compresslevel, dereference, force, suffix):
+def tar(software, prefix, data, backupdir, extension, compresslevel, dereference, force, suffix, elapse):
     if not re.match(r'^/\w+', prefix):
         logging.debug(f"unsupported prefix {prefix}!")
         return
@@ -389,15 +390,21 @@ def tar(software, prefix, data, backupdir, extension, compresslevel, dereference
     if not os.path.isdir(packages_dir):
         os.mkdir(packages_dir)
     tarball = get_tarball(packages_dir, software, extension, suffix)
-    if not os.path.isfile(tarball) or force:
+    now = datetime.now().timestamp()
+    file_exists = os.path.isfile(tarball) and (now - os.stat(tarball).st_mtime > elapse)
+    if (force and file_exists) or not os.path.isfile(tarball):
         logging.info(f"generate tarball {tarball}")
         with tarfile.open(tarball, f"w:{extension}", compresslevel=compresslevel, dereference=dereference) as tf:
             for name in data:
                 tf.add(name, arcname=name.replace(f"{prefix}/",''))
     else:
-        logging.warn(f"[WARN]\ntarball {tarball} already exist!\nUse --force to regenerate it!")
+        message = f"[WARN]\ntarball {tarball} already exist!"
+        if force:
+            logging.debug(f"{message}\nUse --elapse <elapse> to invalidate cache!")
+        else:
+            logging.warn(f"{message}\nUse --force to regenerate it!")
 
-def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force, recurse, suffix):
+def backup(software, prefix, backupdir, versions, extension, compresslevel, dereference, force, recurse, suffix, elapse):
     # generate module, and it's eventuals dependencies, archives (under directory backupdir)
     if versions is None:
         _software, versions = module_versions(software, prefix)
@@ -411,30 +418,29 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
         output, error = module(f"show {_software}")
         if error == 1:
             clara_exit(f"No software {_software} installed! PLS, install it first!")
-        if not _software == "openmpi/5.0.5":
-            print(error, output)
-            sys.exit(0)
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
         match = pattern.findall(error)
         if match:
-            data = [re.sub(r'^(\/fs\w+)', '', os.path.realpath(i.strip())) for x in match for i in ''.join(x).split('\n')]
+            data = [re.sub(r'^(\/fs\w+)', '', i.strip()) for x in match for i in ''.join(x).split('\n')]
+            installpath = "".join([name for name in data if not name.endswith(".lua")])
+            if os.path.isfile(f"{installpath}/.__dependencies.txt") and recurse:
+                data.insert(0, f"{installpath}/.__dependencies.txt")
             _software = versions[0].replace("/","-")
             software = "".join([name for name in data if name.endswith(".lua")])
             if os.path.islink(software):
                 # replace if need trail /fs<cluster> prefix and add link real path to tar archive
-                data.insert(0, re.sub(r'^(\/fs\w+)', '', os.path.realpath(software)))
+                data.insert(1, re.sub(r'^(\/fs\w+)', '', os.path.realpath(software)))
             # retrieve automatically dependency software prefix
             _prefix = os.path.commonpath(data)
             logging.debug(f"software: {_software}\ndata: {data}\nprefix: {_prefix}\nbackupdir: {backupdir}\n")
             if backupdir is None:
                 backupdir = _prefix
-            tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force, suffix)
-            installpath = "".join([name for name in data if not name.endswith(".lua")])
+            tar(_software, _prefix, data, backupdir, extension, compresslevel, dereference, force, suffix, elapse)
             if os.path.isfile(f"{installpath}/.__dependencies.txt") and recurse:
                 with open(f"{installpath}/.__dependencies.txt", 'r') as f:
                     for _software in [line.rstrip() for line in f]:
                         logging.info(f"working on dependency {_software} ...")
-                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse, suffix)
+                        backup(_software, _prefix, backupdir, [_software], extension, compresslevel, dereference, recurse, recurse, suffix, elapse)
         else:
             print([])
     else:
@@ -630,6 +636,7 @@ def main():
     dereference = dargs['--dereference']
     checksums = dargs['--inject-checksums']
     skip = dargs['--skip']
+    elapse = int(dargs['--elapse'])
 
     if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service)", os.uname()[1]):
         clara_exit("easybuild deployment or deletion is only supported on admin or service nodes!")
@@ -769,7 +776,7 @@ EOF
     elif dargs['install']:
         install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
     elif dargs['backup']:
-        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix)
+        backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
         restore(software, source, backupdir, prefix, extension, force, recurse, suffix)
     elif dargs['delete']:
