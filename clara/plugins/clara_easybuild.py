@@ -450,7 +450,7 @@ def replace_in_file(name, source, prefix):
     logging.debug(f"replace {source} by {prefix}\nin file {name}")
     with open(name, 'r') as f:
         data = f.read()
-        data = data.replace(source, prefix)
+        data = re.sub(r'(\/fs\w+)', '', data.replace(source, prefix))
 
     with open(name, 'w') as f:
         f.write(data)
