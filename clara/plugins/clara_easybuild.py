@@ -586,6 +586,8 @@ def delete(software, prefix, force):
         clara_exit(f"No software {_software} installed!")
     elif len(versions) == 1:
         output, error = module(f"show {_software}")
+        if error == 1:
+            clara_exit(f"Either software {_software} is not installed nor is hide! PLS, install or unhide it first!")
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
         match = pattern.findall(error)
         if match:
