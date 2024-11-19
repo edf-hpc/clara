@@ -14,6 +14,7 @@ clara-easybuild - Manage package installation via easybuild
     clara easybuild show    <software> [options]
     clara easybuild hide    <software> [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
+    clara easybuild default <software> [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -160,6 +161,10 @@ To hide easybuild software HelloWorld
 To fetch easybuild software HelloWorld
 
     clara easybuild fetch HelloWorld/0.0.1
+
+To default easybuild software HelloWorld
+
+    clara easybuild default HelloWorld/0.0.1
 
 
 # SEE ALSO
