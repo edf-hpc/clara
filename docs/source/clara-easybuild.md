@@ -6,12 +6,14 @@ clara-easybuild - Manage package installation via easybuild
 
 # SYNOPSIS
 
-    clara easybuild install <software> [--force] [--rebuild] [options]
-    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
-    clara easybuild restore <software> [--force] [--source=<source>] [options]
-    clara easybuild delete  <software> [options]
-    clara easybuild search  <software> [--width=<width>] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
+    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
+    clara easybuild delete  <software> [--force] [options]
+    clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
+    clara easybuild hide    <software> [options]
+    clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -22,11 +24,18 @@ Options:
     --extension=<extension>          tar backup extension, like bz2, gz or xz [default: gz]
     --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
     --dereference                    add symbolic and hard links to the tar archive. Default: False
-    --force                          Force install/backup/restore of existing software/archive
-    --requirement-only               Only retrieve software dependencies
+    --force                          Force (non recursive) backup/restore of existing software/archive
+    --only-dependencies              Only retrieve software dependencies
     --quiet                          Proceed silencely. Don't ask any question!
     --dry-run                        Just simulate migrate action! Don't really do anything
     --width=<width>                  Found easyconfigs files max characters per line [default: 100]
+    --url=<url>                      easybuild hook url to locally fetch source files
+    --yes-i-really-really-mean-it    Force recursive restore. Use only if you known what you are doing!
+    --suffix=<suffix>                Add suffix word in tarball name
+    --no-suffix                      No suffix in tarball name
+    --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
+    --skip                           Installing additional extensions when combined with --rebuild
+    --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
 
 # DESCRIPTION
 
@@ -49,6 +58,10 @@ This tar archive can be used to installation on another cluster!
 
         Delete easybuild software <software>
 
+    clara easybuild fetch <software> [options]
+
+        Fetch easybuild software <software>
+
     clara easybuild install <software> [--force] [--rebuild] [options]
 
         Add packages to the local easybuildsitory.
@@ -65,6 +78,10 @@ This tar archive can be used to installation on another cluster!
 
         Lists all the contents of every easybuildsitory with the argument "all", or only
         rpm easybuildsitory, or deb one, or only the content of a given distribution.
+
+    clara easybuild hide <software> [options]
+
+        Hide easybuild software <software>
 
 Easybuild software <software> must follow either <name>-<version> or <name>/<version>\
 name scheme. <version> is optional and trailing ".eb" suffix can be optionally added.
@@ -135,6 +152,14 @@ To backup easybuild software HelloWorld
 To restore easybuild software HelloWorld
 
     clara easybuild restore HelloWorld/0.0.1
+
+To hide easybuild software HelloWorld
+
+    clara easybuild hide HelloWorld/0.0.1
+
+To fetch easybuild software HelloWorld
+
+    clara easybuild fetch HelloWorld/0.0.1
 
 
 # SEE ALSO
