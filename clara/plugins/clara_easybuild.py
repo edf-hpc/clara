@@ -38,7 +38,7 @@ Manage software installation via easybuild
 Usage:
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [options]
-    clara easybuild install <software> [--force] [--rebuild] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
@@ -64,6 +64,7 @@ Options:
     --suffix=<suffix>                Add suffix word in tarball name
     --no-suffix                      No suffix in tarball name
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
+    --skip                           Installing additional extensions when combined with --rebuild
 """
 
 import logging
@@ -296,7 +297,7 @@ def fetch(software, basedir, checksums):
         logging.debug(f"output:\n{output}")
         return output
 
-def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums):
+def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix)
     if re.search(r"/|-", name) is None:
@@ -315,7 +316,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
     # if need, retrieve newly installed software path
     for installed, _, software in dependencies:
         if not installed or rebuild:
-            install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums)
+            install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
@@ -325,6 +326,8 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
         cmd = [eb ,'--robot', basedir, _dry_run, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
         if rebuild:
             cmd += ['--rebuild']
+        if skip:
+            cmd += ['--skip']
         # enforce installation only in specified prefix directory
         # For instance to ensure no direct installation in prod
         # target destination path installation can be safely deploy later!
@@ -626,6 +629,7 @@ def main():
     compresslevel = int(dargs['--compresslevel'])
     dereference = dargs['--dereference']
     checksums = dargs['--inject-checksums']
+    skip = dargs['--skip']
 
     if (dargs['delete'] or dargs['restore']) and not re.search(r"(admin|service)", os.uname()[1]):
         clara_exit("easybuild deployment or deletion is only supported on admin or service nodes!")
@@ -763,7 +767,7 @@ EOF
     elif dargs['fetch']:
         fetch(software, basedir, checksums)
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums)
+        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix)
     elif dargs['restore']:
