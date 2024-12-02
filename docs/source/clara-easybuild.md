@@ -64,11 +64,15 @@ This tar archive can be used to installation on another cluster!
 
         Fetch easybuild software <software>
 
-    clara easybuild install <software> [--force] [--rebuild] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
 
-        Add packages to the local easybuildsitory.
-        <file> can be one or more *.(deb|rpm) binaries, *.changes files or *.dsc files.
-        For the --reprepro-flags, check the documentation of reprepro.
+        Install easybuild software <software> under <prefix> directory.
+        Use --rebuild to force re-installation.
+        Use --yes-i-really-really-mean-it to force dependencies re-installation too!
+        Use --force for unattended re-installation.
+        Use --skip for extensions only installation (for Python, Perl).
+        Use --inject-checksums to inject sources/patches checksums into easyconfig file(s)
+        Use --url to locally fetch source archive files. Needful for switch --hook
 
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
 
@@ -147,6 +151,12 @@ To delete easybuild software HelloWorld
 To install easybuild software HelloWorld
 
     clara easybuild install HelloWorld/0.0.1
+    clara easybuild install HelloWorld/0.0.1 --force
+    clara easybuild install HelloWorld/0.0.1 --force --skip
+    clara easybuild install HelloWorld/0.0.1 --rebuild
+    clara easybuild install HelloWorld/0.0.1 --yes-i-really-really-mean-it
+    clara easybuild install HelloWorld/0.0.1 --yes-i-really-really-mean-it --force
+    clara easybuild install HelloWorld/0.0.1 --inject-checksums
 
 To backup easybuild software HelloWorld
 
