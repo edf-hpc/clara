@@ -95,6 +95,10 @@ This tar archive can be used to installation on another cluster!
 
         Hide easybuild software <software>
 
+    clara easybuild default <software> [options]
+
+        Set easybuild software <software> as default
+
 Easybuild software <software> must follow either <name>-<version> or <name>/<version>\
 name scheme. <version> is optional and trailing ".eb" suffix can be optionally added.
 
