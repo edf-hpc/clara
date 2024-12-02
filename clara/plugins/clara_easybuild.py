@@ -100,6 +100,9 @@ except:
 
 def module_path(prefix):
     if isinstance(prefix, str):
+        if not os.path.isdir(f"{prefix}/modules"):
+            clara_exit(f"no directory modules found under {prefix}!")
+
         modulepath = ":".join([ f"{prefix}/modules/{f.name}"
                      for f in os.scandir(f"{prefix}/modules") if f.is_dir() and not f.name=="all"
                      and os.path.isdir(f"{prefix}/modules")])
