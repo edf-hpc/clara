@@ -55,9 +55,10 @@ This tar archive can be used to installation on another cluster!
         Search and retrieve all software retated to <software>
         print <width> characters per line
 
-    clara easybuild delete <software> [options]
+    clara easybuild delete  <software> [--force] [options]
 
-        Delete easybuild software <software>
+        Delete easybuild software <software>.
+        Use --force for unattended deletion.
 
     clara easybuild fetch <software> [options]
 
@@ -141,6 +142,7 @@ To search all easyconfigs file related to software HelloWorld
 To delete easybuild software HelloWorld
 
     clara easybuild delete HelloWorld/0.0.1
+    clara easybuild delete HelloWorld/0.0.1 --force
 
 To install easybuild software HelloWorld
 
