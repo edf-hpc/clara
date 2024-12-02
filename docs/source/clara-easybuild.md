@@ -15,6 +15,7 @@ clara-easybuild - Manage package installation via easybuild
     clara easybuild hide    <software> [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild default <software> [options]
+    clara easybuild copy    <software> [<target>] [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -98,6 +99,10 @@ This tar archive can be used to installation on another cluster!
     clara easybuild default <software> [options]
 
         Set easybuild software <software> as default
+
+    clara easybuild copy    <software> [<target>] [options]
+
+        Copy easybuild software <software> to <target> name, under <basedir>.
 
 Easybuild software <software> must follow either <name>-<version> or <name>/<version>\
 name scheme. <version> is optional and trailing ".eb" suffix can be optionally added.
@@ -198,6 +203,13 @@ To fetch easybuild software HelloWorld
 To default easybuild software HelloWorld
 
     clara easybuild default HelloWorld/0.0.1
+
+To copy easybuild software HelloWorld
+
+    clara easybuild copy HelloWorld-0.0.1.eb
+    clara easybuild copy HelloWorld-0.0.1.eb HelloWorld-0.0.2.eb
+    clara easybuild copy HelloWorld-0.0.1.eb /tmp
+
 
 
 # SEE ALSO
