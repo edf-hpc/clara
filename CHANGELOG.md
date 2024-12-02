@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241202] - 2024-12-02
+
+### Fixed
+bin: fix virt plugin privilege escalation issue
+docs: introduce easyconfig file copy
+plugin easybuild: full rewrite of hide function
+plugin easybuild: introduce easyconfig file copy
+plugin easybuild: fix setting symlink mode issue
+plugin easybuild: unworking archive more detail
+plugin easybuild: fix issue with dash in version
+plugin easybuild: fix not working install recurse
+plugin easybuild: fix module name when rebuild
+plugin easybuild: unexistent modules dir issue
+
+### Added
+docs: support arbitrar eb options for install
+docs: add details regarding default entry
+docs: update restore related with more details
+docs: update backup related with more details
+docs: update install related with more details
+docs: update delete related with more details
+plugin easybuild: support arbitrar eb options
+
 ## [0.20241119] - 2024-11-19
 
 ### Fixed
