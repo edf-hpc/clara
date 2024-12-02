@@ -82,10 +82,14 @@ This tar archive can be used to installation on another cluster!
         Use --force for unattended software re-installation.
         Use --elapse to delay after which backup file can be regenerated
 
-    clara easybuild restore <software> [--force] [--source=<source>] [options]
+    clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
 
-        Lists all the contents of every easybuildsitory with the argument "all", or only
-        rpm easybuildsitory, or deb one, or only the content of a given distribution.
+        Restore easybuild software <software> under <prefix> directory, from <backupdir>.
+        Use --backupdir for backup archive destination.
+        Use --source to specify backup <prefix>. Default is <prefix>.
+        Use --yes-i-really-really-mean-it to force dependencies restore too!
+        Use --force for unattended existent installed software restore.
+        Use --devel to restore easybuild develop module files. Default is not to restore.
 
     clara easybuild hide <software> [options]
 
@@ -172,6 +176,12 @@ To backup easybuild software HelloWorld
 To restore easybuild software HelloWorld
 
     clara easybuild restore HelloWorld/0.0.1
+    clara easybuild restore HelloWorld/0.0.1 --backupdir /tmp
+    clara easybuild restore HelloWorld/0.0.1 --force
+    clara easybuild retsore HelloWorld/0.0.1 --yes-i-really-really-mean-it
+    clara easybuild retsore HelloWorld/0.0.1 --yes-i-really-really-mean-it --force
+    clara easybuild restore HelloWorld/0.0.1 --devel
+    clara easybuild restore HelloWorld/0.0.1 --source $HOME/.local/easybuild
 
 To hide easybuild software HelloWorld
 
