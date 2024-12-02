@@ -74,11 +74,13 @@ This tar archive can be used to installation on another cluster!
         Use --inject-checksums to inject sources/patches checksums into easyconfig file(s)
         Use --url to locally fetch source archive files. Needful for switch --hook
 
-    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [options]
+    clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
 
-        Remove package to the local easybuildsitory.
-        <name> is the package to remove, if the package is a source name, it'll also
-        remove all the associated binaries.
+        Backup easybuild software <software> under <prefix> directory to target <backupdir>.
+        Use --backupdir for backup archive destination.
+        Use --yes-i-really-really-mean-it to force dependencies backup too!
+        Use --force for unattended software re-installation.
+        Use --elapse to delay after which backup file can be regenerated
 
     clara easybuild restore <software> [--force] [--source=<source>] [options]
 
@@ -161,6 +163,11 @@ To install easybuild software HelloWorld
 To backup easybuild software HelloWorld
 
     clara easybuild backup HelloWorld/0.0.1
+    clara easybuild backup HelloWorld/0.0.1 --backupdir /tmp
+    clara easybuild backup HelloWorld/0.0.1 --force
+    clara easybuild backup HelloWorld/0.0.1 --elaspe 20
+    clara easybuild backup HelloWorld/0.0.1 --yes-i-really-really-mean-it
+    clara easybuild backup HelloWorld/0.0.1 --yes-i-really-really-mean-it --force
 
 To restore easybuild software HelloWorld
 
