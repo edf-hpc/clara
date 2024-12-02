@@ -524,7 +524,9 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                        or member.name.endswith(version)])
             installpath = f"{prefix}/{basepath}"
             if basepath == '':
-                clara_exit(f"Can't find module {_module_} in tarball {tarball}")
+                message = f"Can't find module {_module_} in tarball {tarball}\n"
+                message += f"archive have a base path {basepath}"
+                clara_exit(message)
 
             if os.path.isdir(installpath):
                 message = f"Module {_module} is already installed under {installpath}!"
