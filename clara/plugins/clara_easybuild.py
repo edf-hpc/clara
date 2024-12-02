@@ -36,7 +36,7 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
@@ -396,7 +396,7 @@ def fetch(software, basedir, checksums):
         logging.debug(f"output:\n{output}")
         return output
 
-def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip):
+def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, options):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix, rebuild=rebuild)
     if re.search(r"/|-", name) is None:
@@ -416,7 +416,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
     if recurse:
         for installed, _, software in dependencies:
             if not installed or rebuild:
-                install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
+                install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, options)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
@@ -428,6 +428,8 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
             cmd += ['--rebuild']
         if skip:
             cmd += ['--skip']
+        for option in options:
+            cmd += [f"--{option}"]
         # enforce installation only in specified prefix directory
         # For instance to ensure no direct installation in prod
         # target destination path installation can be safely deploy later!
@@ -891,7 +893,7 @@ EOF
     elif dargs['fetch']:
         fetch(software, basedir, checksums)
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
+        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, dargs['<name>=<value>'])
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
