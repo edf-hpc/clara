@@ -6,7 +6,7 @@ clara-easybuild - Manage package installation via easybuild
 
 # SYNOPSIS
 
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
@@ -65,7 +65,7 @@ This tar archive can be used to installation on another cluster!
 
         Fetch easybuild software <software>
 
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
 
         Install easybuild software <software> under <prefix> directory.
         Use --rebuild to force re-installation.
