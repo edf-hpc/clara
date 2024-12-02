@@ -42,7 +42,7 @@ Usage:
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
-    clara easybuild hide    <software> [options]
+    clara easybuild hide    <software> [--clean] [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild default <software> [options]
     clara easybuild copy    <software> [<target>] [options]
@@ -206,7 +206,7 @@ def default(software, prefix):
     else:
         logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
 
-def hide(software, prefix):
+def hide(software, prefix, clean):
     output, error = module("--version")
     match = re.search(r': Version ([\.\w]+)', error)
     if not match:
@@ -232,19 +232,52 @@ def hide(software, prefix):
 
         if len(match) == 1:
             path = os.path.dirname("".join(match))
-            modulerc = f"{path}/.modulerc.lua"
-            if os.path.isfile(modulerc):
-                logging.info(f"software {name} under {prefix} was already hidden!")
-            else:
-                try:
+            defaultlua = f"{path}/default"
+            if os.path.exists(defaultlua):
+                message = f"default file {defaultlua} exist and it's can work this way to hide module!"
+                message += "\nDo you want it to be deleted ?"
+                if not force:
+                    if not yes_or_no(message):
+                        clara_exit(f"hidden to software {name} under {prefix} have been aborted!")
+            if os.path.islink(defaultlua):
+                logging.debug(f"suppressing existent link default {defaultlua} ...")
+                os.unlink(defaultlua)
+            elif os.path.isfile(defaultlua):
+                logging.debug(f"suppressing existent file default {defaultlua} ...")
+                os.remove(defaultlua)
 
-                    with open(path, "w") as f:
-                        f.write(f"""name={name}
-                        \n""")
-                except:
-                    clara_exit(f"fail to hide software {name} under {prefix}!")
-                else:
-                    show(software, prefix)
+            modulerc = f"{path}/.modulerc.lua"
+            if clean and os.path.isfile(modulerc):
+                os.remove(modulerc)
+                clara_exit(f"module hidden file {modulerc} have been deleted!")
+
+            module_name = software.split('/')[0]
+            _name = module_name if software==module_name else name
+            try:
+                # open file in read/write to be able to update it, if need!
+                with open(modulerc, "a+") as f:
+                    f.seek(0)
+                    data = f.read()
+                    if 'name=' in data:
+                        match = re.search(r"name=[\{]?([^\}]+)[\}]?", data, re.DOTALL)
+                        # Do anything if module have been already hidden!
+                        if module_name == match.group(1) or name in match.group(1):
+                            logging.debug(f"module {_name} already hidden!")
+                        else:
+                            logging.info(f"hidding software {_name} using file {modulerc}!")
+                            f.seek(0)
+                            f.truncate()
+                            f.write("hide{name={%s,'%s'}}" % (match.group(1),_name))
+                    else:
+                        # if it's first time
+                        # when module name (without version) have been provided, use it instead of
+                        # automatically retrieving from module_avail function
+                        logging.info(f"[DEBUG] hidding software {_name} using file {modulerc}!")
+                        f.write("hide{name='%s'}" % _name)
+            except:
+                clara_exit(f"fail to hide software {name} under {prefix}!")
+            else:
+                show(module_name, prefix)
 
     else:
         logging.info(f"No software {name} installed under prefix\n{', '.join(prefix)}!")
@@ -866,7 +899,7 @@ EOF
     elif dargs['delete']:
         delete(software, prefix, force)
     elif dargs['hide']:
-        hide(software, prefix)
+        hide(software, prefix, dargs['--clean'])
     elif dargs['default']:
         default(software, prefix)
     elif dargs['copy']:
