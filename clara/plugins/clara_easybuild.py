@@ -45,6 +45,7 @@ Usage:
     clara easybuild hide    <software> [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild default <software> [options]
+    clara easybuild copy    <software> [<target>] [options]
     clara easybuild -h | --help | help
 
 Options:
@@ -97,6 +98,30 @@ try:
 except:
     print("[WARN] PLS raise 'pip install prettytable' or install 'python3-prettytable' software!")
     pass
+
+def copy(software, basedir, target):
+    software = re.sub(r'/(\.)?', '-', software)
+    if not software.endswith(".eb"):
+        software = f"{software}.eb"
+
+    path_dir = "{}/{}/{}".format(basedir, software[0].lower(),
+            re.split(r'[/-]', software)[0])
+    if not dry_run:
+        os.makedirs(path_dir, exist_ok=True)
+    path = f"{path_dir}/{target}"
+
+    _dry_run = '--dry-run' if dry_run else ''
+    cmd = [eb ,'--robot', basedir, _dry_run, '--hook',
+           f'{basedir}/pre_fetch_hook.py', '--copy-ec', software, path]
+
+    output, retcode = run(' '.join(cmd), shell=True, exit_on_error=False)
+    if isinstance(retcode, int) and not retcode == 0:
+        logging.debug(output)
+        clara_exit(f"fail to copy software {software} spec to {path} :-( !")
+    else:
+        logging.info(f"successfully copy software {software} spec to {path}")
+        logging.debug(f"output:\n{output}")
+        return output
 
 def module_path(prefix):
     if isinstance(prefix, str):
@@ -818,7 +843,7 @@ EOF
             if os.path.isdir(f"{_path}/modules"):
                 modulepath += f":{_path}/modules/all"
                 break
-    elif dargs['install'] or dargs['search'] or dargs['fetch']:
+    elif dargs['install'] or dargs['search'] or dargs['fetch'] or dargs['copy']:
         clara_exit("no easybuild binary found in your path. PLS raise: module EasyBuild or provide easybuild binary via --eb switch")
     _path = shutil.which('python3')
     if _path:
@@ -844,6 +869,8 @@ EOF
         hide(software, prefix)
     elif dargs['default']:
         default(software, prefix)
+    elif dargs['copy']:
+        copy(software, basedir, dargs['<target>'] if dargs['<target>'] else software)
 
 if __name__ == '__main__':
     main()
