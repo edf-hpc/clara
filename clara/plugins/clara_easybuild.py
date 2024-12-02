@@ -120,13 +120,17 @@ def module_path(prefix):
     os.environ["MODULEPATH"] = modulepath
     logging.debug(f"MODULEPATH:\n{modulepath}")
 
-def module_avail(name, prefix):
+def module_avail(name, prefix, rebuild=False):
 
     # set MODULEPATH environment variable
     module_path(prefix)
 
     if not re.match(r"[^-]+-[^\/]+\/", name):
         name = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", name)
+
+    if rebuild:
+        return name, None, 0
+
     output, error = module(f"--show_hidden avail {name}")
 
     if isinstance(error, int) and not error == 0:
@@ -336,7 +340,7 @@ def fetch(software, basedir, checksums):
 
 def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip):
     # suppress, if need, ".eb" suffix
-    name, match, _ = module_avail(software, prefix)
+    name, match, _ = module_avail(software, prefix, rebuild=rebuild)
     if re.search(r"/|-", name) is None:
         clara_exit(f"Bad software name: {name}. PLS software must follow scheme <name>/<version>")
     software = re.sub(r'/(\.)?', '-', name)
