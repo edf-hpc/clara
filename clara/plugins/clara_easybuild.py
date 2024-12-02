@@ -355,9 +355,10 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
         dependencies = get_dependencies(_software, prefix, basedir, rebuild or only_dependencies)
 
     # if need, retrieve newly installed software path
-    for installed, _, software in dependencies:
-        if not installed or rebuild:
-            install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
+    if recurse:
+        for installed, _, software in dependencies:
+            if not installed or rebuild:
+                install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
