@@ -518,7 +518,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list[::len(_list)-1]])
             else:
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list])
-            version = re.search(r"([\d\.]+)", _module_.split("/")[-1]).group(1)
+            version = re.search(r"([\d\.\-\_]+)", _module_.split("/")[-1]).group(1)
             basepath = "".join([member.name for member in members
                        if os.path.normpath(member.name).lower().endswith(version)
                        or member.name.endswith(version)])
