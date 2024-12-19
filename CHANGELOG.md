@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20241219] - 2024-12-19
+
+### Fixed
+docs: introduice install in singularity container
+plugin easybuild: fix clustername in prefix issue
+plugin easybuild: fix module files restore issue
+
+### Added
+docs: add support to clean in software hide
+docs: add clara-easybuild man pages
+docs: replace rebuild switch by force
+plugin easybuild: replace rebuild switch by force
+
 ## [0.20241202] - 2024-12-02
 
 ### Fixed
