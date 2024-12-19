@@ -548,7 +548,8 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
         pprint(f"many packages found!: {versions}")
 
 def replace_in_file(name, source, prefix):
-    logging.debug(f"replace {source} by {prefix}\nin file {name}")
+    if not source == prefix:
+        logging.debug(f"replace {source} by {prefix}\nin file {name}")
     with open(name, 'r') as f:
         data = f.read()
         data = re.sub(r'(\/fs\w+)', '', data.replace(source, prefix))
@@ -582,6 +583,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
             basepath = "".join([member.name for member in members
                        if os.path.normpath(member.name).lower().endswith(version)
                        or member.name.endswith(version)])
+            _modulepath = {}
             installpath = f"{prefix}/{basepath}"
             if basepath == '':
                 message = f"Can't find module {_module_} in tarball {tarball}\n"
@@ -616,10 +618,13 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                                 logging.info(f"restore  software {_software} ...")
                                 restore(_software, source, backupdir, prefix, extension, force, recurse, suffix, devel)
                 elif member.name.endswith(f"{_module}.lua"):
+                    _modulepath[_name] = None
                     if member.issym():
                         if os.path.islink(_name) and not os.path.exists(_name):
                             clara_exit(f"symbolic link {_name} is probably broken!")
                         link = member.linkname.replace(source, prefix)
+                        # replace if need trail /fs<cluster> prefix
+                        link = re.sub(r'^(\/fs\w+)', '', link)
                         logging.info(f"creating symbolic link {link} to file {_name}")
                         _parent = os.path.dirname(_name)
                         if not os.path.isdir(_parent):
@@ -649,7 +654,6 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
             if os.path.isdir(installpath) and _installpath is not None:
                 if os.path.isdir(_installpath):
                     backupdir = f"{prefix}/backups"
-                    logging.info(f"backup previously installed in directory\n{_installpath} to {backupdir}!")
                     try:
                         umask = os.umask(0o022)
                         if not os.path.isdir(backupdir):
@@ -659,14 +663,27 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                         if not os.path.isdir(_backupdir):
                             os.makedirs(_backupdir)
                         os.umask(umask)  # Restore umask
-                        logging.info(f"moving current install directory {installpath}\nto {_backupdir}!")
+                        logging.info(f"backup current installed directory {installpath}\n               moving it to {_backupdir}!")
                         shutil.move(installpath, _backupdir)
+                        for _path in _modulepath:
+                            if os.path.exists(_path):
+                                path = _path.replace(_prefix, prefix)
+                                destdir = os.path.dirname(path).replace(prefix, _backupdir)
+                                os.makedirs(destdir, exist_ok=True)
+                                if path.startswith(prefix) and (os.path.isfile(path) and os.path.isdir(destdir)):
+                                    logging.info(f"restore current module file {path}\n               moving it to backup dir {destdir}!")
+                                    shutil.move(path, destdir)
                     except EnvironmentError:
                         logging.error("Unable to move previously installed directory")
                     else:
-                        logging.info(f"moving temporary restore directory {_installpath}\nto {installpath}!")
                         try:
+                            logging.info(f"restore temporary directory {_installpath}\n               to {installpath}!")
                             shutil.move(_installpath, installpath)
+                            for _path in _modulepath:
+                                if _path.startswith(_prefix) and (os.path.isfile(_path) or os.path.islink(_path)):
+                                    path = _path.replace(_prefix, prefix)
+                                    logging.info(f"restore temporary module file {_path}\n               moving it to {path}!")
+                                    shutil.move(_path, path)
                         except EnvironmentError:
                             logging.error(f"Fail to move temporary installed directory to target one!")
                         else:
@@ -803,7 +820,6 @@ def main():
         prefix = '/software/shared/easybuild'
     prefix = get_from_config_or("easybuild", "prefix", default=prefix)
     # ensure prefix is real path to enforce security and safety!
-    prefix = os.path.realpath(prefix)
 
     # set default easybuild custom configs base directory
     # standfor for copy of easybuid config file from example repository:
@@ -898,7 +914,7 @@ EOF
     elif dargs['restore']:
         restore(software, source, backupdir, prefix, extension, force, recurse, suffix, devel)
     elif dargs['delete']:
-        delete(software, prefix, force)
+        delete(software, os.path.realpath(prefix), force)
     elif dargs['hide']:
         hide(software, prefix, dargs['--clean'])
     elif dargs['default']:
