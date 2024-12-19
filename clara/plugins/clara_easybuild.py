@@ -36,7 +36,7 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild install <software> [--force] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
+    clara easybuild install <software> [--force] [--container=<container>] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
@@ -68,6 +68,7 @@ Options:
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
     --skip                           Installing additional extensions when combined with --force
     --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
+    --no-container                   Don't use container image. Only singularity is supported
 """
 
 import logging
@@ -396,7 +397,7 @@ def fetch(software, basedir, checksums):
         logging.debug(f"output:\n{output}")
         return output
 
-def install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options):
+def install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options, container):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix, rebuild=rebuild)
     if re.search(r"/|-", name) is None:
@@ -416,7 +417,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, recurse, chec
     if recurse:
         for installed, _, software in dependencies:
             if not installed or rebuild:
-                install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options)
+                install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options, container)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
@@ -424,12 +425,18 @@ def install(software, prefix, basedir, rebuild, only_dependencies, recurse, chec
     _dry_run = '--dry-run' if dry_run and not checksums else ''
     if not only_dependencies:
         cmd = [eb ,'--robot', basedir, _dry_run, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
+        cmd += ['--buildpath', f"{prefix}/build", '--installpath', prefix, '--prefix', prefix]
+        cmd += ['--containerpath', f"{prefix}/containers", '--packagepath', f"{prefix}/packages"]
+        cmd += [_software]
         if rebuild:
             cmd += ['--rebuild']
         if skip:
             cmd += ['--skip']
         for option in options:
             cmd += [f"--{option}"]
+        # use singularity container to avoid prefix realpath in builded easybuild software!
+        if container and not prefix == os.path.realpath(prefix):
+            cmd = ['singularity', 'exec', '-B', prefix, container] + cmd
         # enforce installation only in specified prefix directory
         # For instance to ensure no direct installation in prod
         # target destination path installation can be safely deploy later!
@@ -908,7 +915,19 @@ EOF
     elif dargs['fetch']:
         fetch(software, basedir, checksums)
     elif dargs['install']:
-        install(software, prefix, basedir, force, only_dependencies, recurse, checksums, skip, dargs['<name>=<value>'])
+        nocontainer = dargs['--no-container']
+        container = get_from_config_or("easybuild", "container", default=dargs['--container'])
+        if not nocontainer:
+            if container is None and not prefix == os.path.realpath(prefix):
+                # we try to find existent singularity image
+                clara_exit("you must provide singularity image using switch --container=<singularity image>!")
+            if container:
+                if not shutil.which('singularity'):
+                    clara_exit("can't found singularity binary :-(!")
+                elif not os.path.exists(container):
+                    clara_exit(f"singularity image {container} don't exist!")
+
+        install(software, prefix, basedir, force, only_dependencies, recurse, checksums, skip, dargs['<name>=<value>'], container)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
