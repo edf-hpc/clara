@@ -36,7 +36,7 @@
 Manage software installation via easybuild
 
 Usage:
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
+    clara easybuild install <software> [--force] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
@@ -66,7 +66,7 @@ Options:
     --suffix=<suffix>                Add suffix word in tarball name
     --no-suffix                      No suffix in tarball name
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
-    --skip                           Installing additional extensions when combined with --rebuild
+    --skip                           Installing additional extensions when combined with --force
     --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
 """
 
@@ -396,7 +396,7 @@ def fetch(software, basedir, checksums):
         logging.debug(f"output:\n{output}")
         return output
 
-def install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, options):
+def install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix, rebuild=rebuild)
     if re.search(r"/|-", name) is None:
@@ -405,7 +405,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
     _software = f"{software}.eb"
     if match and not rebuild:
         message = f"\nsoftware {_software} already exist under {prefix}!"
-        message += f"\nuse switch --rebuild to install it again!"
+        message += f"\nuse switch --force to install it again!"
         logging.info(message)
         return
     else:
@@ -416,7 +416,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, force, recurs
     if recurse:
         for installed, _, software in dependencies:
             if not installed or rebuild:
-                install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, options)
+                install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options)
 
     if not only_dependencies:
         fetch(_software, basedir, checksums)
@@ -746,7 +746,6 @@ def main():
     force = dargs['--force']
     recurse = dargs['--yes-i-really-really-mean-it']
     width = int(dargs['--width'])
-    rebuild = dargs['--rebuild']
     only_dependencies = dargs['--only-dependencies']
     extension = dargs['--extension']
     compresslevel = int(dargs['--compresslevel'])
@@ -893,7 +892,7 @@ EOF
     elif dargs['fetch']:
         fetch(software, basedir, checksums)
     elif dargs['install']:
-        install(software, prefix, basedir, rebuild, only_dependencies, force, recurse, checksums, skip, dargs['<name>=<value>'])
+        install(software, prefix, basedir, force, only_dependencies, recurse, checksums, skip, dargs['<name>=<value>'])
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
