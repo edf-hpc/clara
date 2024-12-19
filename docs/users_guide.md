@@ -892,7 +892,7 @@ This plugins requires python3-docopt and python3-prettytable (optional)
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
-    clara easybuild hide    <software> [options]
+    clara easybuild hide    <software> [--clean] [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild default <software> [options]
     clara easybuild copy    <software> [<target>] [options]
