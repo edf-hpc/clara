@@ -6,13 +6,13 @@ clara-easybuild - Manage package installation via easybuild
 
 # SYNOPSIS
 
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
+    clara easybuild install <software> [--force] [--container=<container>] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
     clara easybuild search  <software> [--force] [--width=<width>] [options]
     clara easybuild show    <software> [options]
-    clara easybuild hide    <software> [options]
+    clara easybuild hide    <software> [--clean] [options]
     clara easybuild fetch   <software> [--inject-checksums] [options]
     clara easybuild default <software> [options]
     clara easybuild copy    <software> [<target>] [options]
@@ -36,8 +36,9 @@ Options:
     --suffix=<suffix>                Add suffix word in tarball name
     --no-suffix                      No suffix in tarball name
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
-    --skip                           Installing additional extensions when combined with --rebuild
+    --skip                           Installing additional extensions when combined with --force
     --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
+    --no-container                   Don't use container image. Only singularity is supported
 
 # DESCRIPTION
 
@@ -65,10 +66,10 @@ This tar archive can be used to installation on another cluster!
 
         Fetch easybuild software <software>
 
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
+    clara easybuild install <software> [--force] [--container=<container>] [--skip] [--inject-checksums] [--url=<url>] [-e <name>=<value>]... [options]
 
         Install easybuild software <software> under <prefix> directory.
-        Use --rebuild to force re-installation.
+        Use --container to force re-installation.
         Use --yes-i-really-really-mean-it to force dependencies re-installation too!
         Use --force for unattended re-installation.
         Use --skip for extensions only installation (for Python, Perl).
@@ -168,7 +169,7 @@ To install easybuild software HelloWorld
     clara easybuild install HelloWorld/0.0.1
     clara easybuild install HelloWorld/0.0.1 --force
     clara easybuild install HelloWorld/0.0.1 --force --skip
-    clara easybuild install HelloWorld/0.0.1 --rebuild
+    clara easybuild install HelloWorld/0.0.1 --force
     clara easybuild install HelloWorld/0.0.1 --yes-i-really-really-mean-it
     clara easybuild install HelloWorld/0.0.1 --yes-i-really-really-mean-it --force
     clara easybuild install HelloWorld/0.0.1 --inject-checksums

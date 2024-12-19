@@ -886,7 +886,7 @@ This plugins requires python3-docopt and python3-prettytable (optional)
 
 ### Synopsis
 
-    clara easybuild install <software> [--force] [--rebuild] [--skip] [--inject-checksums] [--url=<url>] [options]
+    clara easybuild install <software> [--force] [--skip] [--inject-checksums] [--url=<url>] [options]
     clara easybuild backup  <software> [--force] [--backupdir=<backupdir>] [--yes-i-really-really-mean-it] [--elapse <elapse>] [options]
     clara easybuild restore <software> [--force] [--backupdir=<backupdir>] [--source=<source>] [--yes-i-really-really-mean-it] [--devel] [options]
     clara easybuild delete  <software> [--force] [options]
@@ -916,7 +916,7 @@ Options:
     --suffix=<suffix>                Add suffix word in tarball name
     --no-suffix                      No suffix in tarball name
     --inject-checksums               Let EasyBuild add or update checksums in one or more easyconfig files
-    --skip                           Installing additional extensions when combined with --rebuild
+    --skip                           Installing additional extensions when combined with --force
     --elapse <elapse>                Elapse time en seconds after which backup file can be regenerated [default: 300]
 
 ### Options
@@ -938,7 +938,7 @@ Options:
 
         Fetch easybuild software <software>
 
-    clara easybuild install <software> [--force] [--rebuild] [options]
+    clara easybuild install <software> [--force] [options]
 
         Add packages to the local easybuildsitory.
         <file> can be one or more *.(deb|rpm) binaries, *.changes files or *.dsc files.
