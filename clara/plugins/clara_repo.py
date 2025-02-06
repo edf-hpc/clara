@@ -678,7 +678,7 @@ def main():
             match = pattern.match(_opt['dist'])
             if match:
                 distro = match.group('distro')
-                if distro in ['rhel', 'centos', 'almalinux', 'rocky']:
+                if distro in ['rhel', 'centos', 'almalinux', 'rocky',  'el']:
                     distro = 'rhel'
             else:
                 # default to "rhel" distribution
