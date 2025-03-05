@@ -39,7 +39,10 @@ import os
 import subprocess
 import configparser
 import sys
-import platform
+try:
+    import distro
+except ImportError as e:
+    import platform
 
 import ClusterShell.NodeSet
 import ClusterShell.Task
@@ -351,12 +354,17 @@ def initialize_logger(debug):
 
 
 def os_distribution():
-    return platform.dist()[0]
+    if 'platform' in sys.modules:
+        return platform.dist()[0]
+    else:
+        return distro.distro_release_info()['id']
 
 
 def os_major_version():
-    return int(platform.dist()[1].split('.')[0])
-
+    if 'platform' in sys.modules:
+        return int(platform.dist()[1].split('.')[0])
+    else:
+        return int(distro.major_version())
 
 def makedirs_mode(path, mode):
     """Create directory recursively and set specific mode, no matter the
