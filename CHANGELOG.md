@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.20250305] - 2025-03-05
+
+### Fixed
+utils: Fix Scibian9 support
+
+### Added
+utils: EL9 support
+
 ## [0.20241219] - 2024-12-19
 
 ### Fixed
