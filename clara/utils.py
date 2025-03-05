@@ -409,7 +409,11 @@ def module(command, *arguments, **kwargs):
     """
     numArgs = len(arguments)
 
-    A = [f"{os.environ.get('EBROOTLMOD','/usr/share')}/lmod/lmod/libexec/lmod", 'python', command]
+    A = [
+        "%s/lmod/lmod/libexec/lmod" % os.environ.get('EBROOTLMOD','/usr/share'),
+        'python',
+        command
+    ]
     if (numArgs == 1):
         A += arguments[0].split()
     else:
