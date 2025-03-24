@@ -156,7 +156,7 @@ class LibVirtClient:
 
     def vm_stop(self, vm_name, hard=False):
         domain = self._get_domain(vm_name)
-        if self.get_vm_state(vm_name) is 'RUNNING':
+        if self.get_vm_state(vm_name) == 'RUNNING':
             if hard:
                 logger.warning("Destroying VM '%s'", vm_name)
                 success = domain.destroy() == 0
@@ -172,7 +172,7 @@ class LibVirtClient:
 
     def vm_start(self, vm_name):
         domain = self._get_domain(vm_name)
-        if self.get_vm_state(vm_name) is not 'RUNNING':
+        if self.get_vm_state(vm_name) != 'RUNNING':
             success = domain.create() == 0
             if not success:
                 logger.warning("Failed to request start of VM '%s'" % vm_name)
@@ -186,7 +186,7 @@ class LibVirtClient:
 
     def vm_undefine(self, vm_name):
         domain = self._get_domain(vm_name)
-        if self.get_vm_state(vm_name) is 'RUNNING':
+        if self.get_vm_state(vm_name) == 'RUNNING':
             logger.warning("VM '%s' is running, can't undefine.", vm_name)
             return False
         domain.undefine()
