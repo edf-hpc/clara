@@ -94,35 +94,51 @@ class VirtConf(configparser.ConfigParser):
         return None
 
     def get_template_vol_roles(self, template_name):
+        default_section = "template:%s" % self.get_template_default()
         section = "template:%s" % template_name
+        def_role = self.get(
+            default_section, 'vol_role', fallback='system')
         role_list = self.get(
-            section, 'vol_role', fallback='system').split(',')
+            section, 'vol_role', fallback=def_role).split(',')
         roles = {}
         for role_name in role_list:
+            def_role_capacity = self.getint(
+                default_section,
+                "vol_role_%s_capacity" % role_name,
+                fallback=60000000000
+            )
             roles[role_name] = {}
             roles[role_name]['capacity'] = self.getint(
-                section, "vol_roles_%s_capacity" % role_name, fallback=60000000000)
+                section, "vol_roles_%s_capacity" % role_name, fallback=def_role_capacity)
         return roles
 
     def get_template_vm_params(self, template_name):
+        default_section = "template:%s" % self.get_template_default()
+        def_memory_kib = self.getint(default_section, "memory_kib", fallback=2097152)
+        def_core_count = self.getint(default_section, "core_count", fallback=4)
+        def_serial_tcp_host = self.get(default_section, "serial_tcp_host", fallback="127.0.0.1")
+        def_serial_tcp_port = self.get(default_section, "serial_tcp_port", fallback="0")
+        def_network_list = self.get(default_section, "network_list", fallback="administration")
         section = "template:%s" % template_name
         params = {
             'memory_kib': self.getint(
-                section, "memory_kib", fallback=2097152),
+                section, "memory_kib", fallback=def_memory_kib),
             'core_count': self.getint(
-                section, "core_count", fallback=4),
+                section, "core_count", fallback=def_core_count),
             'serial_tcp_host': self.get(
-                section, "serial_tcp_host", fallback="127.0.0.1"),
+                section, "serial_tcp_host", fallback=def_serial_tcp_host),
             'serial_tcp_port': self.get(
-                section, "serial_tcp_port", fallback="0"),
+                section, "serial_tcp_port", fallback=def_serial_tcp_port),
             'network_list': self.get(
-                section, "networks", fallback="administration").split(",")
+                section, "networks", fallback=def_network_list).split(",")
         }
         return params
 
     def get_template_xml_name(self, template_name):
+        default_section = "template:%s" % self.get_template_default()
+        def_xml = self.get(default_section, 'xml', fallback='default.xml')
         section = "template:%s" % template_name
-        return self.get(section, 'xml', fallback='default.xml')
+        return self.get(section, 'xml', fallback=def_xml)
 
     def get_vm_list(self):
         """Get the list of all VM names. Sections [vm:XXX]

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2016 EDF SA                                                 #
+#  Copyright (C) 2016-2025 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
