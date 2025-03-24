@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ##############################################################################
-#  Copyright (C) 2016 EDF SA                                                 #
+#  Copyright (C) 2016-2025 EDF SA                                            #
 #                                                                            #
 #  This file is part of Clara                                                #
 #                                                                            #
@@ -137,10 +137,16 @@ class VirtConf(configparser.ConfigParser):
         section = "vm:%s" % vm_name
         networks = collections.OrderedDict()
         for network_name in network_list:
-            networks[network_name] = {
-                'mac_address': self.get(
-                    section, 'net_%s_mac' % network_name, fallback="")
-            }
+            if self.get_network_type(network_name) == 'bridge':
+              networks[network_name] = {
+                  'type': 'bridge',
+                  'mac_address': self.get(
+                      section, 'net_%s_mac' % network_name, fallback="")
+              }
+            else:
+              networks[network_name] = {
+                  'type': 'hostdev'
+              }  
         return networks
 
     def get_vm_params(self, vm_name):
@@ -221,3 +227,31 @@ class VirtConf(configparser.ConfigParser):
         section = "pool:%s" % pool_name
         return self.get(
             section, 'vol_pattern', fallback='\%(vm_name)s_\%(vol_role)%')
+
+    def get_network_list(self):
+        """Get the list of all network names. Sections [network:XXX]
+        """
+        network_list = []
+        for section in self.sections():
+            if section.startswith("network:"):
+                network_list.append(section[5:])
+        return network_list
+
+    def get_network_default(self):
+        """Get the name of the first network where the default attribute
+           is true.
+        """
+        network_list = self.get_network_list()
+        for network in network_list:
+            section = "network:%s" % network
+            if self.getboolean(section, 'default', fallback=False):
+                return network
+    
+    def get_network_type(self, network_name):
+        """Get the name of the first network where the default attribute
+           is true.
+        """
+        default_section = "network:%s" % self.get_network_default()
+        def_type = self.get(default_section, 'type', fallback='bridge')
+        section = "network:%s" % network_name
+        return self.get(section, 'type', fallback=def_type)

@@ -190,10 +190,11 @@ class VM():
         })
 
         for net_name in networks:
-            mac_address = params['networks'][net_name]['mac_address']
-            if mac_address == '':
-                mac_address = self.generate_mac(net_name)
-            params['networks'][net_name]['mac_address'] = mac_address
+            if params['networks'][net_name]['type'] != 'hostdev':
+              mac_address = params['networks'][net_name]['mac_address']
+              if mac_address == '':
+                  mac_address = self.generate_mac(net_name)
+              params['networks'][net_name]['mac_address'] = mac_address
 
         template_path = os.path.join(
             template_dir,
@@ -244,9 +245,10 @@ class VM():
         networks = self.conf.get_vm_networks(self.name, params['network_list'])
         # iterate over the networks
         for net_name in networks:
-            mac_address = networks[net_name]['mac_address']
-            if mac_address == '':
-                mac_address = self.generate_mac(net_name)
-            macs[net_name] = mac_address
+            if 'mac_address' in networks[net_name].keys():
+              mac_address = networks[net_name]['mac_address']
+              if mac_address == '':
+                  mac_address = self.generate_mac(net_name)
+              macs[net_name] = mac_address
 
         return macs
