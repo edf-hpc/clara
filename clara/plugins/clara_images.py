@@ -307,6 +307,9 @@ Notice a that, if need, directory {} will be created to receive gpg keys.
         # generate dnf/yum repos files in work_dir
         set_yum_src_file(src_list, baseurl, gpg_check, gpg_keyring, dists[ID]['sources'], list_all_repos(dist), proxy)
 
+        if proxy:
+            opts.append("--setopt=proxy=" + proxy)
+
     # run the bootstrap
     image.bootstrapper(opts)
 
