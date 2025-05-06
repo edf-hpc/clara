@@ -191,8 +191,8 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                 except ValueError:
                     logging.warning("Ignoring invalid format of repo %s priority '%s'", repo, repo_opts[2])
 
-
-        name = "bootstrap_repo_" + str(indice)
+        repo_name = repo.replace("https://", "").replace("http://", "").replace("/", "_")
+        name = "bootstrap_repo_" + repo_name
         lines = ["["+name+"]",
                  "name="+name,
                  "enabled=1",
