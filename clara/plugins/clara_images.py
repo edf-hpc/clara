@@ -200,7 +200,7 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                  "sslverify=0\n",]
         # Add proxy setting if defined
         if proxy:
-            lines.append("proxy=" + proxy)
+            lines.insert(4, "proxy=" + proxy)
         # Add priority setting if defined
         if priority is not None:
             lines.insert(4, "priority="+str(priority))
