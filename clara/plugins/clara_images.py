@@ -140,7 +140,7 @@ def get_osRelease(dist):
         return ID, ID_Version
     else:
         clara_exit("images/get_osRelease: can't figured out distro/version for %s" % dist)
-    
+
 def list_all_repos(dist):
 	list_repos_nonsplitted = get_from_config("images", "list_repos", dist)
 	if ';' in list_repos_nonsplitted:
@@ -323,33 +323,33 @@ Notice a that, if need, directory {} will be created to receive gpg keys.
         with open(policy_rc, 'w') as p_rcd:
             p_rcd.write("exit 101")
         p_rcd.close()
-    
+
         os.chmod(policy_rc, 0o755)
         # Mirror setup
         list_repos = list_all_repos(dist)
-    
+
         with open(src_list, 'w') as fsources:
             for line in list_repos:
                 fsources.write(line + '\n')
         os.chmod(src_list, 0o644)
-    
+
         with open(apt_pref, 'w') as fapt:
             fapt.write("""Package: *
     Pin: release o={0}
     Pin-Priority: 5000
-    
+
     Package: *
     Pin: release o={1}
     Pin-Priority: 6000
     """.format(dist, get_from_config("common", "origin", dist)))
         os.chmod(apt_pref, 0o644)
-    
+
         # Misc config
         with open(apt_conf, 'w') as fconf:
             fconf.write('Acquire::Check-Valid-Until "false";\n')
         os.chmod(apt_conf, 0o644)
-    
-    
+
+
         with open(dpkg_conf, 'w') as fdpkg:
             fdpkg.write("""# Drop locales except French
 path-exclude=/usr/share/locale/*
@@ -469,13 +469,13 @@ def system_install(work_dir, dist):
             run_chroot(["chroot", work_dir, "apt-get", "update"], work_dir)
             run_chroot(["chroot", work_dir, "/usr/lib/dpkg/methods/apt/update", "/var/lib/dpkg/"], work_dir)
             run_chroot(["chroot", work_dir, "debconf-set-selections", "/tmp/preseed.file"], work_dir)
-    
+
         # Install packages from package_file if this file has been set in config.ini
         try:
             package_file = get_from_config("images", "package_file", dist)
         except:
             package_file = None
-    
+
         if not package_file:
             logging.warning("package_file is not specified in config.ini".format(package_file))
         elif not os.path.isfile(package_file):
@@ -518,7 +518,7 @@ def system_install(work_dir, dist):
         if dists[ID]['pkgManager'] == "dnf":
             opts = ["-y", "--nobest"]
 
-        opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs 	        
+        opts = ["chroot", work_dir, distrib["pkgManager"], "install"] + opts + pkgs
         run_chroot(opts,
                    work_dir)
 
@@ -630,7 +630,7 @@ def genimg(image, work_dir, dist):
     logging.info("Creating image at {0}".format(squashfs_file))
 
     makedirs_mode(os.path.dirname(squashfs_file), 0o0755)
- 
+
     if conf.ddebug:
         run(["mksquashfs", work_dir, squashfs_file, "-no-exports", "-noappend", "-info"])
     else:
