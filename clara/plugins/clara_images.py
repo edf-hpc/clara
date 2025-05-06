@@ -853,6 +853,8 @@ def main():
         tmpdir = get_from_config_or("images", "tmp_dir", dist, "/tmp")
         work_dir = tempfile.mkdtemp(prefix="tmpClara", dir=tmpdir)
 
+    os.environ['TMPDIR'] = '/tmp'
+
     # Not executed in the following cases
     # - the program dies because of a signal
     # - os._exit() is invoked directly
