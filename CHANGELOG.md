@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 images: override TMPDIR so dracut won't die
+images: make repo name more readable
 
 ### Added
 images: dnf can now bootstrap using a proxy
