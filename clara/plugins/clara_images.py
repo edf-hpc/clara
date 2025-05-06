@@ -169,8 +169,8 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                  "baseurl="+base_url,
                  "sslverify=0\n",]
         # Add proxy setting if defined
-        if proxy is not None:
-            lines.insert(6, "proxy="+str(proxy))
+        if proxy:
+            lines.insert(6, "proxy=" + proxy)
         lines = "\n".join(lines)
         logging.debug("Added yum repo in file %s:\n%s", src_list, lines)
         f.writelines(lines)
@@ -198,6 +198,9 @@ def set_yum_src_file(src_list, baseurl, gpgcheck, gpgkey, sources, list_repos = 
                  "enabled=1",
                  "baseurl="+repo,
                  "sslverify=0\n",]
+        # Add proxy setting if defined
+        if proxy:
+            lines.append("proxy=" + proxy)
         # Add priority setting if defined
         if priority is not None:
             lines.insert(4, "priority="+str(priority))
