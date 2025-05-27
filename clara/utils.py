@@ -319,7 +319,7 @@ def initialize_logger(debug):
     if os.geteuid() == 0:
         output_dir = "/var/log/clara"
     else:
-        output_dir = "~/log/clara"
+        output_dir = "%s/log/clara" % os.environ["HOME"]
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
