@@ -52,7 +52,8 @@ Options:
     <software>                       software name, either like <name>-<version> or <name>/<version>
     --eb=<ebpath>                    easybuild binary path
     --basedir=<basedir>              easybuild custom repository directory
-    --prefix=<prefix>                easybuild installation prefix directory
+    --prefix=<prefix>                easybuild installation prefix directory [default: /software/shared/easybuild]
+    --buildpath=<buildpath>          easybuild build path [default: <prefix>/build]
     --extension=<extension>          tar backup extension, like bz2, gz or xz [default: gz]
     --compresslevel=<compresslevel>  tar compression gz level, with max 9 [default: 6]
     --dereference                    add symbolic and hard links to the tar archive. Default: False
@@ -397,7 +398,7 @@ def fetch(software, basedir, checksums):
         logging.debug(f"output:\n{output}")
         return output
 
-def install(software, prefix, basedir, rebuild, only_dependencies, recurse, checksums, skip, options, container):
+def install(software, prefix, basedir, buildpath, rebuild, only_dependencies, recurse, checksums, skip, options, container):
     # suppress, if need, ".eb" suffix
     name, match, _ = module_avail(software, prefix, rebuild=rebuild)
     if re.search(r"/|-", name) is None:
@@ -425,7 +426,7 @@ def install(software, prefix, basedir, rebuild, only_dependencies, recurse, chec
     _dry_run = '--dry-run' if dry_run and not checksums else ''
     if not only_dependencies:
         cmd = [eb ,'--robot', basedir, _dry_run, '--hook', f'{basedir}/pre_fetch_hook.py', _software]
-        cmd += ['--buildpath', f"{prefix}/build", '--installpath', prefix, '--prefix', prefix]
+        cmd += ['--buildpath', buildpath, '--installpath', prefix, '--prefix', prefix]
         cmd += ['--containerpath', f"{prefix}/containers", '--packagepath', f"{prefix}/packages"]
         cmd += [_software]
         if rebuild:
@@ -828,6 +829,12 @@ def main():
     prefix = get_from_config_or("easybuild", "prefix", default=prefix)
     # ensure prefix is real path to enforce security and safety!
 
+    buildpath = dargs['--buildpath']
+    if buildpath is None:
+        buildpath = "%s/build" % prefix
+    buildpath= get_from_config_or("easybuild", "buildpath", default=buildpath)
+
+
     # set default easybuild custom configs base directory
     # standfor for copy of easybuid config file from example repository:
     # https://github.com/easybuilders/easybuild-easyconfigs
@@ -927,7 +934,7 @@ EOF
                 elif not os.path.exists(container):
                     clara_exit(f"singularity image {container} don't exist!")
 
-        install(software, prefix, basedir, force, only_dependencies, recurse, checksums, skip, dargs['<name>=<value>'], container)
+        install(software, prefix, basedir, buildpath, force, only_dependencies, recurse, checksums, skip, dargs['<name>=<value>'], container)
     elif dargs['backup']:
         backup(software, prefix, backupdir, None, extension, compresslevel, dereference, force, recurse, suffix, elapse)
     elif dargs['restore']:
