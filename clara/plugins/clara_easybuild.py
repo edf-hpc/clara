@@ -158,7 +158,7 @@ def module_avail(name, prefix, rebuild=False):
     if rebuild:
         return name, None, 0
 
-    output, error = module(f"--show_hidden avail {name}")
+    output, error = module('--show_hidden', 'avail', name)
 
     if isinstance(error, int) and not error == 0:
         logging.warn(f"fail to get avail modules of software {name} :-( !")
@@ -169,7 +169,7 @@ def module_avail(name, prefix, rebuild=False):
     # support also hidden module!
         _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in name.split("/")])
         logging.debug(f"search hidden module {_name}")
-        output, error = module(f"--show_hidden avail {_name}")
+        output, error = module('--show_hidden', 'avail', _name)
 
     match = re.search(rf"{_name}[^\n ]*", error)
     name = match.group() if match else name
@@ -180,7 +180,7 @@ def default(software, prefix):
 
     name, match, output = module_avail(software, prefix)
     if match:
-        output, error = module(f"show {name}")
+        output, error = module('show', name)
         if error == 1:
             clara_exit(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
         pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):', re.DOTALL)
@@ -226,7 +226,7 @@ def hide(software, prefix, clean):
 
     name, match, output = module_avail(software, prefix)
     if match:
-        output, error = module(f"show {name}")
+        output, error = module('show', name)
         if error == 1:
             clara_exit(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
         pattern = re.compile(r' [/fs]?[\w]*(/.*\.lua):', re.DOTALL)
@@ -452,7 +452,7 @@ def install(software, prefix, basedir, buildpath, rebuild, only_dependencies, re
     if len(dependencies):
         logging.info(f"\nsoftware {name} need following dependencies:\n{dependencies}")
         if not dry_run:
-            output, error = module(f"show {name}")
+            output, error = module('show', name)
             if error == 1:
                 logging.debug(f"Either software {name} is not installed nor is hide! PLS, install or unhide it first!")
             else:
@@ -476,7 +476,7 @@ def module_versions(name, prefix):
     if not match:
         clara_exit(f"no module named {name} under prefix {prefix}!")
 
-    output, error = module(f"--show_hidden spider {_name}")
+    output, error = module('--show_hidden', 'spider', _name)
 
     pattern = re.compile(r': module load (.*)\n\n|Versions:\n(.*)\n\n-', re.DOTALL)
     match = pattern.findall(error)
@@ -524,7 +524,7 @@ def backup(software, prefix, backupdir, versions, extension, compresslevel, dere
         clara_exit(f"No software {_software} installed! PLS, build it first!")
     elif len(versions) == 1:
         logging.info(f"working on software {versions[0]}")
-        output, error = module(f"show {_software}")
+        output, error = module('show', _software)
         if error == 1:
             clara_exit(f"No software {_software} installed! PLS, install it first!")
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
@@ -717,7 +717,7 @@ def delete(software, prefix, force):
     if len(versions) == 0:
         clara_exit(f"No software {_software} installed!")
     elif len(versions) == 1:
-        output, error = module(f"show {_software}")
+        output, error = module('show', _software)
         if error == 1:
             clara_exit(f"Either software {_software} is not installed nor is hide! PLS, install or unhide it first!")
         pattern = re.compile(r' (.*\.lua):| [/fs]?[\w]*(/.*\.lua):|EBROOT[^,]*,"([^"]*)"', re.DOTALL)
