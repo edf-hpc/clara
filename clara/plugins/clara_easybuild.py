@@ -587,7 +587,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list[::len(_list)-1]])
             else:
                 _module_ = "/".join([re.sub(r"^\.","",x) for x in _list])
-            version = re.search(r"([\d\.\-\_]+)", _module_.split("/")[-1]).group(1)
+            version = re.search(r"([a-zA-Z0-9\.\-\_]+)", _module_.split("/")[-1]).group(1)
             basepath = "".join([member.name for member in members
                        if os.path.normpath(member.name).lower().endswith(version)
                        or member.name.endswith(version)])
@@ -595,7 +595,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
             installpath = f"{prefix}/{basepath}"
             if basepath == '':
                 message = f"Can't find module {_module_} in tarball {tarball}\n"
-                message += f"archive have a base path {basepath}"
+                message += f"archive base path: '{basepath}'"
                 clara_exit(message)
 
             if os.path.isdir(installpath):
