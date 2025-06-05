@@ -178,7 +178,7 @@ def getmac(hosts):
 
 def do_connect_ipmi(host):
 
-    imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "USER")
+    imm_user = value_from_file(get_from_config("common", "master_passwd_file"), "IMMUSER")
     os.environ["IPMI_PASSWORD"] = value_from_file(get_from_config("common", "master_passwd_file"), "IMMPASSWORD")
 
     pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
