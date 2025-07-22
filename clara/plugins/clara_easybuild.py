@@ -646,7 +646,7 @@ def restore(software, source, backupdir, prefix, extension, force, recurse, suff
                             os.chmod(_name, member.mode)
                         replace_in_file(_name, source, prefix)
                 elif not f"{version}/easybuild" in member.name or devel:
-                    tf.extract(member, _prefix, set_attrs=False)
+                    tf.extract(member, _prefix, set_attrs=False, filter='fully_trusted')
                     if not os.path.islink(_name):
                         os.chmod(_name, member.mode)
 
