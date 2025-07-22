@@ -478,7 +478,7 @@ def module_versions(name, prefix):
 
     output, error = module('--show_hidden', 'spider', _name)
 
-    pattern = re.compile(r': module load (.*)\n\n|Versions:\n(.*)\n\n-', re.DOTALL)
+    pattern = re.compile(r': module load (.*?)\n\n|Versions:\n(.*)\n\n-', re.DOTALL)
     match = pattern.findall(error)
 
     if match:
