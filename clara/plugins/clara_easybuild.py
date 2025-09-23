@@ -565,9 +565,9 @@ def replace_in_file(name, source, prefix):
         f.write(data)
 
 def restore(software, source, backupdir, prefix, extension, force, recurse, suffix, devel):
-    _module = re.sub(r"([^-\/]+)[-\/](\.)?(.*)(\.eb)?", r"\1/\2\3", software)
-    if re.search(r"/|-", _module) is None:
-        clara_exit(f"Bad software name: {_module}. PLS software must follow scheme <name>/<version>")
+    _module = software
+    if re.search(r"/", _module) is None:
+        clara_exit(f"Bad software name: {_module}. software must follow scheme <name>/<version>")
     _software = software.replace("/","-")
     packages_dir = f"{backupdir}/packages"
     tarball = get_tarball(packages_dir, _software, extension, suffix)
