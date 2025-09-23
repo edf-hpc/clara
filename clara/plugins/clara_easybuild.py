@@ -165,13 +165,13 @@ def module_avail(name, prefix, rebuild=False):
         return name, None, error
 
     _name = name
-    if not re.search(name, error) and not re.search(r"\/\.", name):
+    if not re.search(re.escape(name), error) and not re.search(r"\/\.", name):
     # support also hidden module!
         _name = "/".join([re.sub(r"^(\d+\.)", r".\1", x) for x in name.split("/")])
         logging.debug(f"search hidden module {_name}")
         output, error = module('--show_hidden', 'avail', _name)
 
-    match = re.search(rf"{_name}[^\n ]*", error)
+    match = re.search(rf"{re.escape(_name)}[^\n ]*", error)
     name = match.group() if match else name
 
     return name, match, error
