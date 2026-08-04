@@ -245,7 +245,7 @@ def base_install(work_dir, dist):
 
     if dists[ID]['bootstrapper'] == "dnf":
         logging.debug("images/base_install: Using RPM for %s (%s/%s)", dist, ID, VERSION_ID)
-        minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack' ]
+        minimal_packages_list = [ 'yum', 'util-linux', 'shadow-utils', 'glibc-minimal-langpack', 'policycoreutils' ]
         rpm_lib = work_dir + distrib["rpm_lib"]
         baseurl = get_from_config("images", "baseurl", dist)
 
